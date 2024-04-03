@@ -1,0 +1,3 @@
+[submodule "nurim-plus-config"]
+	path = nurim-plus-config
+	url = https://github.com/team-nurim/nurim-plus-config.git
