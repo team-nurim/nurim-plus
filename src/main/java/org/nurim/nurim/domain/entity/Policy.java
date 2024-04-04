@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 import java.time.LocalDate;
+
+
+//데이터베이스에 저장할 엔티티를 생성, dto와 비슷해도, 주로 데이터베이스 테이블과 1:1로 매핑되는 구조
 
 @Entity
 @Getter
