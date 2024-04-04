@@ -38,15 +38,27 @@ public class Member {
     @Column(nullable = false)
     private String memberResidence;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private boolean memberMarrige;
 
     @Column(nullable = false)
     private String memberIncome;
+
+    @Column(nullable = true)
+    private boolean type;
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private MemberImage memberImage;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Community> community = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<Policy> policies = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<Export> exports = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<Reply> replies = new ArrayList<>();
 }

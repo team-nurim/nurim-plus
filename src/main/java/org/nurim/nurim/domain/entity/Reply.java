@@ -25,7 +25,7 @@ public class Reply {
     private String replyer;
 
     @Column
-    private String content;
+    private String replyText;
 
     @Column
     private Long replyRecommend;
@@ -35,4 +35,12 @@ public class Reply {
 
     @UpdateTimestamp
     private LocalDateTime replyModifyDate;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "communityId")
+    private Community community;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "memberId")
+    private Member member;
 }

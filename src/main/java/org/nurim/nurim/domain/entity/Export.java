@@ -20,30 +20,10 @@ public class Export {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long exportId;
 
-    @Column(length = 30, nullable = false, unique = true)
-    private String exportEmail;
+    @Column(length = 500,nullable = false)
+    private String exportFile;
 
-    @Column(length = 100,nullable = false)
-    private String exportPw;
-
-    @Column(length = 25,nullable = false)
-    private String exportNickname;
-
-    @Column(length = 100)
-    private int age;
-
-    @Column(nullable = false)
-    private boolean exportGender;
-
-    @Column(nullable = false)
-    private String exportResidence;
-
-    @Column(nullable = false)
-    private String exportIncome;
-
-    @Column(nullable = false)
-    private String exportCertificate;
-
-    @OneToMany(mappedBy = "export", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Community> community = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "memberId")
+    private Member member;
 }

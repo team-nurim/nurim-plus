@@ -1,26 +1,35 @@
 package org.nurim.nurim.domain.entity;
 
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Getter
 @Builder
+@Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Admin {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long adminId;
+    @Column(name = "admin_id")
+    private int adminId;
 
-    @Column(length = 20)
+    @Column(updatable = false, nullable = false, unique = true)
     private String adminEmail;
 
-    @Column
-    private String adminPassword;
+    @Column(nullable = false)
+    private String adminPw;
+
+    @Column(updatable = false, nullable = false, unique = true)
+    private String adminNickname;
+
+    @OneToMany(mappedBy = "admin", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Post> posts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "admin", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true)
+    private List<Notice> notices = new ArrayList<>();
 }

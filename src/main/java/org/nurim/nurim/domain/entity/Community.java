@@ -50,10 +50,4 @@ public class Community {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "memberId")
     private Member member;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "exportId")
-    private Export export;
-
-
 }

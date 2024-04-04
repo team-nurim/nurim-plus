@@ -51,4 +51,8 @@ public class Policy {
 
     @Column(nullable = false)
     private String policyJurisdiction;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "memberId")
+    private Member member;
 }
