@@ -61,4 +61,19 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Reply> replies = new ArrayList<>();
+
+    public void update(String memberPw, String memberNickname, int memberAge, boolean gender, String memberResidence,
+                       boolean memberMarriage, String memberIncome, boolean type) {
+
+        this.memberPw = memberPw;
+        this.memberNickname = memberNickname;
+        this.memberAge = memberAge;
+        this.gender = gender;
+        this.memberResidence = memberResidence;
+        this.memberMarriage = memberMarriage;
+        this.memberIncome = memberIncome;
+        this.type = type;
+
+    }
+
 }
