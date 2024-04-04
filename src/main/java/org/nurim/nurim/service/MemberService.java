@@ -87,8 +87,6 @@ public class MemberService {
 
 
 
-
-
         return new PatchMemberResponse(foundMember.getMemberId(), foundMember.getMemberEmail(), foundMember.getMemberPw(), foundMember.getMemberNickname(),
                 foundMember.getMemberAge(), foundMember.isGender(), foundMember.getMemberResidence(), foundMember.isMemberMarriage(), foundMember.getMemberIncome(), foundMember.isType());
 
