@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
+import jakarta.persistence.*;
 import java.time.LocalDate;
 
 @Entity
