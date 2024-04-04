@@ -39,7 +39,7 @@ public class Member {
     private String memberResidence;
 
     @Column(nullable = true)
-    private boolean memberMarrige;
+    private boolean memberMarriage;
 
     @Column(nullable = false)
     private String memberIncome;
@@ -57,7 +57,7 @@ public class Member {
     private List<Policy> policies = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<Export> exports = new ArrayList<>();
+    private List<Expert> experts = new ArrayList<>();
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Reply> replies = new ArrayList<>();

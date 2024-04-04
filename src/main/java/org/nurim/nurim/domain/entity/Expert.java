@@ -6,22 +6,19 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Export {
+public class Expert {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long exportId;
+    private Long expertId;
 
     @Column(length = 500,nullable = false)
-    private String exportFile;
+    private String expertFile;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "memberId")
