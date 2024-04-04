@@ -50,4 +50,11 @@ public class Community {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "memberId")
     private Member member;
+
+    public void update(String title, String content, String communityCategory){
+
+        this.title = title;
+        this.content = content;
+        this.communityCategory = communityCategory;
+    }
 }
