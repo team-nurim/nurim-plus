@@ -19,6 +19,9 @@ public class Post {
     @Column(name = "curation_id")
     private int postId;
 
+    @Column(nullable = false)
+    private String postWriter;
+
     @Column(name = "title", nullable = false)
     private String postTitle;
 

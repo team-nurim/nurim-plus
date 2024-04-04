@@ -20,6 +20,9 @@ public class Notice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long noticeId;
 
+    @Column(nullable = false)
+    private String noticeWriter;
+
     @Column(length = 50)
     private String noticeTitle;
 
