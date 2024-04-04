@@ -16,8 +16,8 @@ public class Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "curation_id")
-    private int postId;
+    @Column(name = "postId")
+    private Long postId;
 
     @Column(nullable = false)
     private String postWriter;
@@ -39,7 +39,7 @@ public class Post {
     private Set<PostImage> imageSet = new HashSet<>();
 
     @ManyToOne
-    @JoinColumn(name = "admin_id", nullable = false)
+    @JoinColumn(name = "adminId")
     private Admin admin;
 
     public void addPostImage(String uuid, String fileName) {
@@ -54,5 +54,12 @@ public class Post {
 
     }
 
+    public void update(String postTitle, String postContent, String postWriter, String postCategory, LocalDate postRegisterDate) {
+        this.postTitle = postTitle;
+        this.postContent = postContent;
+        this.postWriter = postWriter;
+        this.postCategory = postCategory;
+        this.postRegisterDate = postRegisterDate;
+    }
 
 }
