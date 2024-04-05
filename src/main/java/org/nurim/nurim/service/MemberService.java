@@ -62,15 +62,17 @@ public class MemberService {
             // 프로필 이미지가 등록되어 있는 경우
             profileimageUrl = foundMember.getMemberImage().getMemberProfileImage();
         } else {
+            // 프로필 이미지가 등록되지 않은 경우
             profileimageUrl = "기본 프로필 이미지 URL";
         }
 
-        String expertFile;
+        String expertFileUrl;
         if(foundMember.getExpert() != null && foundMember.getExpert().getExpertFile() != null) {
             // 증빙 서류가 등륵되어 있는 경우
-            expertFile = foundMember.getExpert().getExpertFile();
+            expertFileUrl = foundMember.getExpert().getExpertFile();
         } else {
-            expertFile = "";
+            // 증빙 서류가 등록되지 않은 경우
+            expertFileUrl = "증빙서류가 등록되지 않았습니다.";
         }
 
 //        if(foundMember.getExpert() == null) {
@@ -90,8 +92,8 @@ public class MemberService {
                 foundMember.isMarried(),
                 foundMember.getMemberIncome(),
                 foundMember.isType(),
-                foundMember.getMemberImage().getMemberProfileImage(),
-                foundMember.getExpert().getExpertFile()
+                profileimageUrl,
+                expertFileUrl
         );
     }
 
