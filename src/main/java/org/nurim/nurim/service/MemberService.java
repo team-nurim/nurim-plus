@@ -3,6 +3,7 @@ package org.nurim.nurim.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.domain.dto.image.UpdateMemberImageRequest;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.repository.MemberRepository;
