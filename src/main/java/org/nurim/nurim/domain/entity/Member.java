@@ -53,11 +53,8 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Community> community = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<Policy> policies = new ArrayList<>();
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<Expert> experts = new ArrayList<>();
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
+    private Expert expert;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Reply> replies = new ArrayList<>();

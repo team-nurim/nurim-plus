@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.service.MemberService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +37,6 @@ public class MemberController {
         return  new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-
     @Operation(summary = "개인 정보 수정")
     @PutMapping("/{memberId}")
     public ResponseEntity<UpdateMemberResponse> memberInfoUpdate(@PathVariable Long memberId, @RequestBody UpdateMemberRequest request){
@@ -55,12 +56,13 @@ public class MemberController {
 
     }
 
-    @PatchMapping("/{memberId}")
-    public ResponseEntity<PatchMemberResponse> memberPartUpdate(@PathVariable Long memberId, @RequestBody PatchMemberRequest request) {
-
-        PatchMemberResponse response = memberService.updateMemberPart(memberId, request);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    @Operation(summary = "개인 정보 일부 수정") // 아직 미완
+//    @PatchMapping("/{memberId}")
+//    public ResponseEntity<PatchMemberResponse> memberPartUpdate(@PathVariable Long memberId, @RequestBody PatchMemberRequest request) {
+//
+//        PatchMemberResponse response = memberService.updateMemberPart(memberId, request);
+//
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
 }

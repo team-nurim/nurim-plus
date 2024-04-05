@@ -17,5 +17,7 @@ public class UpdateMemberRequest {
     private boolean memberMarriage;
     private String memberIncome;
     private boolean type;
+    private String memberProfileImage;
+    private String expertFile;
 
 }

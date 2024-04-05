@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.repository.MemberRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,7 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final MemberImageService memberImageService;
 
+    // 회원 정보 입력
     @Transactional
     public CreateMemberResponse createMemberInfo(CreateMemberRequest request) {
 
@@ -34,39 +37,93 @@ public class MemberService {
 
         Member savedMember = memberRepository.save(member);
 
-        return new CreateMemberResponse(savedMember.getMemberId(), savedMember.getMemberEmail(), savedMember.getMemberPw(), savedMember.getMemberNickname(),
-                savedMember.getMemberAge(), savedMember.isGender(), savedMember.getMemberResidence(), savedMember.isMemberMarriage(), savedMember.getMemberIncome(), savedMember.isType());
+        return new CreateMemberResponse(savedMember.getMemberId(),
+                savedMember.getMemberEmail(),
+                savedMember.getMemberPw(),
+                savedMember.getMemberNickname(),
+                savedMember.getMemberAge(),
+                savedMember.isGender(),
+                savedMember.getMemberResidence(),
+                savedMember.isMemberMarriage(),
+                savedMember.getMemberIncome(),
+                savedMember.isType());
 
     }
 
+    // 특정 회원 조회
     public ReadMemberResponse readMemberById(Long memberId) {
 
         Member foundMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
 
-        return new ReadMemberResponse(foundMember.getMemberId(), foundMember.getMemberEmail(), foundMember.getMemberPw(), foundMember.getMemberNickname(),
-                foundMember.getMemberAge(), foundMember.isGender(), foundMember.getMemberResidence(), foundMember.isMemberMarriage(), foundMember.getMemberIncome(), foundMember.isType());
+        String profileimageUrl;
+        if(foundMember.getMemberImage() != null && foundMember.getMemberImage().getMemberProfileImage() != null) {
+            // 프로필 이미지가 등록되어 있는 경우
+            profileimageUrl = foundMember.getMemberImage().getMemberProfileImage();
+        } else {
+            // 프로필 이미지가 등록되지 않은 경우
+            profileimageUrl = "기본 프로필 이미지 URL";
+        }
+
+        String expertFileUrl;
+        if(foundMember.getExpert() != null && foundMember.getExpert().getExpertFile() != null) {
+            // 증빙 서류가 등륵되어 있는 경우
+            expertFileUrl = foundMember.getExpert().getExpertFile();
+        } else {
+            // 증빙 서류가 등록되지 않은 경우
+            expertFileUrl = "증빙서류가 등록되지 않았습니다.";
+        }
+
+        return new ReadMemberResponse(foundMember.getMemberId(),
+                foundMember.getMemberEmail(),
+                foundMember.getMemberPw(),
+                foundMember.getMemberNickname(),
+                foundMember.getMemberAge(),
+                foundMember.isGender(),
+                foundMember.getMemberResidence(),
+                foundMember.isMemberMarriage(),
+                foundMember.getMemberIncome(),
+                foundMember.isType(),
+                profileimageUrl,
+                expertFileUrl);
 
     }
 
+    // 특정 회원 정보 수정
     @Transactional
     public UpdateMemberResponse updateMemberInfo(Long memberId, UpdateMemberRequest request) {
 
         // id 확인
         Member foundMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
-
-        // Dirty Checking : DB에서 변경된 사항이 감지되면 자동으로 변경해줌.
-        // update => MemberRepository에서 DB의 변경된 사항이 감지되면 자동으로 변경
+        // Member 정보 업데이트
         foundMember.update(request.getMemberPw(), request.getMemberNickname(), request.getMemberAge(), request.isGender(),
                 request.getMemberResidence(), request.isMemberMarriage(), request.getMemberIncome(), request.isType());
 
-        return new UpdateMemberResponse(foundMember.getMemberId(), foundMember.getMemberEmail(), foundMember.getMemberPw(), foundMember.getMemberNickname(),
-                foundMember.getMemberAge(), foundMember.isGender(), foundMember.getMemberResidence(), foundMember.isMemberMarriage(), foundMember.getMemberIncome(), foundMember.isType());
+        // MemberImage 정보 업데이트
+        String newMemberProfileImage = request.getMemberProfileImage(); // 새로운 이미지 정보
+        UpdateMemberImageRequest imageRequest = new UpdateMemberImageRequest(newMemberProfileImage); // 이미지 정보 갖는 객체
+        memberImageService.updateMemberImage(foundMember.getMemberImage().getProfileImageId(), imageRequest);
+
+        // Expert 자격증 이미지 정보 업데이트
+
+
+        return new UpdateMemberResponse(foundMember.getMemberId(),
+                foundMember.getMemberEmail(),
+                foundMember.getMemberPw(),
+                foundMember.getMemberNickname(),
+                foundMember.getMemberAge(),
+                foundMember.isGender(),
+                foundMember.getMemberResidence(),
+                foundMember.isMemberMarriage(),
+                foundMember.getMemberIncome(),
+                foundMember.isType(),
+                foundMember.getMemberImage().getMemberProfileImage(),
+                foundMember.getExpert().getExpertFile());
 
     }
 
-
+    // 회원 탈퇴
     @Transactional
     public DeleteMemberResponse deleteMemberInfo(Long memberId) {
 
@@ -79,16 +136,17 @@ public class MemberService {
 
     }
 
-    @Transactional
-    public PatchMemberResponse updateMemberPart(Long memberId, PatchMemberRequest request) {
+//    @Transactional
+//    public PatchMemberResponse updateMemberPart(Long memberId, PatchMemberRequest request) {
+//
+//        Member foundMember = memberRepository.findById(memberId)
+//                .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
+//
+//
+//
+//        return new PatchMemberResponse(foundMember.getMemberId(), foundMember.getMemberEmail(), foundMember.getMemberPw(), foundMember.getMemberNickname(),
+//                foundMember.getMemberAge(), foundMember.isGender(), foundMember.getMemberResidence(), foundMember.isMemberMarriage(), foundMember.getMemberIncome(), foundMember.isType());
+//
+//    }
 
-        Member foundMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
-
-
-
-        return new PatchMemberResponse(foundMember.getMemberId(), foundMember.getMemberEmail(), foundMember.getMemberPw(), foundMember.getMemberNickname(),
-                foundMember.getMemberAge(), foundMember.isGender(), foundMember.getMemberResidence(), foundMember.isMemberMarriage(), foundMember.getMemberIncome(), foundMember.isType());
-
-    }
 }

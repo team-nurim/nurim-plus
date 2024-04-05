@@ -20,7 +20,7 @@ public class Expert {
     @Column(length = 500,nullable = false)
     private String expertFile;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "memberId")
     private Member member;
 }

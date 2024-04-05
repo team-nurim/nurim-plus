@@ -19,5 +19,7 @@ public class ReadMemberResponse {
     private boolean memberMarriage;
     private String memberIncome;
     private boolean type;
+    private String memberProfileImage;
+    private String expertFile;
 
 }

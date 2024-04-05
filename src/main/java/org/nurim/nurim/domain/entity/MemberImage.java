@@ -23,4 +23,9 @@ public class MemberImage {
 
     @Column(length = 500)
     private String memberProfileImage;
+
+    public void update(String memberProfileImage){
+        this.memberProfileImage = memberProfileImage;
+    }
+
 }
