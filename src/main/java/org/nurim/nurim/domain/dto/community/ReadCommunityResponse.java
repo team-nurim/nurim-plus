@@ -21,7 +21,7 @@ public class ReadCommunityResponse {
 
     private String content; //게시글 내용
 
-    private String category; //게시글 카테고리 (건강, 팁, 일상)
+    private String category; //게시글 카테고리
 
     private LocalDateTime registerDate;
 

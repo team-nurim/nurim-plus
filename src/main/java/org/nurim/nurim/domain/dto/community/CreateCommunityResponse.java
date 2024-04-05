@@ -16,6 +16,8 @@ public class CreateCommunityResponse {
 
     private Long communityId;
 
+    private Long memberId;
+
     private String title;
 
     private String content;

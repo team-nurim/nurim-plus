@@ -71,7 +71,9 @@ public class ReplyService {
         findReply.update(request.getReplrText());
 
         return new UpdateReplyResponse(
+                findReply.getReplyId(),
                 findReply.getReplyer(),
-                findReply.getReplyText());
+                findReply.getReplyText(),
+                findReply.getReplyModifyDate());
     }
 }

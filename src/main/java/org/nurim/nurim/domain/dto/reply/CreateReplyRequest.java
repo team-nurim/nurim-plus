@@ -15,5 +15,4 @@ public class CreateReplyRequest {
 
     private String replyer;
 
-    private Long communityId;
 }
