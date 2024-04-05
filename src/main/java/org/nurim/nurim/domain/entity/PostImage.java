@@ -17,7 +17,7 @@ public class PostImage {
     @Column(name = "postimage_id", nullable = false)
     private int postImageId;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne()
     @JoinColumn(name = "postId")
     Post post;
 
@@ -30,8 +30,6 @@ public class PostImage {
     public void changePost(Post post) {
         this.post = post;
     }
-
-    private String fileName;
 
 
 }

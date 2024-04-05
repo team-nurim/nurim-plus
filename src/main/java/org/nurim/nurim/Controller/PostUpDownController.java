@@ -49,7 +49,7 @@ public class PostUpDownController {
 
             final List<UploadFileResponse> responses = new ArrayList<>();
 
-            for(MultipartFile multipartFile : files) {
+            for (MultipartFile multipartFile : files) {
                 String uuid = UUID.randomUUID().toString();
                 String originalName = multipartFile.getOriginalFilename();
 
@@ -63,7 +63,7 @@ public class PostUpDownController {
                     multipartFile.transferTo(savedPath);
 
                     // 저장된 파일이 MIME 유형인지 확인
-                    if(Files.probeContentType(savedPath).startsWith("image")) {
+                    if (Files.probeContentType(savedPath).startsWith("image")) {
                         isImage = true;
                         File thumbFile = new File(uploadPath, "thumb_" + uuid + "_" + originalName);
                         Thumbnailator.createThumbnail(savedPath.toFile(), thumbFile, 600, 600);
@@ -72,7 +72,7 @@ public class PostUpDownController {
                         postImageService.saveImage(savedPath.toString(), thumbFile.toString());
                     }
 
-                } catch(IOException e) {
+                } catch (IOException e) {
                     log.error(e.getMessage());
                 }
 
@@ -96,7 +96,7 @@ public class PostUpDownController {
 
         Resource resource = new FileSystemResource(uploadPath + File.separator + fileName);
 
-        if(!resource.exists()) {
+        if (!resource.exists()) {
             return ResponseEntity.notFound().build();
         }
 
@@ -127,18 +127,27 @@ public class PostUpDownController {
             String contentType = Files.probeContentType(resource.getFile().toPath());
             isRemoved = resource.getFile().delete();
 
+            // 이미지 파일 삭제 후 데이터베이스에서도 삭제
+            if (isRemoved) {
+                response = postImageService.deleteImage(fileName);
+                isRemoved = response.get("result");
+            }
+            log.info(fileName);
+
+
             // 썸네일 존재 시
-            if(contentType.startsWith("image")) {
+            if (contentType.startsWith("image")) {
                 File thumb = new File(uploadPath + File.separator + "thumb_" + fileName);
                 thumb.delete();
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error(e.getMessage());
         }
 
         response.put("result", isRemoved);
+        log.info(response);
+
 
         return response;
     }
-
 }
