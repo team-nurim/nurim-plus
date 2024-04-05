@@ -70,7 +70,7 @@ public class MemberService {
             // 증빙 서류가 등륵되어 있는 경우
             expertFile = foundMember.getExpert().getExpertFile();
         } else {
-            expertFile = ""
+            expertFile = "";
         }
 
 //        if(foundMember.getExpert() == null) {
