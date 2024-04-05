@@ -8,14 +8,18 @@ import org.nurim.nurim.domain.dto.post.*;
 import org.nurim.nurim.domain.entity.Admin;
 import org.nurim.nurim.domain.entity.Notice;
 import org.nurim.nurim.domain.entity.Post;
+import org.nurim.nurim.domain.entity.PostImage;
 import org.nurim.nurim.repository.AdminRepository;
+import org.nurim.nurim.repository.PostImageRepository;
 import org.nurim.nurim.repository.PostRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -41,8 +45,19 @@ public class PostService {
                 .admin(admin)// Admin 객체를 Post 객체의 admin 필드에 할당합니다.
                 .build();
 
+            request.getFileNames().forEach(fileName -> {
+                String[] arr = fileName.split("_");
+                if(arr.length > 1){post.addPostImage(arr[0], arr[1]);
+                }
+            });
+
 
         Post savedPost = postRepository.save(post);
+
+        List<String> fileNames = savedPost.getImageSet().stream()
+                .sorted()
+                .map(postImage -> postImage.getImage_detail() + "_" + postImage.getImage_thumb())
+                .collect(Collectors.toList());
 
 
         return new CreatePostResponse(
@@ -51,10 +66,13 @@ public class PostService {
                 savedPost.getPostContent(),
                 savedPost.getPostWriter(),
                 savedPost.getPostCategory(),
-                savedPost.getPostRegisterDate()
+                savedPost.getPostRegisterDate(),
+                fileNames
 
         );
     }
+
+
     public ReadPostResponse readPostById(Long postId) {
 
         Post foundPost = postRepository.findById(postId)

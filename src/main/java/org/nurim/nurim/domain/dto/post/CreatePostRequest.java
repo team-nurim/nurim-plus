@@ -5,6 +5,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Getter
@@ -24,5 +25,9 @@ public class CreatePostRequest {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate postRegisterDate;
+
+    private List<String> fileNames;
+
+
 
 }

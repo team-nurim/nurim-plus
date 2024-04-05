@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.notice.*;
 import org.nurim.nurim.domain.dto.post.*;
+import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.service.NoticeService;
 import org.nurim.nurim.service.PostService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -13,6 +16,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/posts")
@@ -23,8 +29,8 @@ public class PostController {
     private final PostService postService;
 
     @PostMapping("/post/register/{adminId}")
-    public ResponseEntity<CreatePostResponse> noticeCreate(@PathVariable Long adminId, @RequestBody CreatePostRequest request) {
-
+    public ResponseEntity<CreatePostResponse> postCreate(@PathVariable Long adminId,
+                                                         @RequestBody CreatePostRequest request) {
 
         CreatePostResponse response = postService.createPost(adminId, request);
 
@@ -33,7 +39,7 @@ public class PostController {
 
 
     @GetMapping("/post/read{postId}")
-    public ResponseEntity<ReadPostResponse> noticeRead(@PathVariable Long postId) {
+    public ResponseEntity<ReadPostResponse> postRead(@PathVariable Long postId) {
 
         ReadPostResponse response = postService.readPostById(postId);
 

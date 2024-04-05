@@ -3,8 +3,10 @@ package org.nurim.nurim.domain.dto.post;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @Getter
@@ -25,5 +27,7 @@ public class CreatePostResponse {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate postRegisterDate;
+
+    private List<String> fileNames;
 
 }

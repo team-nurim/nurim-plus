@@ -8,7 +8,8 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = "curation")
+@ToString(exclude = "post")
+@Setter
 public class PostImage {
 
     @Id
@@ -29,5 +30,8 @@ public class PostImage {
     public void changePost(Post post) {
         this.post = post;
     }
+
+    private String fileName;
+
 
 }
