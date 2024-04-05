@@ -6,7 +6,6 @@ import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.repository.MemberRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
