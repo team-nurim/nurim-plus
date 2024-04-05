@@ -32,6 +32,9 @@ public class MemberService {
 
     @Transactional
     public CreateMemberResponse createMember(CreateMemberRequest request) {
+        // 회원 정보 유효성 검증 (클래스 별도 생성 예정)
+        // validateMemberRequest(request);
+
         if (memberRepository.findMemberByMemberEmail(request.getMemberEmail()).isPresent()) {
             throw new DataIntegrityViolationException("이미 존재하는 회원입니다.");   // 전역예외처리 필요
         }
@@ -74,12 +77,6 @@ public class MemberService {
             // 증빙 서류가 등록되지 않은 경우
             expertFileUrl = "증빙서류가 등록되지 않았습니다.";
         }
-
-//        if(foundMember.getExpert() == null) {
-//            Expert expert = Expert.builder()
-//                    .expertFile("default file")
-//                    .build();
-//        }
 
         return new ReadMemberResponse(
                 foundMember.getMemberId(),
@@ -139,12 +136,18 @@ public class MemberService {
         return new DeleteMemberResponse(foundMember.getMemberId());
     }
 
-//    public Member getMember() {
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-//
-//    }
 
+    // context에서 회원정보 가져오기
+    public Member getMember() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
+        String username = userDetails.getUsername();   // 사용자 이메일 추출
+
+        Member member = memberRepository.findMemberByMemberEmail(username)
+                .orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
+
+        return member;
+    }
 
 }

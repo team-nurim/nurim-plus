@@ -9,22 +9,18 @@ import java.util.Collection;
 public class PrincipalDetails implements UserDetails {
 
     // Member 정보
-    private Member member;
+    private static Member member;
 
     public PrincipalDetails(Member member) {
         this.member = member;
     }
 
-    public String getNickname() {
-        return member.getMemberNickname();
-    }
-
     // 회원유형 반환
-    public String getMemberType() {
+    public String getMemberTypeToString() {
         if (member.isType()) {
             return "전문가";
         } else {
-            return "일반 회원";
+            return "일반회원";
         }
     }
 
@@ -42,6 +38,10 @@ public class PrincipalDetails implements UserDetails {
 
     @Override
     public String getUsername() {
+        return member.getMemberEmail();
+    }
+
+    public String getNickname() {
         return member.getMemberNickname();
     }
 
