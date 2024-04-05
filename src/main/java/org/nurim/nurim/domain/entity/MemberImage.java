@@ -21,6 +21,6 @@ public class MemberImage {
     @JoinColumn(name = "memberId", unique = true)
     private Member member;
 
-    @Column(length = 500)
+    @Column(length = 500, columnDefinition = "defaultfileimage")
     private String memberProfileImage;
 }

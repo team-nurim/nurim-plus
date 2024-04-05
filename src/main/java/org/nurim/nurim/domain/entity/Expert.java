@@ -17,10 +17,10 @@ public class Expert {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long expertId;
 
-    @Column(length = 500,nullable = false)
+    @Column(length = 500, nullable = true)
     private String expertFile;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "memberId")
     private Member member;
 }

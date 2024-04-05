@@ -1,10 +1,7 @@
 package org.nurim.nurim.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,29 +20,29 @@ public class Member {
     @Column(length = 30, nullable = false, unique = true)
     private String memberEmail;
 
-    @Column(length = 100,nullable = false)
+    @Column(length = 100, nullable = false)
     private String memberPw;
 
     @Column(length = 25, nullable = false)
     private String memberNickname;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private int memberAge;
 
-    @Column(nullable = false)
+    @Column(nullable = true, columnDefinition = "boolean default false")
     private boolean gender;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String memberResidence;
 
-    @Column(nullable = true)
-    private boolean memberMarriage;
+    @Column(nullable = true, columnDefinition = "boolean default true")
+    private boolean married;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String memberIncome;
 
-    @Column(nullable = true)
-    private boolean type;
+    @Column(nullable = true, columnDefinition = "boolean default false")
+    private boolean type;   // true: 전문가, false: 일반
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private MemberImage memberImage;
@@ -56,9 +53,24 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Policy> policies = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<Expert> experts = new ArrayList<>();
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
+    private Expert expert;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Reply> replies = new ArrayList<>();
+
+
+    public void update(
+            String memberPw, String memberNickname, int memberAge, boolean gender,
+            String memberResidence, boolean married, String memberIncome, boolean type) {
+
+        this.memberPw = memberPw;
+        this.memberNickname = memberNickname;
+        this.memberAge = memberAge;
+        this.gender = gender;
+        this.memberResidence = memberResidence;
+        this.married = married;
+        this.memberIncome = memberIncome;
+        this.type = type;
+    }
 }
