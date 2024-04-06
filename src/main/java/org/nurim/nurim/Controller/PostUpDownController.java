@@ -69,7 +69,7 @@ public class PostUpDownController {
                         Thumbnailator.createThumbnail(savedPath.toFile(), thumbFile, 600, 600);
 
                         // 이미지를 데이터베이스에 저장
-                        postImageService.saveImage(savedPath.toString(), thumbFile.toString());
+                        postImageService.saveImage(savedPath.getFileName().toString(), thumbFile.toString());
                     }
 
                 } catch (IOException e) {
@@ -123,17 +123,14 @@ public class PostUpDownController {
         Map<String, Boolean> response = new HashMap<>();
         boolean isRemoved = false;
 
+        // 이미지 파일 삭제 후 데이터베이스에서도 삭제
+        response = postImageService.deleteImage(fileName);
+        isRemoved = response.get("result");
+
+
         try {
             String contentType = Files.probeContentType(resource.getFile().toPath());
             isRemoved = resource.getFile().delete();
-
-            // 이미지 파일 삭제 후 데이터베이스에서도 삭제
-            if (isRemoved) {
-                response = postImageService.deleteImage(fileName);
-                isRemoved = response.get("result");
-            }
-            log.info(fileName);
-
 
             // 썸네일 존재 시
             if (contentType.startsWith("image")) {

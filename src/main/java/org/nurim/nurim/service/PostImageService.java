@@ -31,6 +31,7 @@ public class PostImageService {
         postImage.setImage_thumb(thumbPath);
         postImageRepository.save(postImage);
     }
+
     @Autowired
     public PostImageService(PostImageRepository postImageRepository, @Value("${org.yeolmae.upload.path}") String uploadPath) {
         this.postImageRepository = postImageRepository;
@@ -48,17 +49,16 @@ public class PostImageService {
             File thumbFile = new File(uploadPath + File.separator + "thumb_" + fileName);
 
             try {
-                // 이미지 파일 삭제
+                // 파일 및 썸네일 삭제
                 if (file.exists()) {
                     isRemoved = file.delete();
                 }
 
-                // 썸네일 파일 삭제
                 if (thumbFile.exists()) {
                     thumbFile.delete();
                 }
 
-                // 데이터베이스에서 이미지 정보 삭제
+                // 파일 삭제가 성공한 경우에만 데이터베이스에서 이미지 정보 삭제
                 if (isRemoved) {
                     postImageRepository.deleteByFileName(fileName);
                 }
@@ -73,7 +73,4 @@ public class PostImageService {
         return response;
     }
 }
-
-
-
 
