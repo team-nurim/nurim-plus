@@ -61,10 +61,13 @@ public class SecurityConfig {
 
         // 로그인 설정
         http.formLogin((formLogin) -> formLogin
-                .loginPage("/login").permitAll() // 로그인 페이지 url
+                .loginPage("/login.html").permitAll() // 로그인 페이지 url
                 .usernameParameter("memberEmail")   // 이메일 입력 필드 지정
-                .loginProcessingUrl("/login")   // 로그인 폼 제출 시 요청을 처리하는 엔드포인트
-                .defaultSuccessUrl("/", true)   // 로그인 성공 시 리디렉션될 URL 지정
+                .loginProcessingUrl("/api/v1/auth/login")   // 로그인 폼 제출 시 요청을 처리하는 엔드포인트
+                .defaultSuccessUrl("/")   // 로그인 성공 시 리디렉션될 URL 지정
+                .failureUrl("/login.html?error=true")
+                .usernameParameter("memberEmail")
+                .passwordParameter("memberPw")
         );
 
         // remember-me 설정
