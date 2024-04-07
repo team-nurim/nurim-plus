@@ -23,7 +23,6 @@ import static org.mockito.ArgumentMatchers.isNotNull;
 import java.util.Map;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-
 public class AuthIntegrationTest {
 
     private final String email = "aaaa@gmail.com";
@@ -71,18 +70,12 @@ public class AuthIntegrationTest {
         System.out.println("🐱‍🚀jwtStr🐱‍🚀 : " + jwtStr);
     }
 
-//    @Test
-//    @DisplayName("로그인 테스트")
-//    void loginTest()  throws Exception {
-//        // given
-//        loginRequest loginRequest = new LoginRequest();
-//        loginRequest.setMemberEmail(email);
-//        loginRequest.setMemberPw(pw);
-//
-//        // when
-//        ResponseEntity<String> response = restTemplate
-//
-//    }
+    @Test
+    @DisplayName("로그인 테스트")
+    void loginTest()  throws Exception {
+
+
+    }
 
 
 }
