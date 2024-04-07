@@ -60,4 +60,11 @@ public class Community {
         this.content = content;
         this.communityCategory = communityCategory;
     }
+
+    public void increaseRecommend(){
+        this.recommend += 1;
+    }
+    public void decreaseRecommend(){
+        this.recommend -= 1;
+    }
 }

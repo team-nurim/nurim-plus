@@ -7,10 +7,12 @@ import org.nurim.nurim.domain.dto.reply.ReadReplyResponse;
 import org.nurim.nurim.domain.entity.Community;
 import org.nurim.nurim.domain.entity.CommunityImage;
 import org.nurim.nurim.domain.entity.Member;
+import org.nurim.nurim.domain.entity.Recommend;
 import org.nurim.nurim.repository.CommunityImageRepository;
 import org.nurim.nurim.repository.CommunityRepository;
 import org.nurim.nurim.repository.MemberRepository;
 //import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.nurim.nurim.repository.RecommendRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,8 @@ public class CommunityService {
     private final MemberRepository memberRepository;
 
     private final CommunityImageRepository communityImageRepository;
+
+    private final  RecommendRepository recommendRepository;
 
     @Transactional
     public CreateCommunityResponse communityCreate(Long memberId, CreateCommunityRequest request) {
@@ -113,7 +117,6 @@ public class CommunityService {
     public int updateCount(Long communityId){
         return communityRepository.updateCount(communityId);
     }
-
 
 }
 
