@@ -150,4 +150,10 @@ public class MemberService {
         return member;
     }
 
+    public Member findMemberByMemberEmail(String username) {
+        Member foundMember = memberRepository.findMemberByMemberEmail(username)
+                .orElseThrow(() -> new EntityNotFoundException("해당 이메일로 회원을 찾을 수 없습니다."));
+
+        return foundMember;
+    }
 }

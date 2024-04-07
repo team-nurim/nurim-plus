@@ -1,28 +1,45 @@
 package org.nurim.nurim.config.auth;
 
-import jakarta.servlet.ServletException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import org.nurim.nurim.domain.dto.TokenDTO;
+import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.service.MemberService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
 
 @Component
-@RequiredArgsConstructor
-public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
+    /** 로그인 검증 및 JWT 발급 */
 
-    private AuthenticationManager authenticationManager;
-    private final TokenProvider tokenProvider;
+    @Autowired
     private final MemberService memberService;
 
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    @Autowired
+    private final TokenProvider tokenProvider;
+
+    @Autowired
+    private final AES128Config aes128Config;
+
+
+    public JwtAuthenticationFilter(MemberService memberService, TokenProvider tokenProvider, AES128Config aes128Config, AuthenticationManager authenticationManager) {
+        super(authenticationManager);
+        this.memberService = memberService;
+        this.tokenProvider = tokenProvider;
+        this.aes128Config = aes128Config;
+    }
+
+
+    @SneakyThrows
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response) {
 
         try {
             String jwt = getJwtFromRequest(request);
@@ -32,11 +49,12 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, null, null);
 
-                SecurityContextHolder
-                        .getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
             // 예외처리
+            logger.error("JWT 인증 오류 발생");
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT 인증 오류 발생");
         }
     }
 
@@ -48,4 +66,31 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         }
         return null;
     }
+
+
+    @SneakyThrows
+    protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) {
+
+        PrincipalDetails principalDetails = (PrincipalDetails) authResult.getPrincipal();
+        TokenDTO tokenDTO = tokenProvider.generateTokenDTO(principalDetails);
+
+        String accessToken = tokenDTO.getAccessToken();
+        String refreshToken = tokenDTO.getRefreshToken();
+
+        String encryptedRefreshToken = aes128Config.encryptAes(refreshToken);
+
+        tokenProvider.accessTokenSetHeader(accessToken, response);
+        tokenProvider.refreshTokenSetHeader(encryptedRefreshToken, response);
+
+
+        Member member = memberService.findMemberByMemberEmail(principalDetails.getUsername());
+
+        // JSON 형식으로 멤버 정보 전달
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.writeValue(response.getWriter(), member);
+    }
+
 }

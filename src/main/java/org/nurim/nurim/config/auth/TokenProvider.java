@@ -8,6 +8,7 @@ import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
 import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +29,7 @@ import java.util.Map;
 
 @Component
 @Log4j2
+@Getter
 public class TokenProvider {
     /** JWT 토큰 생성, 파싱 및 유효성 검증 클래스 */
 
@@ -36,9 +38,8 @@ public class TokenProvider {
     public static final String REFRESH_HEADER = "Refresh";
     public static final String BEARER_PREFIX = "Bearer";
 
-
-    @Value("${jwt.secret-key}")
-    private String jwtSecretKey;
+    @Value("${jwt.secret}")
+    private String jwtSecret;
 
     @Value("${jwt.access-token-expiration-millis}")
     private Long accessTokenExpirationMs;
@@ -47,7 +48,11 @@ public class TokenProvider {
     private Long refreshTokenExpirationMs;
     private Key key;   // JWT 서명을 생성하고 확인하는 비밀키
 
+
+
+    // Member 정보를 가지고 토큰 생성
     public String generateToken(String username) {
+
         Date now = new Date();
         Date expireDate = new Date(now.getTime() + accessTokenExpirationMs);
 
@@ -55,24 +60,28 @@ public class TokenProvider {
                 .setSubject(username)
                 .setIssuedAt(new Date())   // 토큰 발급 시간
                 .setExpiration(expireDate)   // 토큰 만료 시간
-                .signWith(SignatureAlgorithm.HS512, jwtSecretKey)
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
                 .compact();   // JWT 문자열 생성
     }
 
+    // secret 암호화하여 key 생성 (앱 시작 시 초기화)
     @PostConstruct
     public void init() {
-        String base64EncodedSecretKey = encodeBase64SecretKey(this.jwtSecretKey);
+        String base64EncodedSecretKey = encodeBase64SecretKey(this.jwtSecret);
         this.key = getKeyFromBase64EncodedKey(base64EncodedSecretKey);
     }
 
-    public String encodeBase64SecretKey(String secretKey) {
-        return Encoders.BASE64.encode(secretKey.getBytes(StandardCharsets.UTF_8));
+    // secret을 UTF8로 인코딩 -> base64 인코딩 후 반환
+    public String encodeBase64SecretKey(String secret) {
+        return Encoders.BASE64.encode(secret.getBytes(StandardCharsets.UTF_8));
     }
 
+    // application.yml에서 secret 값을 가져와서 key로 반환
     private Key getKeyFromBase64EncodedKey(String base64EncodedSecretKey) {
         byte[] keyBytes = Decoders.BASE64.decode(base64EncodedSecretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
+
 
 
     public TokenDTO generateTokenDTO(PrincipalDetails principalDetails) {
@@ -182,14 +191,21 @@ public class TokenProvider {
     }
 
     // Request Header에 access token 정보를 추출하는 메소드
-//    public String resolveAccessToken(HttpServletRequest request) {
-//        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-//        if(StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-//            return bearerToken.substring(7);
-//        }
-//        return null;
-//    }
+    public String resolveAccessToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        if(!StringUtils.isEmpty(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
 
-
+    // Request Header에 refresh token 정보를 추출하는 메소드
+    public String resolveRefreshToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(REFRESH_HEADER);
+        if(!StringUtils.isEmpty(bearerToken)) {
+            return bearerToken;
+        }
+        return null;
+    }
 
 }

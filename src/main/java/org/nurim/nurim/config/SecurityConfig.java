@@ -1,37 +1,24 @@
 package org.nurim.nurim.config;
 
 import lombok.RequiredArgsConstructor;
-import org.nurim.nurim.config.auth.JwtAuthenticationFilter;
-import org.nurim.nurim.config.auth.LoginFilter;
-import org.nurim.nurim.config.auth.TokenProvider;
-import org.nurim.nurim.repository.MemberRepository;
-import org.nurim.nurim.service.MemberService;
+import org.nurim.nurim.config.auth.*;
 import org.nurim.nurim.service.PrincipalDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
+import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
@@ -48,21 +35,16 @@ public class SecurityConfig {
     private DataSource dataSource;
 
     @Autowired
-    private MemberRepository memberRepository;
-
-    @Autowired
-    private final UserDetailsService userDetailsService;
-
-    @Autowired
     private final PrincipalDetailsService principalDetailsService;
 
+    @Autowired
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @Autowired
+    private final CustomAuthenticationProvider customAuthenticationProvider;
 
-    @Bean
-    public PasswordEncoder passwordEncoder () {
-        return new BCryptPasswordEncoder();
-    }
+    @Autowired
+    private CustomAuthenticationManager customAuthenticationManager;
 
 
     // 웹 기반 보안 구성
@@ -104,25 +86,10 @@ public class SecurityConfig {
         );
 
 
+        http.authenticationProvider(customAuthenticationProvider);
+        http.authenticationManager(customAuthenticationManager);
 
-        // AuthenticationManger 설정
-        // http로부터 인증설정 객체 가져오기
-        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder
-                .userDetailsService(principalDetailsService)
-                        .passwordEncoder(passwordEncoder());
-        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
-
-        http.authenticationManager(authenticationManager);   // 반드시 필요
-
-        // Login Filter
-        LoginFilter loginFilter = new LoginFilter("/generateToken");
-        loginFilter.setAuthenticationManager(authenticationManager);
-
-        http
-                .addFilterBefore(loginFilter, UsernamePasswordAuthenticationFilter.class)   // 로그인 전에 loginFilter 실행 설정
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
+        http.addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class);
 
 
         // 로그아웃 설정
@@ -163,19 +130,6 @@ public class SecurityConfig {
         tokenRepository.setCreateTableOnStartup(false);
 
         return tokenRepository;
-    }
-
-
-    // AuthenticationProvider : 사용자 인증을 위해 DAO를 사용하는 인증 공급자
-    @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider() throws Exception {
-
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-
-        return daoAuthenticationProvider;
     }
 
 

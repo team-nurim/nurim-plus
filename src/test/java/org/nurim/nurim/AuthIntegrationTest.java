@@ -23,6 +23,7 @@ import static org.mockito.ArgumentMatchers.isNotNull;
 import java.util.Map;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+
 public class AuthIntegrationTest {
 
     private final String email = "aaaa@gmail.com";
@@ -55,17 +56,19 @@ public class AuthIntegrationTest {
 //    }
 
     @Test
+    @DisplayName("시크릿키 인식 테스트")
     public void isSecretKeyExist() {
         assertThat(tokenProvider).isNotNull();
     }
 
     @Test
+    @DisplayName("토큰 발급 테스트")
     public void testGenerate() {
         Map<String, Object> claimMap = Map.of("mid", "ABCDE");
 
         String jwtStr = tokenProvider.generateToken("mid");
 
-        System.out.println(jwtStr);
+        System.out.println("🐱‍🚀jwtStr🐱‍🚀 : " + jwtStr);
     }
 
 //    @Test
