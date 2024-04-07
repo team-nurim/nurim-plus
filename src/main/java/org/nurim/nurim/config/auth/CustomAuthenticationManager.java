@@ -3,7 +3,6 @@ package org.nurim.nurim.config.auth;
 import lombok.RequiredArgsConstructor;
 import org.nurim.nurim.service.PrincipalDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

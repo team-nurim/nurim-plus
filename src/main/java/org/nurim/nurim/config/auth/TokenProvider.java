@@ -142,16 +142,16 @@ public class TokenProvider {
             parseClaims(token);
         } catch (MalformedJwtException e) {
             log.info("📢Invalid JWT token");
-            log.trace("Invalid JWT token trace = {}", e);
+            log.trace("Invalid JWT token trace");
         } catch (ExpiredJwtException e) {
             log.info("📢Expired JWT token");
-            log.trace("Expired JWT token trace = {}", e);
+            log.trace("Expired JWT token trace");
         } catch (UnsupportedJwtException e) {
             log.info("📢Unsupported JWT token");
-            log.trace("Unsupported JWT token trace = {}", e);
+            log.trace("Unsupported JWT token trace");
         } catch (IllegalArgumentException e) {
             log.info("📢JWT claims String is empty");
-            log.trace("JWT claims String is empty trace = {}", e);
+            log.trace("JWT claims String is empty trace");
         }
         return true;
     }
