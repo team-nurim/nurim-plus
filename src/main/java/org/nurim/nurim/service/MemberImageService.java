@@ -1,10 +1,18 @@
 package org.nurim.nurim.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.domain.entity.MemberImage;
 import org.nurim.nurim.repository.MemberImageRepository;
+import org.nurim.nurim.repository.MemberRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -20,17 +28,22 @@ import java.util.Map;
 public class MemberImageService {
 
     private final MemberImageRepository memberImageRepository;
+    private final MemberRepository memberRepository;
 
     @Value("${org.yeolmae.upload.path}")
     private String uploadPath;
 
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
 
     // 프로필 이미지 등록
     @Transactional
-    public void saveImage(String imagePath) {
+    public void saveImage(String imagePath, Member member) {
 
         MemberImage memberImage = new MemberImage();
         memberImage.setMemberProfileImage(imagePath);
+        memberImage.setMember(member);
 
         memberImageRepository.save(memberImage);
     }

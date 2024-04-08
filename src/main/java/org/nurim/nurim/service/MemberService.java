@@ -172,6 +172,13 @@ public class MemberService {
         return foundMember;
     }
 
+    public Member getMemberById(Long memberId) {
+        Member foundMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("해당 memberId로 회원을 찾을 수 없습니다."));
+
+        return foundMember;
+    }
+
 //    @Transactional
 //    public PatchMemberResponse updateMemberPart(Long memberId, PatchMemberRequest request) {
 //

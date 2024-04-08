@@ -8,13 +8,18 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
+import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.service.MemberImageService;
+import org.nurim.nurim.service.MemberService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,7 +36,7 @@ import java.util.*;
 @RequestMapping("/api/v1/images")
 public class MemberImageController {
 
-//    private final MemberService memberService;
+    private final MemberService memberService;
     private final MemberImageService memberImageService;
 
     @Value("${org.yeolmae.upload.path}")
@@ -40,7 +45,10 @@ public class MemberImageController {
     // 프로필 이미지 등록
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "프로필 이미지 업로드", description = "POST로 파일 등록")
-    public ResponseEntity<List<UploadFileResponse>> uploadProfile(@Parameter(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))))@RequestPart("files") MultipartFile[] files) {
+    public ResponseEntity<List<UploadFileResponse>> uploadProfile
+    (@Parameter(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))))
+     @RequestPart("files") MultipartFile[] files,
+     @RequestParam("memberId") Long memberId) {
 
         if (files != null) {
 
@@ -63,8 +71,12 @@ public class MemberImageController {
                     if (Files.probeContentType(savedPath).startsWith("image")) {
                         isImage = true;
 
+                        // memberId로 회원 정보 가져오기
+                        Member member = memberService.getMemberById(memberId);
+
+
                         // 이미지를 데이터베이스에 저장
-                        memberImageService.saveImage(savedPath.getFileName().toString());
+                        memberImageService.saveImage(savedPath.getFileName().toString(), member);
                     }
 
                 } catch (IOException e) {
