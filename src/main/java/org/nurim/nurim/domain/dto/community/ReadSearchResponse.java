@@ -3,9 +3,7 @@ package org.nurim.nurim.domain.dto.community;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.nurim.nurim.domain.dto.reply.ReadReplyResponse;
 import org.nurim.nurim.domain.entity.CommunityImage;
-import org.nurim.nurim.domain.entity.Reply;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,7 +11,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReadCommunityResponse {
+public class ReadSearchResponse {
 
     private Long communityId;
 
@@ -34,6 +32,4 @@ public class ReadCommunityResponse {
     private Long recommend;
 
     private String memberNickname;
-
-    List<ReadReplyResponse> replyResponseList;
 }

@@ -36,16 +36,13 @@ public class Community {
     private LocalDateTime modifyDate;
 
     @Column(nullable = true)
-    private Long counts;
+    private Long viewCounts;
 
     @Column(nullable = false)
     private String communityCategory;
 
     @Column
     private Long recommend;
-
-    @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Reply> replyList = new ArrayList<>();
 
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommunityImage> communityImage = new ArrayList<>();
