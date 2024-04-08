@@ -28,14 +28,9 @@ import java.util.Map;
 public class MemberImageService {
 
     private final MemberImageRepository memberImageRepository;
-    private final MemberRepository memberRepository;
 
     @Value("${org.yeolmae.upload.path}")
     private String uploadPath;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
 
     // 프로필 이미지 등록
     @Transactional
