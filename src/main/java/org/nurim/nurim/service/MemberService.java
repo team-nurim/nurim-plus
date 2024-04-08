@@ -6,6 +6,12 @@ import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.repository.MemberRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +22,22 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+
+    @Autowired
+    private final PasswordEncoder passwordEncoder;
+
     private final MemberImageService memberImageService;
 
     // 회원 정보 입력
     @Transactional
     public CreateMemberResponse createMemberInfo(CreateMemberRequest request) {
+
+        // 회원 정보 유효성 검증 (클래스 별도 생성 예정)
+        // validateMemberRequest(request);
+
+        if (memberRepository.findMemberByMemberEmail(request.getMemberEmail()).isPresent()) {
+            throw new DataIntegrityViolationException("이미 존재하는 회원입니다.");   // 전역예외처리 필요
+        }
 
         Member member = Member.builder()
                 .memberEmail(request.getMemberEmail())
@@ -133,6 +150,26 @@ public class MemberService {
 
         return new DeleteMemberResponse(foundMember.getMemberId());
 
+    }
+
+    // context에서 회원정보 가져오기
+    public Member getMember() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+
+        String username = userDetails.getUsername();   // 사용자 이메일 추출
+
+        Member member = memberRepository.findMemberByMemberEmail(username)
+                .orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
+
+        return member;
+    }
+
+    public Member findMemberByMemberEmail(String username) {
+        Member foundMember = memberRepository.findMemberByMemberEmail(username)
+                .orElseThrow(() -> new EntityNotFoundException("해당 이메일로 회원을 찾을 수 없습니다."));
+
+        return foundMember;
     }
 
 //    @Transactional
