@@ -10,8 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class UpdateMemberImageRequest {
 
-//    private String memberProfileImage;
-
-    private MultipartFile memberProfileImage;
+    private Long memberId;
+    private String memberProfileImage;
 
 }

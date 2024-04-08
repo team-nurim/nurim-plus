@@ -11,6 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class UpdateMemberImageResponse {
 
     private Long memberId;
-    private MultipartFile memberProfileImage;
+    private String memberProfileImage;
 
 }

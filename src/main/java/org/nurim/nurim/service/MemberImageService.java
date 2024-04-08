@@ -8,9 +8,16 @@ import org.nurim.nurim.domain.dto.image.UpdateMemberImageRequest;
 import org.nurim.nurim.domain.dto.image.UpdateMemberImageResponse;
 import org.nurim.nurim.domain.entity.MemberImage;
 import org.nurim.nurim.repository.MemberImageRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Transactional(readOnly = true)
@@ -20,39 +27,50 @@ public class MemberImageService {
 
     private final MemberImageRepository memberImageRepository;
 
-    // 프로필 이미지 수정
+    @Value("${org.yeolmae.upload.path}")
+    private String uploadPath;
+
+
+    // 프로필 이미지 등록
     @Transactional
-    public UpdateMemberImageResponse updateMemberImage(Long memberId, MultipartFile profileImage) {
+    public void saveImage(String imagePath) {
 
-        // 파일 처리 로직(파일 저장)
-        String imageUrl = saveProfileImage(file); // 가상의 메소드, 실제 파일 처리 로직 필요
+        MemberImage memberImage = new MemberImage();
+        memberImage.setMemberProfileImage(imagePath);
 
-        MemberImage foundProfile = memberImageRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("😑해당 profileImageId로 조회된 이미지 정보가 없습니다."));
-
-        foundProfile.update(imageUrl);
-
-        return new UpdateMemberImageResponse(foundProfile.getProfileImageId(), foundProfile.getMemberProfileImage());
+        memberImageRepository.save(memberImage);
     }
 
-//    @Transactional
-//    public UpdateMemberImageResponse updateMemberImage(Long profileImageId, UpdateMemberImageRequest request) {
-//
-//        // 파일 처리 로직(파일 저장, url)
-////        String imageUrl = saveProfileImage(file); // 가상의 메소드, 실제 파일 처리 로직 필요
-//
-//        MemberImage foundProfile = memberImageRepository.findById(profileImageId)
-//                .orElseThrow(() -> new EntityNotFoundException("😑해당 profileImageId로 조회된 이미지 정보가 없습니다."));
-//
-//        foundProfile.update(request.getMemberProfileImage());
-//
-//        return new UpdateMemberImageResponse(foundProfile.getProfileImageId(), foundProfile.getMemberProfileImage());
-//    }
-
     @Transactional
-    public DeleteMemberImageResponse deleteMemberImage(Long memberId) {
+    public Map<String, Boolean> deleteImage(String fileName) {
 
-        return null;
+        Map<String, Boolean> response = new HashMap<>();
+        boolean isRemoved = false;
+
+        // 파일 이름이 비어 있지 않은 경우에만 삭제 진행
+        if (!StringUtils.isEmpty(fileName)) {
+            File file = new File(uploadPath + File.separator + fileName);
+
+            try {
+                // 프로필 이미지 파일 삭제
+                if (file.exists()) {
+                    isRemoved = file.delete();
+                }
+
+                // 파일 삭제가 성공한 경우에만 데이터베이스에서 이미지 정보 삭제
+                if (isRemoved) {
+                    memberImageRepository.deleteByFileName(fileName);
+                }
+            } catch (Exception e) {
+                // 에러 발생 시 로그 출력
+                log.error("Failed to delete image: " + e.getMessage());
+            }
+        }
+
+        // 결과를 response 맵에 추가
+        response.put("result", isRemoved);
+        return response;
 
     }
+
 }
