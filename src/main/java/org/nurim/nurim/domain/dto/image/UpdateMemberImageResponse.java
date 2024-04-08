@@ -3,6 +3,7 @@ package org.nurim.nurim.domain.dto.image;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @AllArgsConstructor
@@ -10,6 +11,6 @@ import lombok.NoArgsConstructor;
 public class UpdateMemberImageResponse {
 
     private Long memberId;
-    private String memberProfileImage;
+    private MultipartFile memberProfileImage;
 
 }

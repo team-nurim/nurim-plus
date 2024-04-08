@@ -1,6 +1,7 @@
 package org.nurim.nurim.Controller;
 
 import lombok.RequiredArgsConstructor;
+import org.nurim.nurim.domain.dto.image.DeleteMemberImageResponse;
 import org.nurim.nurim.domain.dto.image.UpdateMemberImageResponse;
 import org.nurim.nurim.service.MemberImageService;
 import org.springframework.http.HttpStatus;
@@ -17,7 +18,7 @@ public class MemberImageController {
     private final MemberImageService memberImageService;
 
     @PutMapping("/{memberId}")
-    public ResponseEntity<UpdateMemberImageResponse> updateProfileImage(@PathVariable Long memberId, @RequestParam("profileImage")MultipartFile profileImage) {
+    public ResponseEntity<?> updateProfileImage(@PathVariable Long memberId, @RequestParam("profileImage")MultipartFile profileImage) {
 
         UpdateMemberImageResponse response = memberImageService.updateMemberImage(memberId, profileImage);
 
@@ -26,10 +27,11 @@ public class MemberImageController {
     }
 
     @DeleteMapping("/{memberId}")
-    public ResponseEntity<Void> deleteProfileImage(@PathVariable Long memberId) {
-        memberImageService.deleteMemberImage(memberId);
+    public ResponseEntity<DeleteMemberImageResponse> deleteProfileImage(@PathVariable Long memberId) {
 
-        return new ResponseEntity<>();
+        DeleteMemberImageResponse response = memberImageService.deleteMemberImage(memberId);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 }
