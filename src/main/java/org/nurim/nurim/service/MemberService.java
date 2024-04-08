@@ -26,7 +26,7 @@ public class MemberService {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
-    private final MemberImageService memberImageService;
+//    private final MemberImageService memberImageService;
 
     // 회원 정보 입력
     @Transactional

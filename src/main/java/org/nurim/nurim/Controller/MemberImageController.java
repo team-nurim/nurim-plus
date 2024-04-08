@@ -7,7 +7,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang3.StringUtils;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.service.MemberImageService;
@@ -18,9 +17,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -40,7 +36,7 @@ public class MemberImageController {
     private final MemberService memberService;
     private final MemberImageService memberImageService;
 
-    private final String defaultImagePath = "classpath:static/images/default_profile.jpg";
+//    private final String defaultImagePath = "classpath:static/images/default_profile.jpg";
 
 
     @Value("${org.yeolmae.upload.path}")

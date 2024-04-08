@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
-import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.service.ExpertService;
 import org.nurim.nurim.service.MemberService;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,7 +32,7 @@ import java.util.*;
 @RequestMapping("/api/v1/experts")
 public class ExpertController {
 
-    private final MemberService memberService;
+//    private final MemberService memberService;
     private final ExpertService expertService;
 
     @Value("${org.yeolmae.upload.path}")
