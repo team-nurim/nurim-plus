@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.StringUtils;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.service.MemberImageService;
@@ -38,6 +39,9 @@ public class MemberImageController {
 
     private final MemberService memberService;
     private final MemberImageService memberImageService;
+
+    private final String defaultImagePath = "classpath:static/images/default_profile.jpg";
+
 
     @Value("${org.yeolmae.upload.path}")
     private String uploadPath;
@@ -103,8 +107,16 @@ public class MemberImageController {
 
         org.springframework.core.io.Resource resource = new FileSystemResource(uploadPath + File.separator + fileName);
 
+        if (StringUtils.isEmpty(fileName)) {
+            // 파일 이름이 비어 있으면 기본 이미지를 반환할 수 있도록 처리
+            resource = new FileSystemResource(defaultImagePath);
+        } else {
+            resource = new FileSystemResource(uploadPath + File.separator + fileName);
+        }
+
         if (!resource.exists()) {
-            return ResponseEntity.notFound().build();
+            // 파일이 존재하지 않으면 기본 이미지 반환
+            resource = new FileSystemResource(defaultImagePath);
         }
 
         // http 헤더 설정 : MIME 타입을 확인하고(proveContentType 메소드 사용), 해당 MIME 타입을 http 응답 헤더에 추가

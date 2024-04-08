@@ -48,6 +48,7 @@ public class MemberImageService {
         memberImageRepository.save(memberImage);
     }
 
+    // 프로필 이미지 삭제
     @Transactional
     public Map<String, Boolean> deleteImage(String fileName) {
 

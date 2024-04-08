@@ -41,7 +41,7 @@ public class MemberService {
 
         Member member = Member.builder()
                 .memberEmail(request.getMemberEmail())
-                .memberPw(request.getMemberPw())
+                .memberPw(passwordEncoder.encode(request.getMemberPw()))
                 .memberNickname(request.getMemberNickname())
                 .memberAge(request.getMemberAge())
                 .gender(request.isGender())
@@ -90,7 +90,8 @@ public class MemberService {
             expertFileUrl = "증빙서류가 등록되지 않았습니다.";
         }
 
-        return new ReadMemberResponse(foundMember.getMemberId(),
+        return new ReadMemberResponse(
+                foundMember.getMemberId(),
                 foundMember.getMemberEmail(),
                 foundMember.getMemberPw(),
                 foundMember.getMemberNickname(),
