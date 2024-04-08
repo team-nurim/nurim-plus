@@ -106,17 +106,19 @@ public class MemberImageController {
     public ResponseEntity<Resource> getProfile(@PathVariable String fileName){
 
         org.springframework.core.io.Resource resource = new FileSystemResource(uploadPath + File.separator + fileName);
-
-        if (StringUtils.isEmpty(fileName)) {
-            // 파일 이름이 비어 있으면 기본 이미지를 반환할 수 있도록 처리
-            resource = new FileSystemResource(defaultImagePath);
-        } else {
-            resource = new FileSystemResource(uploadPath + File.separator + fileName);
-        }
+//
+//        if (StringUtils.isEmpty(fileName)) {
+//            // 파일 이름이 비어 있으면 기본 이미지를 반환할 수 있도록 처리
+//            resource = new FileSystemResource(defaultImagePath);
+//        } else {
+//            resource = new FileSystemResource(uploadPath + File.separator + fileName);
+//        }
 
         if (!resource.exists()) {
-            // 파일이 존재하지 않으면 기본 이미지 반환
-            resource = new FileSystemResource(defaultImagePath);
+//            // 파일이 존재하지 않으면 기본 이미지 반환
+//            resource = new FileSystemResource(defaultImagePath);
+
+            return ResponseEntity.notFound().build();
         }
 
         // http 헤더 설정 : MIME 타입을 확인하고(proveContentType 메소드 사용), 해당 MIME 타입을 http 응답 헤더에 추가
