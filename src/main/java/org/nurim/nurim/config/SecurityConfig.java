@@ -54,8 +54,7 @@ public class SecurityConfig {
         // 권한별 허용 url 설정
         http.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
                 .requestMatchers("/", "/join", "/login").permitAll()   // 모든 사용자에게 접근 허용
-                .requestMatchers("/api-document/**").permitAll()
-                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/api-document/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
                 .anyRequest().authenticated()   // 나머지 페이지는 인증된 사용자에게만 접근 허용
         );
 
@@ -64,10 +63,10 @@ public class SecurityConfig {
                 .loginPage("/login.html").permitAll() // 로그인 페이지 url
                 .usernameParameter("memberEmail")   // 이메일 입력 필드 지정
                 .loginProcessingUrl("/api/v1/auth/login")   // 로그인 폼 제출 시 요청을 처리하는 엔드포인트
-                .defaultSuccessUrl("/")   // 로그인 성공 시 리디렉션될 URL 지정
-                .failureUrl("/login.html?error=true")
-                .usernameParameter("memberEmail")
-                .passwordParameter("memberPw")
+//                .defaultSuccessUrl("/")   // 로그인 성공 시 리디렉션될 URL 지정
+//                .failureUrl("/login.html?error=true")
+//                .usernameParameter("memberEmail")
+//                .passwordParameter("memberPw")
         );
 
         // remember-me 설정
@@ -140,7 +139,9 @@ public class SecurityConfig {
     public WebSecurityCustomizer webSecurityCustomizer () {
         // 정적 리소스에 대한 보안 설정 무시
         return (web) -> web.ignoring()
-                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
+                .requestMatchers("/swagger-ui/**")
+                ;
     }
 
 }
