@@ -1,19 +1,13 @@
 package org.nurim.nurim.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.nurim.nurim.domain.dto.image.DeleteMemberImageResponse;
-import org.nurim.nurim.domain.dto.image.UpdateMemberImageRequest;
-import org.nurim.nurim.domain.dto.image.UpdateMemberImageResponse;
 import org.nurim.nurim.domain.entity.MemberImage;
 import org.nurim.nurim.repository.MemberImageRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.util.HashMap;
