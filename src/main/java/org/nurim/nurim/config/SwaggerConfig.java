@@ -17,8 +17,8 @@ public class SwaggerConfig {
     }
     private Info apiInfo(){
         return new Info()
-                .title("Swagger API Test")
-                .description("Swagger UI")
+                .title("Nurim API Documentation")
+                .description("API documentation for Nurim application")
                 .version("1.0.0");
     }
 }
