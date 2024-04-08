@@ -1,9 +1,11 @@
 package org.nurim.nurim.service;
 
-import lombok.RequiredArgsConstructor;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.domain.entity.Post;
 import org.nurim.nurim.domain.entity.PostImage;
 import org.nurim.nurim.repository.PostImageRepository;
+import org.nurim.nurim.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -12,7 +14,6 @@ import org.springframework.util.StringUtils;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -21,21 +22,29 @@ import java.util.Map;
 public class PostImageService {
 
     private final PostImageRepository postImageRepository;
+    private final PostRepository postRepository; // PostRepository 추가
     private final String uploadPath;
+
+    @Autowired
+    public PostImageService(PostImageRepository postImageRepository, PostRepository postRepository, @Value("${org.yeolmae.upload.path}") String uploadPath) {
+        this.postImageRepository = postImageRepository;
+        this.postRepository = postRepository;
+        this.uploadPath = uploadPath;
+    }
 
 
     @Transactional
-    public void saveImage(String imagePath, String thumbPath) {
+    public void saveImage(Long postId, String imagePath, String thumbPath) {
         PostImage postImage = new PostImage();
         postImage.setImage_detail(imagePath);
         postImage.setImage_thumb(thumbPath);
-        postImageRepository.save(postImage);
-    }
 
-    @Autowired
-    public PostImageService(PostImageRepository postImageRepository, @Value("${org.yeolmae.upload.path}") String uploadPath) {
-        this.postImageRepository = postImageRepository;
-        this.uploadPath = uploadPath;
+        // postId를 사용하여 해당하는 Post 엔티티를 가져와서 설정
+        Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("Post not found with id: " + postId));
+        postImage.setPost(post);
+
+
+        postImageRepository.save(postImage);
     }
 
     @Transactional

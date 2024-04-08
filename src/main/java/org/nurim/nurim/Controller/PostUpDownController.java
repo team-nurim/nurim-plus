@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.log4j.Log4j2;
 import net.coobird.thumbnailator.Thumbnailator;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
-import org.nurim.nurim.domain.entity.PostImage;
 import org.nurim.nurim.service.PostImageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -42,6 +41,7 @@ public class PostUpDownController {
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "이미지 업로드", description = "POST로 파일 등록")
     public ResponseEntity<List<UploadFileResponse>> upload(
+            @RequestParam Long postId,
             @Parameter(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))))
             @RequestPart("files") MultipartFile[] files) {
 
@@ -69,7 +69,7 @@ public class PostUpDownController {
                         Thumbnailator.createThumbnail(savedPath.toFile(), thumbFile, 600, 600);
 
                         // 이미지를 데이터베이스에 저장
-                        postImageService.saveImage(savedPath.getFileName().toString(), thumbFile.toString());
+                        postImageService.saveImage(postId, savedPath.getFileName().toString(), thumbFile.toString());
                     }
 
                 } catch (IOException e) {
@@ -123,27 +123,31 @@ public class PostUpDownController {
         Map<String, Boolean> response = new HashMap<>();
         boolean isRemoved = false;
 
-        // 이미지 파일 삭제 후 데이터베이스에서도 삭제
-        response = postImageService.deleteImage(fileName);
-        isRemoved = response.get("result");
-
-
         try {
-            String contentType = Files.probeContentType(resource.getFile().toPath());
-            isRemoved = resource.getFile().delete();
+            // 이미지 파일 삭제 후 데이터베이스에서도 삭제
+            response = postImageService.deleteImage(fileName);
+            isRemoved = response.get("result");
 
-            // 썸네일 존재 시
-            if (contentType.startsWith("image")) {
-                File thumb = new File(uploadPath + File.separator + "thumb_" + fileName);
-                thumb.delete();
+            // 파일 삭제 시도
+            if (resource.exists()) {
+                isRemoved = resource.getFile().delete();
+
+                // 썸네일 존재 시 삭제
+                String contentType = Files.probeContentType(resource.getFile().toPath());
+                if (contentType.startsWith("image")) {
+                    File thumb = new File(uploadPath + File.separator + "thumb_" + fileName);
+                    thumb.delete();
+                }
             }
+
         } catch (Exception e) {
+            // 삭제 실패 시 에러 로그 출력
             log.error(e.getMessage());
         }
 
+        // 결과를 response 맵에 추가
         response.put("result", isRemoved);
         log.info(response);
-
 
         return response;
     }
