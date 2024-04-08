@@ -57,12 +57,18 @@ public class PostController {
 
     }
 
-    @GetMapping("/post")
+    @GetMapping("/post/list")
     public ResponseEntity<Page<ReadPostResponse>> postReadAll(@PageableDefault(
             size = 5, sort = "postId", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<ReadPostResponse>  response = postService.readAllPost(pageable);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/post/search")
+    public Page<ReadPostResponse> readPostsByKeyword(@RequestParam String keyword, Pageable pageable) {
+        // 키워드로 게시물 검색
+        return postService.readPostsByKeyword(keyword, pageable);
     }
 }

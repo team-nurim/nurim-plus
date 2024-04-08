@@ -130,4 +130,10 @@ public class PostService {
                 post.getPostWriter(), post.getPostCategory(), post.getPostRegisterDate()));
     }
 
+    public Page<ReadPostResponse> readPostsByKeyword(String keyword, Pageable pageable) {
+        Page<Post> postsPage = postRepository.findByPostTitleContainingOrPostContentContaining(keyword, keyword, pageable);
+        return postsPage.map(post -> new ReadPostResponse(post.getPostId(), post.getPostTitle(), post.getPostContent(),
+                post.getPostWriter(), post.getPostCategory(), post.getPostRegisterDate()));
+    }
+
 }
