@@ -29,33 +29,39 @@ public class Member {
     @Column(length = 25, nullable = false)
     private String memberNickname;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private int memberAge;
 
-    @Column(nullable = false)
+    @Column(nullable = true, columnDefinition = "boolean default false")
     private boolean gender;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String memberResidence;
 
-    @Column(nullable = true)
+    @Column(nullable = true, columnDefinition = "boolean default true")
     private boolean memberMarriage;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String memberIncome;
 
-    @Column(nullable = true)
-    private boolean type;
+    @Column(nullable = true, columnDefinition = "boolean default false")
+    private boolean type; // true: 전문가, false: 일반
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private MemberImage memberImage;
 
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Community> community = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<Policy> policies = new ArrayList<>();
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private Expert expert;
 
+    @Builder.Default
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Reply> replies = new ArrayList<>();
 
