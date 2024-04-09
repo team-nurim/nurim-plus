@@ -126,9 +126,20 @@ public class MemberService {
         // id 확인
         Member foundMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
+
+        String rawPw = request.getMemberPw();
+        String encPw = passwordEncoder.encode(rawPw);
+
         // Member 정보 업데이트
-        foundMember.update(request.getMemberPw(), request.getMemberNickname(), request.getMemberAge(), request.isGender(),
-                request.getMemberResidence(), request.isMemberMarriage(), request.getMemberIncome(), request.isType());
+        foundMember.update(
+                encPw,
+                request.getMemberNickname(),
+                request.getMemberAge(),
+                request.isGender(),
+                request.getMemberResidence(),
+                request.isMemberMarriage(),
+                request.getMemberIncome(),
+                request.isType());
 //
 //        // MemberImage 정보 업데이트
 //        String newMemberProfileImage = request.getMemberProfileImage(); // 새로운 이미지 정보

@@ -23,6 +23,8 @@ public class MemberImageService {
 
     private final MemberImageRepository memberImageRepository;
 
+    private static final String DEFAULT_PROFILE_IMAGE_URL = "/images/default-image.jpg";
+
     @Value("${org.yeolmae.upload.path}")
     private String uploadPath;
 
@@ -54,11 +56,12 @@ public class MemberImageService {
                     isRemoved = file.delete();
                 }
 
+
                 // 파일 삭제가 성공한 경우 DB에서도 삭제
                 if (isRemoved) {
                     // default 이미지로 변경하는 로직 추가
                     memberImageRepository.deleteByFileName(fileName);
-//                    memberImageRepository.updateMemberImageByFileName(fileName); // default로 변경
+                    memberImageRepository.updateMemberImageByFileName(fileName, DEFAULT_PROFILE_IMAGE_URL); // default로 변경
                 }
             } catch (Exception e) {
                 // 에러 발생 시 로그 출력

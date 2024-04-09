@@ -39,7 +39,7 @@ public class MemberImageController {
     private final MemberImageService memberImageService;
     private final MemberImageRepository memberImageRepository;
 
-//    private final String defaultImagePath = "classpath:static/images/default-image.jpg";
+    private static final String DEFAULT_PROFILE_IMAGE_URL = "/images/default-image.jpg";
 
 
     @Value("${org.yeolmae.upload.path}")
@@ -111,7 +111,7 @@ public class MemberImageController {
             fileName = memberImageOptional.get().getMemberProfileImage();
         } else {
             // 해당 memberId에 대한 이미지 정보가 없으면 기본 이미지
-            fileName = "/images/default-image.jpg";
+            fileName = DEFAULT_PROFILE_IMAGE_URL;
         }
         // 이미지 파일 경로 생성
         Path imagePath = Paths.get(uploadPath + File.separator + fileName);

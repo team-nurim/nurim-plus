@@ -15,10 +15,10 @@ public interface MemberImageRepository extends JpaRepository<MemberImage, Long> 
     @Query("delete from MemberImage mi where mi.memberProfileImage = :fileName")
     void deleteByFileName(@Param("fileName") String fileName);
 
-//    @Transactional
-//    @Modifying
-//    @Query("update MemberImage mi set mi.memberProfileImage = '디폴트 이미지 경로' where mi.memberProfileImage =: fileName")
-//    void updateMemberImageByFileName(@Param("fileName") String fileName);
+    @Transactional
+    @Modifying
+    @Query("update MemberImage mi set mi.memberProfileImage = :defaultImage where mi.memberProfileImage = :fileName")
+    void updateMemberImageByFileName(@Param("fileName") String fileName, @Param("defaultImage")String defaultImage);
 
 //    @Query("delete from MemberImage mi where mi.member.memberId = :memberId")
 //    void deleteByMember_MemberId(@Param("memberId") Long memberId);

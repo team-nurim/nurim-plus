@@ -81,6 +81,15 @@ public class Member {
         return this.memberImage != null ? this.memberImage.getMemberProfileImage() : null;
     }
 
+    // 회원 프로필 이미지 설정 메서드
+    public void setMemberProfileImage(String memberProfileImage) {
+        if (this.memberImage == null) {
+            this.memberImage = new MemberImage();
+            this.memberImage.setMember(this);
+        }
+        this.memberImage.setMemberProfileImage(memberProfileImage);
+    }
+
     public String getExpertFile() {
         return this.expert != null ? this.expert.getExpertFile() : null;
     }
@@ -91,15 +100,6 @@ public class Member {
             this.expert.setMember(this);
         }
         this.expert.setExpertFile(expertFile);
-    }
-
-    // 회원 프로필 이미지 설정 메서드
-    public void setMemberProfileImage(String memberProfileImage) {
-        if (this.memberImage == null) {
-            this.memberImage = new MemberImage();
-            this.memberImage.setMember(this);
-        }
-        this.memberImage.setMemberProfileImage(memberProfileImage);
     }
 
 }
