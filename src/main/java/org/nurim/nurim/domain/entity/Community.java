@@ -36,7 +36,7 @@ public class Community {
     private LocalDateTime modifyDate;
 
     @Column(nullable = true)
-    private Long counts;
+    private Long viewCounts;
 
     @Column(nullable = false)
     private String communityCategory;
@@ -50,4 +50,18 @@ public class Community {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "memberId")
     private Member member;
+
+    public void update(String title, String content, String communityCategory){
+
+        this.title = title;
+        this.content = content;
+        this.communityCategory = communityCategory;
+    }
+
+    public void increaseRecommend(){
+        this.recommend += 1;
+    }
+    public void decreaseRecommend(){
+        this.recommend -= 1;
+    }
 }
