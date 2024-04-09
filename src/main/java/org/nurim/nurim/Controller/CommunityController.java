@@ -63,6 +63,10 @@ public class CommunityController {
         Page<ReadSearchResponse> communityResponsePage = communityService.getCommunityListByCategory(category, pageable);
         return ResponseEntity.ok().body(communityResponsePage);
     }
+
+    /**
+     *인기 많은 게시글
+     */
     @GetMapping("/popular")
     @Operation(summary = "게시글 조회수 순으로 5개 나열")
     public ResponseEntity<List<ReadCountsCommunitiesResponse>> getPopularCommunities(){
@@ -71,14 +75,10 @@ public class CommunityController {
         List<ReadCountsCommunitiesResponse> popularCommunitiesList = popularCommunities.getContent();
         return ResponseEntity.ok(popularCommunitiesList);
     }
-//    @GetMapping("/Inquire")
-//    @Operation(summary = "게시글 조회수 순으로 5개 나열")
-//    public ResponseEntity<List<ReadInquireRespose>> getInquireCommunities(){
-//        PageRequest pageRequest = PageRequest.of(0, 5 ,Sort.by("counts").descending());
-//        Page<ReadCountsCommunitiesResponse> InquireCommunities = communityService.findPopularCommunities(pageRequest);
-//
-//        return ResponseEntity.ok(InquireCommunities);
-//    }
+
+    /**
+     * 키워드에 따른 게시글 검색
+     */
     @PostMapping("/community/Search")
     @Operation(summary = "검색기능" , description = "제목,카테고리,작성자 기준으로 각 게시물을 검색을 할수있습니다.")
     public ResponseEntity<Page<ReadSearchResponse>> searchCommunity(@RequestParam (required = false)String title ,
@@ -98,5 +98,17 @@ public class CommunityController {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok(searchResultPage);
+    }
+
+    /**
+     * 댓글 기다리는 문의글
+     */
+    @GetMapping("/community/Inquire")
+    @Operation(summary = "문의글" , description = "댓글이 없는 게시물중 조회수가 높은 10건을 노출")
+    public ResponseEntity<List<ReadInquireResponse>> inquireCommunity(){
+        PageRequest pageRequest = PageRequest.of(0,10,Sort.by("viewCounts").descending());
+        Page<ReadInquireResponse> inquireResponses = communityService.NoRepliesButHit(pageRequest);
+        List<ReadInquireResponse> inquireResponseList = inquireResponses.getContent();
+        return ResponseEntity.ok(inquireResponseList);
     }
 }

@@ -9,13 +9,13 @@ import java.time.LocalDateTime;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ReadInquireRespose {
+public class ReadInquireResponse {
 
     private Long communityId;
 
     private String title;
 
-    private Long counts;
+    private Long viewCounts;
 
     private LocalDateTime registerDate;
 }

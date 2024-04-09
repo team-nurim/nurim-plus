@@ -65,7 +65,7 @@ public class CommunityService {
         Community findCommunity = communityRepository.findById(communityId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 communityId로 조회된 게시글이 없습니다."));
         log.info("커뮤니티 조회 성공");
-        List<ReadReplyResponse> listReply = replyService.getRepliesByCommunityId(communityId);
+        List<ReadReplyResponse> listReply = replyService.getRepliesByCommunityId(communityId);//댓글 서비스를 가져와 커뮤니티 아이디당 찾는 댓글 리스트를 게시글과 같이 조회한다.
         communityRepository.updateCount(communityId);
         return new ReadCommunityResponse(
                 findCommunity.getCommunityId(),
@@ -236,24 +236,16 @@ public class CommunityService {
         });
 
     }
-//    public Page<ReadSearchResponse> SearchTitleAndMemberNickName(String title,String memberNickname, Pageable pageable) {
-//        Page<Community> searchPage = communityRepository.findByTitleAndMemberMemberNickname(title,memberNickname, pageable);
-//
-//        return searchPage.map(community -> {
-//            Long memberId = community.getMember().getMemberId();
-//
-//            return new ReadSearchResponse(
-//                    community.getCommunityId(),
-//                    community.getCommunityImage(),
-//                    community.getTitle(),
-//                    community.getContent(),
-//                    community.getCommunityCategory(),
-//                    community.getRegisterDate(),
-//                    community.getModifyDate(),
-//                    community.getViewCounts(),
-//                    community.getRecommend(),
-//                    community.getMember().getMemberNickname());
-//        });
-//
-//    }
+    public Page<ReadInquireResponse> NoRepliesButHit(Pageable pageable){
+        Page<Community> InquirePage = communityRepository.findCommunitiesWithNoRepliesOrderByViewCountsDesc(pageable);
+        return InquirePage.map(community -> {
+            Long memberId = community.getMember().getMemberId();
+
+            return new ReadInquireResponse(
+                    community.getCommunityId(),
+                    community.getTitle(),
+                    community.getViewCounts(),
+                    community.getRegisterDate());
+        });
+    }
 }

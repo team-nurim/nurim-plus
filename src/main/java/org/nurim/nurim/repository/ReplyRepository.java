@@ -11,4 +11,5 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
     @Query("SELECT r FROM Reply r WHERE r.community.communityId = :communityId")
     List<Reply> findByCommunityCommunityId(@Param("communityId") Long communityId);
+    //커뮤니티 아이디당 댓글 조회
 }
