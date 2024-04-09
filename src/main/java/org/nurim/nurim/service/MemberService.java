@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Member;
+import org.nurim.nurim.domain.entity.MemberImage;
+import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,7 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Log4j2
 public class MemberService {
 
+    private static final String DEFAULT_PROFILE_IMAGE_URL = "/images/default-image.jpg";
+
     private final MemberRepository memberRepository;
+    private final MemberImageRepository memberImageRepository;
 
     @Autowired
     private final PasswordEncoder passwordEncoder;
@@ -52,6 +57,16 @@ public class MemberService {
                 .build();
 
         Member savedMember = memberRepository.save(member);
+
+        // 기본 이미지 경로 MemberImage에 설정하여 저장
+        MemberImage memberImage = new MemberImage();
+        memberImage.setMember(savedMember);
+        memberImage.setMemberProfileImage(DEFAULT_PROFILE_IMAGE_URL); // 정적 경로 참조
+        memberImageRepository.save(memberImage);
+
+        // 회원 정보에 이미지 정보 연결
+        savedMember.setMemberImage(memberImage);
+        memberRepository.save(savedMember);
 
         return new CreateMemberResponse(savedMember.getMemberId(),
                 savedMember.getMemberEmail(),
