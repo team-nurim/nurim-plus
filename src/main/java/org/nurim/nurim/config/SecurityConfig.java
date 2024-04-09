@@ -7,12 +7,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
@@ -23,11 +25,13 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import javax.sql.DataSource;
-import java.util.Collection;
+import java.util.Arrays;
 import java.util.Collections;
 
 @Configuration
@@ -65,15 +69,16 @@ public class SecurityConfig {
         // 권한별 허용 url 설정
         http.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
                 .requestMatchers("/", "/join", "/login").permitAll()   // 모든 사용자에게 접근 허용
-                .requestMatchers("/api-document/**", "/v3/api-docs/**", "/swagger-ui/**").permitAll()
+                .requestMatchers("/api-document/**", "/v3/api-docs/**", "/swagger-ui/**", "/api/**").permitAll()
+                .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
                 .anyRequest().authenticated()   // 나머지 페이지는 인증된 사용자에게만 접근 허용
         );
 
         // 로그인 설정
         http.formLogin((formLogin) -> formLogin
-                .loginPage("/login.html").permitAll() // 로그인 페이지 url
-                .usernameParameter("memberEmail")   // 이메일 입력 필드 지정
-                .loginProcessingUrl("/api/v1/auth/login")   // 로그인 폼 제출 시 요청을 처리하는 엔드포인트
+                        .loginPage("/login.html").permitAll() // 로그인 페이지 url
+                        .usernameParameter("memberEmail")   // 이메일 입력 필드 지정
+                        .loginProcessingUrl("/api/v1/auth/login")   // 로그인 폼 제출 시 요청을 처리하는 엔드포인트
 //                .defaultSuccessUrl("/")   // 로그인 성공 시 리디렉션될 URL 지정
 //                .failureUrl("/login.html?error=true")
 //                .usernameParameter("memberEmail")
@@ -158,14 +163,17 @@ public class SecurityConfig {
 
 
     // CORS 설정
-    CorsConfigurationSource corsConfigurationSource() {
-        return request -> {
-            CorsConfiguration configuration = new CorsConfiguration();
-            configuration.setAllowedHeaders(Collections.singletonList("*"));
-            configuration.setAllowedMethods(Collections.singletonList("*"));
-            configuration.setAllowedOriginPatterns(Collections.singletonList("http://localhost:3306"));
-            configuration.setAllowCredentials(true);
-            return configuration;
-        };
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+
+        return source;
     }
 }
