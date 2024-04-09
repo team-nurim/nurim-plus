@@ -1,16 +1,14 @@
 package org.nurim.nurim.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,13 +36,13 @@ public class Member {
     @Column(nullable = false)
     private String memberResidence;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private boolean memberMarriage;
 
     @Column(nullable = false)
     private String memberIncome;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private boolean type;
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
@@ -56,9 +54,30 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Policy> policies = new ArrayList<>();
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<Expert> experts = new ArrayList<>();
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
+    private Expert expert;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Reply> replies = new ArrayList<>();
-}
+
+    @Column(nullable = true) // expertFile 필드 추가
+    private String expertFile;
+
+    public String getMemberProfileImage() {
+        return this.memberImage != null ? this.memberImage.getMemberProfileImage() : null;
+    }
+
+    // 회원 프로필 이미지 설정 메서드
+    public void setMemberProfileImage(String memberProfileImage) {
+        if (this.memberImage == null) {
+            this.memberImage = new MemberImage();
+            this.memberImage.setMember(this);
+        }
+        this.memberImage.setMemberProfileImage(memberProfileImage);
+    }
+
+
+    }
+
+
+
