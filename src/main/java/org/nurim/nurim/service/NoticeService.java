@@ -4,7 +4,11 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.notice.*;
+import org.nurim.nurim.domain.dto.post.ReadPostResponse;
+import org.nurim.nurim.domain.entity.Admin;
 import org.nurim.nurim.domain.entity.Notice;
+import org.nurim.nurim.domain.entity.Post;
+import org.nurim.nurim.repository.AdminRepository;
 import org.nurim.nurim.repository.NoticeRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -20,14 +24,20 @@ public class NoticeService {
 
     private final NoticeRepository noticeRepository;
 
+    private final AdminRepository adminRepository;
+
     @Transactional
-    public CreateNoticeResponse createNotice(CreateNoticeRequest request) {
+    public CreateNoticeResponse createNotice(Long adminId, CreateNoticeRequest request) {
+
+        Admin admin = adminRepository.findById(adminId)
+                .orElseThrow(() -> new IllegalArgumentException("Admin with ID " + adminId + " not found"));
 
         Notice notice = Notice.builder()
                 .noticeTitle(request.getNoticeTitle())
                 .noticeContent(request.getNoticeContent())
                 .noticeWriter(request.getNoticeWriter())
                 .noticeRegisterDate(request.getNoticeRegisterDate())
+                .admin(admin)
                 .build();
 
 
@@ -92,6 +102,12 @@ public class NoticeService {
         Page<Notice> postsPage = noticeRepository.findAll(pageable);
 
         return postsPage.map(notice -> new ReadNoticeResponse(notice.getNoticeId(),notice.getNoticeTitle(),notice.getNoticeContent(),
+                notice.getNoticeWriter(), notice.getNoticeRegisterDate()));
+    }
+
+    public Page<ReadNoticeResponse> readNoticeByKeyword(String keyword, Pageable pageable) {
+        Page<Notice> noticePage = noticeRepository.findByNoticeTitleContainingOrNoticeContentContaining(keyword, keyword, pageable);
+        return noticePage.map(notice -> new ReadNoticeResponse(notice.getNoticeId(), notice.getNoticeTitle(), notice.getNoticeContent(),
                 notice.getNoticeWriter(), notice.getNoticeRegisterDate()));
     }
 

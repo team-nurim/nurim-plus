@@ -3,6 +3,7 @@ package org.nurim.nurim.Controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.notice.*;
+import org.nurim.nurim.domain.dto.post.ReadPostResponse;
 import org.nurim.nurim.service.NoticeService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,11 +22,10 @@ public class NoticeController {
 
     private final NoticeService noticeService;
 
-    @PostMapping("/notice/register")
-    public ResponseEntity<CreateNoticeResponse> noticeCreate(@RequestBody CreateNoticeRequest request) {
+    @PostMapping("/notice/register/{adminId}")
+    public ResponseEntity<CreateNoticeResponse> noticeCreate(@PathVariable Long adminId, @RequestBody CreateNoticeRequest request) {
 
-
-        CreateNoticeResponse response = noticeService.createNotice(request);
+        CreateNoticeResponse response = noticeService.createNotice(adminId, request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -57,13 +57,19 @@ public class NoticeController {
 
     }
 
-    @GetMapping("/notice")
+    @GetMapping("/notice/list")
     public ResponseEntity<Page<ReadNoticeResponse>> noticeReadAll(@PageableDefault(
             size = 5, sort = "noticeId", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<ReadNoticeResponse>  response = noticeService.readAllNotice(pageable);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/notice/search")
+    public Page<ReadNoticeResponse> readNoticeByKeyword(@RequestParam String keyword, Pageable pageable) {
+        // 키워드로 게시물 검색
+        return noticeService.readNoticeByKeyword(keyword, pageable);
     }
 
 
