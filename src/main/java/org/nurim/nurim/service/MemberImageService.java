@@ -1,5 +1,6 @@
 package org.nurim.nurim.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.entity.Member;
@@ -13,6 +14,7 @@ import org.springframework.util.StringUtils;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -36,6 +38,25 @@ public class MemberImageService {
         memberImage.setMember(member);
 
         memberImageRepository.save(memberImage);
+    }
+
+    // 프로필 이미지 조회
+    public String getProfileImageFileName(Long memberId) {
+
+        Optional<MemberImage> memberImageOptional = memberImageRepository.findByMember_MemberId(memberId);
+
+        return memberImageOptional.map(MemberImage::getMemberProfileImage).orElse(DEFAULT_PROFILE_IMAGE_URL);
+//        // memberId로 이미지 조회
+//        MemberImage memberImage = memberImageRepository.findByMember_MemberId(memberId)
+//                .orElseThrow(() -> new EntityNotFoundException("프로필 이미지가 존재하지 않습니다."));
+
+//        if (memberImage.getMemberProfileImage() != null) {
+//            fileName = memberImage.getMemberProfileImage();
+//        } else {
+//            fileName = "기본프로필이미지.png";
+//        }
+//
+//        return fileName;
     }
 
     // 프로필 이미지 삭제

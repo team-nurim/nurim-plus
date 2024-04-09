@@ -19,6 +19,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -77,7 +78,6 @@ public class MemberImageController {
                         // memberId로 회원 정보 가져오기
                         Member member = memberService.getMemberById(memberId);
 
-
                         // 이미지를 데이터베이스에 저장
                         memberImageService.saveImage(savedPath.getFileName().toString(), member);
                     }
@@ -99,29 +99,19 @@ public class MemberImageController {
         return ResponseEntity.badRequest().build();
     }
 
+
     // 프로필 이미지 조회
     @GetMapping(value = "/view/{memberId}")
     @Operation(summary = "프로필 이미지 파일 조회")
     public ResponseEntity<Resource> getProfileByMemberId(@PathVariable @RequestParam("memberId") Long memberId) {
-        String fileName;
 
-        // memberId로 MemberImage 정보 조회
-        Optional<MemberImage> memberImageOptional = memberImageRepository.findByMember_MemberId(memberId);
-        if (memberImageOptional.isPresent()){
-            fileName = memberImageOptional.get().getMemberProfileImage();
-        } else {
-            // 해당 memberId에 대한 이미지 정보가 없으면 기본 이미지
-            fileName = DEFAULT_PROFILE_IMAGE_URL;
-        }
-        // 이미지 파일 경로 생성
+        String fileName = memberImageService.getProfileImageFileName(memberId);
         Path imagePath = Paths.get(uploadPath + File.separator + fileName);
+
         Resource resource = new FileSystemResource(imagePath);
 
         // 파일 존재 확인 및 기본 이미지 처리
-        if(!resource.exists()) {
-            // 파일이 존재하지 않으면 기본 이미지 반환
-//            resource = new FileSystemResource(defaultImagePath);
-
+        if (!resource.exists()) {
             return ResponseEntity.notFound().build();
         }
 
@@ -135,7 +125,6 @@ public class MemberImageController {
             // 파일 타입 확인 실패 시 내부 서버 오류 처리
             return ResponseEntity.internalServerError().build();
         }
-
         return ResponseEntity.ok().headers(headers).body(resource);
     }
 

@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Log4j2
 public class MemberService {
-
     private static final String DEFAULT_PROFILE_IMAGE_URL = "/images/default-image.jpg";
 
     private final MemberRepository memberRepository;
@@ -180,9 +179,8 @@ public class MemberService {
     // context에서 회원정보 가져오기
     public Member getMember() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        String username = userDetails.getUsername();   // 사용자 이메일 추출
+        String username = authentication.getName();   // 사용자 이메일 추출
 
         Member member = memberRepository.findMemberByMemberEmail(username)
                 .orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
@@ -203,18 +201,5 @@ public class MemberService {
 
         return foundMember;
     }
-
-//    @Transactional
-//    public PatchMemberResponse updateMemberPart(Long memberId, PatchMemberRequest request) {
-//
-//        Member foundMember = memberRepository.findById(memberId)
-//                .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
-//
-//
-//
-//        return new PatchMemberResponse(foundMember.getMemberId(), foundMember.getMemberEmail(), foundMember.getMemberPw(), foundMember.getMemberNickname(),
-//                foundMember.getMemberAge(), foundMember.isGender(), foundMember.getMemberResidence(), foundMember.isMemberMarriage(), foundMember.getMemberIncome(), foundMember.isType());
-//
-//    }
 
 }
