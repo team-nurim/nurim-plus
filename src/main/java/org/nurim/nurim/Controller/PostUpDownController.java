@@ -1,5 +1,8 @@
 package org.nurim.nurim.Controller;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.S3Object;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -10,10 +13,13 @@ import net.coobird.thumbnailator.Thumbnailator;
 import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.service.PostImageService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,6 +39,9 @@ public class PostUpDownController {
 
     private PostImageService postImageService;
     private FileUploadService fileUploadService; // AWS S3 서비스 추가
+
+    @Autowired
+    private AmazonS3 amazonS3Client;
 
 
     @Value("${cloud.aws.s3.bucket}")
@@ -76,27 +86,39 @@ public class PostUpDownController {
     }
 
     // 첨부파일 조회
-    @GetMapping(value = "/view/{fileName}")
+    @GetMapping(value = "/images/{uuid}")
     @Operation(summary = "이미지 파일 조회", description = "GET 방식으로 파일 조회")
-    public ResponseEntity<Resource> getViewFile(@PathVariable String fileName) {
-
-        Resource resource = new FileSystemResource(uploadPath + File.separator + fileName);
-
-        if (!resource.exists()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // http 헤더 설정 : MIME 타입을 확인하고(proveContentType 메소드 사용), 해당 MIME 타입을 http 응답 헤더에 추가
-        HttpHeaders headers = new HttpHeaders();
-
+    public ResponseEntity<Resource> getViewFile(@PathVariable String uuid) {
         try {
-            headers.add("Content-Type", Files.probeContentType(resource.getFile().toPath()));
+            // S3 클라이언트를 사용하여 해당 UUID로 이미지 파일을 가져옵니다.
+            S3Object object = amazonS3Client.getObject(uploadPath, "images/" + uuid);
 
+            // 가져온 객체가 null이면 해당 키에 해당하는 파일이 없는 것이므로 404를 반환합니다.
+            if (object == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // 가져온 객체의 입력 스트림을 InputStreamResource로 변환합니다.
+            InputStream inputStream = object.getObjectContent();
+            InputStreamResource resource = new InputStreamResource(inputStream);
+
+            // MIME 타입을 확인하여 HTTP 헤더에 추가합니다.
+            String contentType = object.getObjectMetadata().getContentType();
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+
+            return ResponseEntity.ok().headers(headers).body(resource);
+        } catch (AmazonS3Exception e) {
+            // Amazon S3에서 파일을 찾을 수 없는 경우 404를 반환합니다.
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
+                return ResponseEntity.notFound().build();
+            }
+            // 다른 Amazon S3 예외 발생 시 500을 반환합니다.
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
+            // 그 외의 예외가 발생한 경우 500을 반환합니다.
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-
-        return ResponseEntity.ok().headers(headers).body(resource);
     }
 
     // 첨부파일 삭제
