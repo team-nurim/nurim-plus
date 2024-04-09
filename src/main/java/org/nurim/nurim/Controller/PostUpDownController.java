@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.extern.log4j.Log4j2;
 import net.coobird.thumbnailator.Thumbnailator;
+import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.service.PostImageService;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,12 +31,15 @@ import java.util.*;
 public class PostUpDownController {
 
     private PostImageService postImageService;
+    private FileUploadService fileUploadService; // AWS S3 서비스 추가
 
-    @Value("${org.yeolmae.upload.path}")
+
+    @Value("${cloud.aws.s3.bucket}")
     private String uploadPath;
 
-    public PostUpDownController(PostImageService postImageService) {
+    public PostUpDownController(PostImageService postImageService, FileUploadService fileUploadService) {
         this.postImageService = postImageService;
+        this.fileUploadService = fileUploadService;
     }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -53,35 +57,17 @@ public class PostUpDownController {
                 String uuid = UUID.randomUUID().toString();
                 String originalName = multipartFile.getOriginalFilename();
 
-                Path savedPath = Paths.get(uploadPath, uuid + "_" + originalName);
+                // 이미지를 데이터베이스에 저장
+                postImageService.saveImage(postId, originalName, uuid);
 
-                // 이미지 여부 초기화(default = false)
-                boolean isImage = false;
-
-                try {
-                    // 실제 파일 저장
-                    multipartFile.transferTo(savedPath);
-
-                    // 저장된 파일이 MIME 유형인지 확인
-                    if (Files.probeContentType(savedPath).startsWith("image")) {
-                        isImage = true;
-                        File thumbFile = new File(uploadPath, "thumb_" + uuid + "_" + originalName);
-                        Thumbnailator.createThumbnail(savedPath.toFile(), thumbFile, 600, 600);
-
-                        // 이미지를 데이터베이스에 저장
-                        postImageService.saveImage(postId, savedPath.getFileName().toString(), thumbFile.toString());
-                    }
-
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                }
+                // 이미지를 아마존 s3에 저장
+                fileUploadService.save(multipartFile);
 
                 responses.add(UploadFileResponse.builder()
                         .uuid(uuid)
                         .fileName(originalName)
-                        .img(isImage)
+                        .img(true)
                         .build());
-
             }
 
             return ResponseEntity.ok(responses);

@@ -67,8 +67,11 @@ public class PostController {
     }
 
     @GetMapping("/post/search")
-    public Page<ReadPostResponse> readPostByKeyword(@RequestParam String keyword, Pageable pageable) {
-        // 키워드로 게시물 검색
-        return postService.readPostsByKeyword(keyword, pageable);
+    public Page<ReadPostResponse> readPostByKeywordAndCategory(
+            @RequestParam String keyword,
+            @RequestParam(required = false) String category,
+            Pageable pageable) {
+        // 키워드와 카테고리로 게시물 검색
+        return postService.readPostsByKeywordAndCategory(keyword, category, pageable);
     }
 }

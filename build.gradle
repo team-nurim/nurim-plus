@@ -55,6 +55,10 @@ dependencies {
 
     implementation 'net.coobird:thumbnailator:0.4.17'
 
+    //  Amazon s3
+    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.174'
 }
 
 tasks.named('test') {

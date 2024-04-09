@@ -6,12 +6,15 @@ import org.nurim.nurim.domain.dto.notice.*;
 import org.nurim.nurim.domain.dto.post.ReadPostResponse;
 import org.nurim.nurim.service.NoticeService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 
 @RestController
@@ -58,12 +61,15 @@ public class NoticeController {
     }
 
     @GetMapping("/notice/list")
-    public ResponseEntity<Page<ReadNoticeResponse>> noticeReadAll(@PageableDefault(
-            size = 5, sort = "noticeId", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<List<ReadNoticeResponse>> noticeReadAll() {
 
-        Page<ReadNoticeResponse>  response = noticeService.readAllNotice(pageable);
+        PageRequest pageRequest = PageRequest.of(0, 5, Sort.by("noticeId").descending());
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        Page<ReadNoticeResponse> createNotice = noticeService.readAllNotice(pageRequest);
+
+        List<ReadNoticeResponse> createNoticeList = createNotice.getContent();
+
+        return new ResponseEntity<>(createNoticeList, HttpStatus.OK);
     }
 
     @GetMapping("/notice/search")

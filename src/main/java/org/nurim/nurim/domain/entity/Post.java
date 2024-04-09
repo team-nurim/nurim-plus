@@ -32,7 +32,7 @@ public class Post {
     @Column(name = "post_category", nullable = false)
     private String postCategory;
 
-    @Column(name = "post_registerDate", nullable = false)
+    @Column(name = "post_register_date", nullable = false)
     private LocalDate postRegisterDate;
 
     @OneToMany(mappedBy = "post", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true) // 어떤 Entity의 속성으로 매핑하는지 // CurationImage의 curation// 변수
