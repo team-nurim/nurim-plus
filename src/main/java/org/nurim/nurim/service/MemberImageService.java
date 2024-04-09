@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -53,20 +54,19 @@ public class MemberImageService {
                     isRemoved = file.delete();
                 }
 
-                // 파일 삭제가 성공한 경우에만 데이터베이스에서 이미지 정보 삭제
+                // 파일 삭제가 성공한 경우 DB에서도 삭제
                 if (isRemoved) {
+                    // default 이미지로 변경하는 로직 추가
                     memberImageRepository.deleteByFileName(fileName);
+//                    memberImageRepository.updateMemberImageByFileName(fileName); // default로 변경
                 }
             } catch (Exception e) {
                 // 에러 발생 시 로그 출력
                 log.error("Failed to delete image: " + e.getMessage());
             }
         }
-
         // 결과를 response 맵에 추가
         response.put("result", isRemoved);
         return response;
-
     }
-
 }

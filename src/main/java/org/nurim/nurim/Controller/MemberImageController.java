@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.domain.entity.Member;
+import org.nurim.nurim.domain.entity.MemberImage;
+import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.service.MemberImageService;
 import org.nurim.nurim.service.MemberService;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,8 +37,9 @@ public class MemberImageController {
 
     private final MemberService memberService;
     private final MemberImageService memberImageService;
+    private final MemberImageRepository memberImageRepository;
 
-//    private final String defaultImagePath = "classpath:static/images/default_profile.jpg";
+//    private final String defaultImagePath = "classpath:static/images/default-image.jpg";
 
 
     @Value("${org.yeolmae.upload.path}")
@@ -97,21 +100,26 @@ public class MemberImageController {
     }
 
     // 프로필 이미지 조회
-    @GetMapping(value = "/view/{fileName}")
+    @GetMapping(value = "/view/{memberId}")
     @Operation(summary = "프로필 이미지 파일 조회")
-    public ResponseEntity<Resource> getProfile(@PathVariable String fileName){
+    public ResponseEntity<Resource> getProfileByMemberId(@PathVariable @RequestParam("memberId") Long memberId) {
+        String fileName;
 
-        org.springframework.core.io.Resource resource = new FileSystemResource(uploadPath + File.separator + fileName);
-//
-//        if (StringUtils.isEmpty(fileName)) {
-//            // 파일 이름이 비어 있으면 기본 이미지를 반환할 수 있도록 처리
-//            resource = new FileSystemResource(defaultImagePath);
-//        } else {
-//            resource = new FileSystemResource(uploadPath + File.separator + fileName);
-//        }
+        // memberId로 MemberImage 정보 조회
+        Optional<MemberImage> memberImageOptional = memberImageRepository.findByMember_MemberId(memberId);
+        if (memberImageOptional.isPresent()){
+            fileName = memberImageOptional.get().getMemberProfileImage();
+        } else {
+            // 해당 memberId에 대한 이미지 정보가 없으면 기본 이미지
+            fileName = "/images/default-image.jpg";
+        }
+        // 이미지 파일 경로 생성
+        Path imagePath = Paths.get(uploadPath + File.separator + fileName);
+        Resource resource = new FileSystemResource(imagePath);
 
-        if (!resource.exists()) {
-//            // 파일이 존재하지 않으면 기본 이미지 반환
+        // 파일 존재 확인 및 기본 이미지 처리
+        if(!resource.exists()) {
+            // 파일이 존재하지 않으면 기본 이미지 반환
 //            resource = new FileSystemResource(defaultImagePath);
 
             return ResponseEntity.notFound().build();
@@ -124,6 +132,7 @@ public class MemberImageController {
             headers.add("Content-Type", Files.probeContentType(resource.getFile().toPath()));
 
         } catch (Exception e) {
+            // 파일 타입 확인 실패 시 내부 서버 오류 처리
             return ResponseEntity.internalServerError().build();
         }
 
@@ -144,6 +153,13 @@ public class MemberImageController {
         response = memberImageService.deleteImage(fileName);
         isRemoved = response.get("result");
 
+        try {
+            String contentType = Files.probeContentType(resource.getFile().toPath());
+            isRemoved = resource.getFile().delete();
+
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
 
         response.put("result", isRemoved);
         log.info(response);
