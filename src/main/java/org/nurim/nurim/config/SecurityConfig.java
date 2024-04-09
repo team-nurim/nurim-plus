@@ -63,14 +63,16 @@ public class SecurityConfig {
         http.httpBasic(HttpBasicConfigurer::disable)
                 .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/login").permitAll());
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
+                );
 
 
         // 권한별 허용 url 설정
         http.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
                 .requestMatchers("/", "/join", "/login").permitAll()   // 모든 사용자에게 접근 허용
                 .requestMatchers("/api-document/**", "/v3/api-docs/**", "/swagger-ui/**", "/api/**").permitAll()
-                .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
                 .anyRequest().authenticated()   // 나머지 페이지는 인증된 사용자에게만 접근 허용
         );
 
@@ -144,9 +146,9 @@ public class SecurityConfig {
     @Bean
     public PersistentTokenRepository persistentTokenRepository() {
         JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
-        tokenRepository.setDataSource(dataSource);
 
-        tokenRepository.setCreateTableOnStartup(false);
+        tokenRepository.setDataSource(dataSource);
+        tokenRepository.setCreateTableOnStartup(true);
 
         return tokenRepository;
     }

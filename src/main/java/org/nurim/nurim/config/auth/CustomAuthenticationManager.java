@@ -25,8 +25,9 @@ public class CustomAuthenticationManager implements AuthenticationManager {
     private final PasswordEncoder passwordEncoder;
 
 
-    public AuthenticationManager authenticationManager(HttpSecurity http)  throws Exception {
-        // AuthenticationManger 설정
+    // AuthenticationManger 설정
+    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
+
         // http로부터 인증설정 객체 가져오기
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder
@@ -47,7 +48,7 @@ public class CustomAuthenticationManager implements AuthenticationManager {
 
         // 비밀번호 확인
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-            throw new BadCredentialsException("Invalid username or password");
+            throw new BadCredentialsException("로그인 정보가 일치하지 않습니다.");
         }
 
         // 인증 성공시 반환할 Authentication 객체 생성

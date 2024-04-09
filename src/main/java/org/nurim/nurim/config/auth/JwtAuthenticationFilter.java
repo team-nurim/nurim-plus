@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
-    /** 로그인 검증 및 JWT 발급 */
+    /** 사용자 인증(로그인) 및 JWT 발급 */
 
     @Autowired
     private final MemberService memberService;
@@ -30,6 +30,7 @@ public class JwtAuthenticationFilter extends BasicAuthenticationFilter {
     private final AES128Config aes128Config;
 
 
+    //
     public JwtAuthenticationFilter(MemberService memberService, TokenProvider tokenProvider, AES128Config aes128Config, AuthenticationManager authenticationManager) {
         super(authenticationManager);
         this.memberService = memberService;

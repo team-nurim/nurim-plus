@@ -185,7 +185,7 @@ public class TokenProvider {
     }
 
     // Request Header에 access token 정보를 추출하는 메소드
-    public String resolveAccessToken(HttpServletRequest request) {
+    public String getAccessToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if(!StringUtils.isEmpty(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
             return bearerToken.substring(7);
@@ -194,12 +194,14 @@ public class TokenProvider {
     }
 
     // Request Header에 refresh token 정보를 추출하는 메소드
-    public String resolveRefreshToken(HttpServletRequest request) {
+    public String getRefreshToken(HttpServletRequest request) {
         String bearerToken = request.getHeader(REFRESH_HEADER);
         if(!StringUtils.isEmpty(bearerToken)) {
             return bearerToken;
         }
         return null;
     }
+
+    
 
 }
