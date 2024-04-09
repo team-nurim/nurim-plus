@@ -23,16 +23,16 @@ public class Post {
     @Column(nullable = false)
     private String postWriter;
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "post_title", nullable = false)
     private String postTitle;
 
-    @Column(name = "content", nullable = false)
+    @Column(name = "post_content", nullable = false)
     private String postContent;
 
-    @Column(name = "category", nullable = false)
+    @Column(name = "post_category", nullable = false)
     private String postCategory;
 
-    @Column(name = "registerDate", nullable = false)
+    @Column(name = "post_registerDate", nullable = false)
     private LocalDate postRegisterDate;
 
     @OneToMany(mappedBy = "post", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true) // 어떤 Entity의 속성으로 매핑하는지 // CurationImage의 curation// 변수
