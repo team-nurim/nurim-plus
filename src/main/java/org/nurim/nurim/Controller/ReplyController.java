@@ -21,8 +21,8 @@ public class ReplyController {
 
     @PostMapping("/community/{communityId}/replyCreate")
     @Operation(summary = "댓글 작성")
-    public ResponseEntity<CreateReplyResponse> createReply(@PathVariable Long communityId, @RequestBody CreateReplyRequest request) {
-        CreateReplyResponse response = replyService.replyCreate(communityId, request);
+    public ResponseEntity<CreateReplyResponse> createReply(@PathVariable Long communityId,Long memberId, @RequestBody CreateReplyRequest request) {
+        CreateReplyResponse response = replyService.replyCreate(communityId,memberId, request);
         return ResponseEntity.ok().body(response);
     }
 
@@ -46,5 +46,12 @@ public class ReplyController {
     public ResponseEntity<DeleteReplyResponse> deleteReply(@PathVariable Long replyId){
         DeleteReplyResponse response = replyService.replyDelete(replyId);
         return ResponseEntity.ok().body(response);
+    }
+
+    @GetMapping("/myPage/{memberId}")
+    @Operation(summary = "회원 아이디 별 댓글조회")
+    public ResponseEntity<List<ReadReplyResponse>> ReadReply(@PathVariable Long memberId){
+        List<ReadReplyResponse> readReplyResponses = replyService.getRepliesByMemberId(memberId);
+        return ResponseEntity.ok().body(readReplyResponses);
     }
 }
