@@ -10,6 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 public interface PostImageRepository extends JpaRepository<PostImage, Long> {
     @Transactional
     @Modifying
-    @Query("delete from PostImage pi where pi.image_detail = :fileName")
-    void deleteByFileName(@Param("fileName") String fileName);
+    @Query("delete from PostImage pi where pi.postImageId= :postImageId")
+    void deleteByFileName(@Param("postImageId") Long postImageId);
 }

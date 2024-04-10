@@ -48,37 +48,26 @@ public class PostImageService {
     }
 
     @Transactional
-    public Map<String, Boolean> deleteImage(String fileName) {
+    public Map<String, Boolean> deleteImage(Long postImageId) {
         Map<String, Boolean> response = new HashMap<>();
-        boolean isRemoved = false;
+        boolean isRemovedFromDatabase = false;
 
-        // 파일 이름이 비어 있지 않은 경우에만 삭제 진행
-        if (!StringUtils.isEmpty(fileName)) {
-            File file = new File(uploadPath + File.separator + fileName);
-            File thumbFile = new File(uploadPath + File.separator + "thumb_" + fileName);
-
+        // postImageId가 null이 아닌 경우에만 삭제 진행
+        if (postImageId != null) {
             try {
-                // 파일 및 썸네일 삭제
-                if (file.exists()) {
-                    isRemoved = file.delete();
-                }
-
-                if (thumbFile.exists()) {
-                    thumbFile.delete();
-                }
-
-                // 파일 삭제가 성공한 경우에만 데이터베이스에서 이미지 정보 삭제
-                if (isRemoved) {
-                    postImageRepository.deleteByFileName(fileName);
-                }
+                // 데이터베이스에서 이미지 정보 삭제
+                postImageRepository.deleteById(postImageId);
+                isRemovedFromDatabase = true; // 삭제 성공 시 true로 설정
             } catch (Exception e) {
-                // 에러 발생 시 로그 출력
-                log.error("Failed to delete image: " + e.getMessage());
+                // 삭제 실패 시 에러 로그 출력
+                log.error("Failed to delete image from the database: " + e.getMessage());
             }
+        } else {
+            log.warn("postImageId is null. Cannot delete image from the database.");
         }
 
         // 결과를 response 맵에 추가
-        response.put("result", isRemoved);
+        response.put("result", isRemovedFromDatabase);
         return response;
     }
 }

@@ -122,41 +122,39 @@ public class PostUpDownController {
     }
 
     // 첨부파일 삭제
-    @DeleteMapping(value = "/remove/{fileName}")
+    @DeleteMapping(value = "/images/{uuid}")
     @Operation(summary = "이미지 파일 삭제", description = "DELETE 방식으로 파일 조회")
-    public Map<String, Boolean> removeFile(@PathVariable String fileName) {
-
-        Resource resource = new FileSystemResource(uploadPath + File.separator + fileName);
+    public Map<String, Boolean> removeFile(@PathVariable String uuid, Long postImageId) {
 
         Map<String, Boolean> response = new HashMap<>();
-        boolean isRemoved = false;
+        boolean isRemovedFromDatabase = false;
+        boolean isRemovedFromS3 = false;
 
         try {
-            // 이미지 파일 삭제 후 데이터베이스에서도 삭제
-            response = postImageService.deleteImage(fileName);
-            isRemoved = response.get("result");
+            // 데이터베이스에서 파일 삭제 시도
+            Map<String, Boolean> databaseResponse = postImageService.deleteImage(postImageId);
+            isRemovedFromDatabase = databaseResponse.get("result");
 
-            // 파일 삭제 시도
-            if (resource.exists()) {
-                isRemoved = resource.getFile().delete();
+            // S3에서 파일 삭제 시도
+            isRemovedFromS3 = fileUploadService.deleteFile(uuid);
 
-                // 썸네일 존재 시 삭제
-                String contentType = Files.probeContentType(resource.getFile().toPath());
-                if (contentType.startsWith("image")) {
-                    File thumb = new File(uploadPath + File.separator + "thumb_" + fileName);
-                    thumb.delete();
-                }
-            }
+            // 디버그 로그 추가
+            log.info("Database removal status: " + isRemovedFromDatabase);
+            log.info("S3 removal status: " + isRemovedFromS3);
 
         } catch (Exception e) {
             // 삭제 실패 시 에러 로그 출력
-            log.error(e.getMessage());
+            log.error("Error occurred during file removal: " + e.getMessage());
         }
 
-        // 결과를 response 맵에 추가
-        response.put("result", isRemoved);
-        log.info(response);
+        // 두 작업 모두 성공했을 때만 결과를 true로 설정
+        if (isRemovedFromDatabase && isRemovedFromS3) {
+            response.put("result", true);
+        } else {
+            response.put("result", false);
+        }
 
+        log.info(response);
         return response;
     }
 }
