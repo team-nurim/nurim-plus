@@ -21,7 +21,6 @@ import java.util.Optional;
 public class MemberImageService {
 
     private final MemberImageRepository memberImageRepository;
-    private final MemberService memberService;
 
     private static final String DEFAULT_PROFILE_IMAGE_URL = "/images/default-image.jpg";
 
