@@ -2,10 +2,7 @@ package org.nurim.nurim.config;
 
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
-import org.nurim.nurim.config.auth.LoginFilter;
-import org.nurim.nurim.config.auth.LoginSuccessHandler;
-import org.nurim.nurim.config.auth.TokenProvider;
-import org.nurim.nurim.config.auth.TokenValidateFilter;
+import org.nurim.nurim.config.auth.*;
 import org.nurim.nurim.repository.MemberRepository;
 import org.nurim.nurim.service.PrincipalDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,8 +59,8 @@ public class SecurityConfig {
 
         // 권한에 따른 허용하는 url
         http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-//                .requestMatchers("/user/**").authenticated()   //권한 있어야 함
-//                .requestMatchers("/admin/**").hasRole("ADMIN")   //권한 있어야 함
+                .requestMatchers("/user/**").authenticated()   //권한 있어야 함
+                .requestMatchers("/admin/**").hasRole("ADMIN")   //권한 있어야 함
                 .requestMatchers("/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/error").permitAll()
@@ -91,6 +88,7 @@ public class SecurityConfig {
 
         http.addFilterBefore(loginFilter, UsernamePasswordAuthenticationFilter.class);   // 로그인 필터 위치 조정
         http.addFilterBefore(tokenValidateFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new RefreshTokenFilter("/refreshToken", tokenProvider), TokenValidateFilter.class);
 
         // LoginSuccessHandler 세팅
         LoginSuccessHandler loginSuccessHandler = new LoginSuccessHandler(tokenProvider);
