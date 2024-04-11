@@ -45,7 +45,7 @@ public class PostUpDownController {
 
 
     @Value("${cloud.aws.s3.bucket}")
-    private String uploadPath;
+    private String bucket;
 
     public PostUpDownController(PostImageService postImageService, FileUploadService fileUploadService) {
         this.postImageService = postImageService;
@@ -91,7 +91,7 @@ public class PostUpDownController {
     public ResponseEntity<Resource> getViewFile(@PathVariable String uuid) {
         try {
             // S3 클라이언트를 사용하여 해당 UUID로 이미지 파일을 가져옵니다.
-            S3Object object = amazonS3Client.getObject(uploadPath, "images/" + uuid);
+            S3Object object = amazonS3Client.getObject(bucket, "images/" + uuid);
 
             // 가져온 객체가 null이면 해당 키에 해당하는 파일이 없는 것이므로 404를 반환합니다.
             if (object == null) {
