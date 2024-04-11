@@ -37,6 +37,7 @@ public class MemberImageService {
         memberImageRepository.save(memberImage);
     }
 
+    // 프로필 이미지 조회
     public String getProfileImageFileName(Long memberId) {
 
         Optional<MemberImage> memberImageOptional = memberImageRepository.findByMember_MemberId(memberId);
@@ -82,29 +83,6 @@ public class MemberImageService {
         response.put("result", isRemoved);
         return response;
 
-//        // 파일 이름이 비어 있지 않은 경우에만 삭제 진행
-//        if (!StringUtils.isEmpty(fileName)) {
-//            File file = new File(uploadPath + File.separator + fileName);
-//
-//            try {
-//                // 프로필 이미지 파일 삭제
-//                if (file.exists()) {
-//                    isRemoved = file.delete();
-//                }
-//
-//                // 파일 삭제가 성공한 경우 DB에서도 삭제
-//                if (isRemoved) {
-//                    // default 이미지로 변경하는 로직 추가
-//                    memberImageRepository.updateMemberImageByFileName(fileName, DEFAULT_PROFILE_IMAGE_URL); // default로 변경
-//                }
-//            } catch (Exception e) {
-//                // 에러 발생 시 로그 출력
-//                log.error("Failed to delete image: " + e.getMessage());
-//            }
-//        }
-//        // 결과를 response 맵에 추가
-//        response.put("result", isRemoved);
-//        return response;
     }
 
 
