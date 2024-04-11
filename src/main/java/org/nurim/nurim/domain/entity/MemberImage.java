@@ -26,8 +26,8 @@ public class MemberImage {
         this.member = member;
     }
 
-//    public void update(String memberProfileImage){
-//        this.memberProfileImage = memberProfileImage;
-//    }
+    public void update(String memberProfileImage){
+        this.memberProfileImage = memberProfileImage;
+    }
 
 }

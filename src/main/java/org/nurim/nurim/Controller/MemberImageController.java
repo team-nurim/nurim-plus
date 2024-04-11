@@ -38,13 +38,48 @@ public class MemberImageController {
 
     private final MemberService memberService;
     private final MemberImageService memberImageService;
-    private final MemberImageRepository memberImageRepository;
 
-    private static final String DEFAULT_PROFILE_IMAGE_URL = "/images/default-image.jpg";
+//    private static final String DEFAULT_PROFILE_IMAGE_URL = "/images/default-image.jpg";
 
 
     @Value("${org.yeolmae.upload.path}")
     private String uploadPath;
+
+//    // 프로필 이미지 등록
+//    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    @Operation(summary = "프로필 이미지 업로드", description = "POST로 파일 등록")
+//    public ResponseEntity<List<UploadImageResponse>> uploadProfile(
+//            @ModelAttribute UploadImageRequest request
+//    ) {
+//
+//        MultipartFile[] files = request.getFile();
+//        Long memberId = request.getMemberId();
+//
+//        if (files != null) {
+//            final List<UploadImageResponse> responses = new ArrayList<>();
+//
+//            for (MultipartFile multipartFile : files) {
+//                try {
+//                    String fileName = memberImageService.saveImage(multipartFile, memberId);
+//                    responses.add(new UploadImageResponse(fileName, true));
+//                } catch (IOException e) {
+//                    log.error("Failed to upload file : {}", e.getMessage());
+//                    responses.add(new UploadImageResponse("", false));
+//                }
+//            }
+//            return ResponseEntity.ok(responses);
+//        }
+//        return ResponseEntity.badRequest().build();
+//    }
+//
+//    // 프로필 이미지 조회
+//    @GetMapping(value = "/view/{memberId}")
+//    @Operation(summary = "프로필 이미지 파일 조회")
+//    public ResponseEntity<Resource> getProfileByMemberId(@PathVariable Long memberId){
+//        Resource resource = memberImageService.getProfileImageResource(memberId);
+//        return ResponseEntity.ok().body(resource);
+//    }
+
 
     // 프로필 이미지 등록
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -129,23 +164,17 @@ public class MemberImageController {
     }
 
     // 프로필 이미지 삭제
-    @DeleteMapping(value = "/remove/{fileName}")
+    @DeleteMapping(value = "/remove/{memberId}")
     @Operation(summary = "프로필 이미지 파일 삭제")
-    public Map<String, Boolean> deleteProfile(@PathVariable String fileName) {
-
-        Resource resource = new FileSystemResource(uploadPath + File.separator + fileName);
+    public Map<String, Boolean> deleteProfile(@PathVariable Long memberId) {
 
         Map<String, Boolean> response = new HashMap<>();
         boolean isRemoved = false;
 
-        // 이미지 파일 삭제 후 데이터베이스에서도 삭제
-        response = memberImageService.deleteImage(fileName);
-        isRemoved = response.get("result");
-
         try {
-            String contentType = Files.probeContentType(resource.getFile().toPath());
-            isRemoved = resource.getFile().delete();
-
+            // memberId를 기반으로 프로필 이미지 삭제
+            response = memberImageService.deleteImage(memberId);
+            isRemoved = response.get("result");
         } catch (Exception e) {
             log.error(e.getMessage());
         }
@@ -153,8 +182,31 @@ public class MemberImageController {
         response.put("result", isRemoved);
         log.info(response);
 
-
         return response;
+
+
+//        Resource resource = new FileSystemResource(uploadPath + File.separator + fileName);
+//
+//        Map<String, Boolean> response = new HashMap<>();
+//        boolean isRemoved = false;
+//
+//        // 이미지 파일 삭제 후 데이터베이스에서도 삭제
+//        response = memberImageService.deleteImage(fileName);
+//        isRemoved = response.get("result");
+//
+//        try {
+//            String contentType = Files.probeContentType(resource.getFile().toPath());
+//            isRemoved = resource.getFile().delete();
+//
+//        } catch (Exception e) {
+//            log.error(e.getMessage());
+//        }
+//
+//        response.put("result", isRemoved);
+//        log.info(response);
+//
+//
+//        return response;
 
     }
 
