@@ -22,29 +22,11 @@ public class MemberImageService {
 
     private final MemberImageRepository memberImageRepository;
 
-    private static final String DEFAULT_PROFILE_IMAGE_URL = "/images/default-image.jpg";
+    private static final String DEFAULT_PROFILE_IMAGE_URL = "https://i.stack.imgur.com/l60Hf.png";
 
     @Value("${org.yeolmae.upload.path}")
     private String uploadPath;
 
-    // 프로필 이미지 등록
-//    @Transactional
-//    public String saveImage(MultipartFile file, Long memberId) throws IOException {
-//        String fileName = UUID.randomUUID().toString() + "_" + StringUtils.cleanPath(file.getOriginalFilename());
-//        Path uploadDir = Paths.get(uploadPath);
-//        Files.createDirectories(uploadDir);
-//        Path filePath = uploadDir.resolve(fileName);
-//        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-//
-//
-//        // 데이터베이스에 이미지 경로 저장
-//        MemberImage memberImage = new MemberImage();
-//        memberImage.setMemberProfileImage(fileName);
-//        memberImage.setMember(memberService.getMemberById(memberId));
-//        memberImageRepository.save(memberImage);
-//
-//        return fileName;
-//    }
     @Transactional
     public void saveImage(String imagePath, Member member) {
 
@@ -55,28 +37,11 @@ public class MemberImageService {
         memberImageRepository.save(memberImage);
     }
 
-    // 프로필 이미지 조회
-//    public Resource getProfileImageResource(Long memberId) {
-//        Optional<MemberImage> memberImageOptional = memberImageRepository.findByMember_MemberId(memberId);
-//        String fileName = memberImageOptional
-//        Path imagePath = Paths.get(uploadPath).resolve(fileName);
-//    }
     public String getProfileImageFileName(Long memberId) {
 
         Optional<MemberImage> memberImageOptional = memberImageRepository.findByMember_MemberId(memberId);
 
         return memberImageOptional.map(MemberImage::getMemberProfileImage).orElse(DEFAULT_PROFILE_IMAGE_URL);
-//        // memberId로 이미지 조회
-//        MemberImage memberImage = memberImageRepository.findByMember_MemberId(memberId)
-//                .orElseThrow(() -> new EntityNotFoundException("프로필 이미지가 존재하지 않습니다."));
-
-//        if (memberImage.getMemberProfileImage() != null) {
-//            fileName = memberImage.getMemberProfileImage();
-//        } else {
-//            fileName = "기본프로필이미지.png";
-//        }
-//
-//        return fileName;
     }
 
     // 프로필 이미지 삭제

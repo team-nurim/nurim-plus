@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Log4j2
 public class MemberService {
-    private static final String DEFAULT_PROFILE_IMAGE_URL = "/images/default-image.jpg";
+    private static final String DEFAULT_PROFILE_IMAGE_URL = "https://i.stack.imgur.com/l60Hf.png";
 
     private final MemberRepository memberRepository;
     private final MemberImageRepository memberImageRepository;
