@@ -1,5 +1,6 @@
 package org.nurim.nurim.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.repository.MemberRepository;
@@ -13,12 +14,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 @Log4j2
 public class PrincipalDetailsService implements UserDetailsService {
 
     @Autowired
     private MemberRepository memberRepository;
-    private SecurityContextRepository securityContextRepository;
 
 
     // 로그인 - email로 사용자 정보 조회
@@ -32,10 +33,10 @@ public class PrincipalDetailsService implements UserDetailsService {
         UserDetails userDetails = User.builder()
                 .username(memberEntity.getMemberEmail())
                 .password(memberEntity.getMemberPw())
-                .roles(memberEntity.isType() ? "전문가" : "일반회원")
+//                .authorities("ROLE_USER")
                 .build();
 
-        log.info("💎userDetails : {}", userDetails);
+        log.info("💎userDetails : ", userDetails);
 
         return userDetails;
     }

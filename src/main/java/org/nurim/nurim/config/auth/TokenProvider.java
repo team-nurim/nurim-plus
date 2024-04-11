@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -35,6 +36,46 @@ public class TokenProvider {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    // Member 정보를 가지고 토큰 생성
+    public String generateToken(Map<String, Object> valueMap, int days) {
+
+        // header
+        Map<String, Object> headers = new HashMap<>();
+        headers.put("typ", "JWT");
+        headers.put("alg", "HS256");
+
+        // payload
+        Map<String, Object> payloads = new HashMap<>();
+        payloads.putAll(valueMap);
+
+        // 유효기간
+        int time = (60 * 24) * days;   // 분단위
+
+        String jwtStr = Jwts.builder()
+                .setHeader(headers)
+                .setClaims(payloads)
+                .setIssuedAt(Date.from(ZonedDateTime.now().toInstant()))
+                .setExpiration(Date.from(ZonedDateTime.now().plusMinutes(time).toInstant()))
+                .signWith(SignatureAlgorithm.HS256, jwtSecret.getBytes())
+                .compact();
+
+        return jwtStr;
+    }
+
+    // 토큰 검증
+    public Map<String, Object> validateToken(String token) throws JwtException {
+
+        Map<String, Object> claim = null;
+
+        claim = Jwts.parser()
+                .setSigningKey(jwtSecret.getBytes())   // set key
+                .parseClaimsJws(token)   // 파싱 및 검증, 실패 시 에러
+                .getBody();
+
+        return claim;
+    }
+
+
     @Value("${jwt.access-token-expiration-millis}")
     private Long accessTokenExpirationMs;
 
@@ -44,19 +85,7 @@ public class TokenProvider {
 
 
 
-    // Member 정보를 가지고 토큰 생성
-    public String generateToken(String username) {
 
-        Date now = new Date();
-        Date expireDate = new Date(now.getTime() + accessTokenExpirationMs);
-
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(new Date())   // 토큰 발급 시간
-                .setExpiration(expireDate)   // 토큰 만료 시간
-                .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                .compact();   // JWT 문자열 생성
-    }
 
     // secret 암호화하여 key 생성 (앱 시작 시 초기화)
     @PostConstruct
@@ -136,25 +165,7 @@ public class TokenProvider {
 //    }
 
 
-    // 토큰 검증
-    public boolean validateToken(String token) {
-        try {
-            parseClaims(token);
-        } catch (MalformedJwtException e) {
-            log.info("📢Invalid JWT token");
-            log.trace("Invalid JWT token trace");
-        } catch (ExpiredJwtException e) {
-            log.info("📢Expired JWT token");
-            log.trace("Expired JWT token trace");
-        } catch (UnsupportedJwtException e) {
-            log.info("📢Unsupported JWT token");
-            log.trace("Unsupported JWT token trace");
-        } catch (IllegalArgumentException e) {
-            log.info("📢JWT claims String is empty");
-            log.trace("JWT claims String is empty trace");
-        }
-        return true;
-    }
+
 
 
 
