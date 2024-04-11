@@ -32,12 +32,6 @@ public class MemberController {
     @Autowired
     private PrincipalDetailsService principalDetailsService;
 
-    @GetMapping
-    @Operation(summary = "회원가입 화면 반환 메소드")
-    public String joinForm() {
-        return "joinForm";
-    }
-
     @PostMapping
     @Operation(summary = "신규 회원 등록 메소드", description = "memberEmail 기준으로 중복가입 방지")
     public ResponseEntity<CreateMemberResponse> createMember(@Valid @RequestBody CreateMemberRequest request) {

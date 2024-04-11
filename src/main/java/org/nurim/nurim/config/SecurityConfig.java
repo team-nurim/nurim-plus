@@ -1,181 +1,178 @@
 package org.nurim.nurim.config;
 
+import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
-import org.nurim.nurim.config.auth.*;
+import org.nurim.nurim.config.auth.LoginFilter;
+import org.nurim.nurim.config.auth.LoginSuccessHandler;
+import org.nurim.nurim.config.auth.TokenProvider;
+import org.nurim.nurim.config.auth.TokenValidateFilter;
+import org.nurim.nurim.repository.MemberRepository;
 import org.nurim.nurim.service.PrincipalDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HttpBasicConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenBasedRememberMeServices;
 import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
-import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 
 import javax.sql.DataSource;
-import java.util.Arrays;
-import java.util.Collections;
+
 
 @Configuration
+@EnableWebSecurity  // SpringSecurity FilterChain이 자동으로 포함
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)// secured, PreAuthorize/postAuthorize 어노테이션 활성화 //특정 경로에 접근할 수 있는 권한
 @RequiredArgsConstructor
-@EnableWebSecurity
-@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 public class SecurityConfig {
 
-    @Autowired
-    private DataSource dataSource;
+    private final DataSource dataSource;
+    private final TokenProvider tokenProvider;
 
     @Autowired
-    private final PrincipalDetailsService principalDetailsService;
-
-    @Autowired
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    @Autowired
-    private final CustomAuthenticationProvider customAuthenticationProvider;
-
-    @Autowired
-    private CustomAuthenticationManager customAuthenticationManager;
+    private PrincipalDetailsService principalDetailsService;
 
 
-    // 웹 기반 보안 구성
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-        http.httpBasic(HttpBasicConfigurer::disable)
-                .cors(httpSecurityCorsConfigurer -> httpSecurityCorsConfigurer.configurationSource(corsConfigurationSource()))
-                .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login").permitAll()
-                        .requestMatchers(HttpMethod.OPTIONS, "/api/**").permitAll()
-                );
+    //특정 HTTP 요청에 대한 웹 기반 보안 구성
+    @Bean
+    public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
 
+        // 권한에 따른 허용하는 url
+        http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
+//                .requestMatchers("/user/**").authenticated()   //권한 있어야 함
+//                .requestMatchers("/admin/**").hasRole("ADMIN")   //권한 있어야 함
+                .requestMatchers("/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/error").permitAll()
+                .anyRequest().permitAll());   //나머지 페이지들은 모두 권한 허용
 
-        // 권한별 허용 url 설정
-        http.authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-                .requestMatchers("/", "/join", "/login").permitAll()   // 모든 사용자에게 접근 허용
-                .requestMatchers("/api-document/**", "/v3/api-docs/**", "/swagger-ui/**", "/api/**").permitAll()
-                .anyRequest().authenticated()   // 나머지 페이지는 인증된 사용자에게만 접근 허용
-        );
-
-        // 로그인 설정
+        // login 설정
         http.formLogin((formLogin) -> formLogin
-                        .loginPage("/login.html").permitAll() // 로그인 페이지 url
-                        .usernameParameter("memberEmail")   // 이메일 입력 필드 지정
-                        .loginProcessingUrl("/api/v1/auth/login")   // 로그인 폼 제출 시 요청을 처리하는 엔드포인트
-//                .defaultSuccessUrl("/")   // 로그인 성공 시 리디렉션될 URL 지정
-//                .failureUrl("/login.html?error=true")
-//                .usernameParameter("memberEmail")
-//                .passwordParameter("memberPw")
+                .loginPage("/login")
+                .usernameParameter("email")
+                .defaultSuccessUrl("/")
         );
 
-        // remember-me 설정
-        http.rememberMe((rememberMe) -> rememberMe
-                .key("remember-me")
-                .tokenRepository(persistentTokenRepository())
+        // Authentication Manager 설정
+        AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
+        authenticationManagerBuilder
                 .userDetailsService(principalDetailsService)
-                .tokenValiditySeconds(24*60*60)
-        );
+                .passwordEncoder(passwordEncoder());
 
-        // 인증 & 403 에러 처리
-        http.exceptionHandling((exceptionConfig) ->
-                exceptionConfig
-                        .authenticationEntryPoint(new LoginUrlAuthenticationEntryPoint("/login"))
-                        .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            response.setStatus(HttpStatus.FORBIDDEN.value());
-                            response.getWriter().write("인가 에러: 해당 리소스에 접근할 권한이 없습니다.");
-                        })
-        );
+        AuthenticationManager authenticationManager = authenticationManagerBuilder.build();
+        http.authenticationManager(authenticationManager);   // 반드시 필요
 
+        // LoginFilter
+        LoginFilter loginFilter = new LoginFilter("/generateToken");
+        loginFilter.setAuthenticationManager(authenticationManager);
 
-        http.authenticationProvider(customAuthenticationProvider);
-        http.authenticationManager(customAuthenticationManager);
+        http.addFilterBefore(loginFilter, UsernamePasswordAuthenticationFilter.class);   // 로그인 필터 위치 조정
+        http.addFilterBefore(tokenValidateFilter(tokenProvider), UsernamePasswordAuthenticationFilter.class);
 
-        http.addFilterBefore(jwtAuthenticationFilter, BasicAuthenticationFilter.class);
+        // LoginSuccessHandler 세팅
+        LoginSuccessHandler loginSuccessHandler = new LoginSuccessHandler(tokenProvider);
+        loginFilter.setAuthenticationSuccessHandler(loginSuccessHandler);
 
 
-        // 로그아웃 설정
+        // 자동로그인 설정
+        http.rememberMe((rememberMe) -> rememberMe
+                .key("remember-me")//인증받은 사용자 정보로 토큰 생성에 필요한 값
+                .rememberMeParameter("remember-me")//html에서의 name 값
+                .tokenValiditySeconds(24*60*60)//remember-me 토큰 유효시간 : 1일
+                .rememberMeServices(rememberMeServices(persistentTokenRepository()))
+                .userDetailsService(new PrincipalDetailsService()));
+
+        // logout 설정
         http.logout((logout) -> logout
                 .deleteCookies("JSESSIONID", "remember-me")
-                .logoutSuccessUrl("/")
-        );
+                .logoutSuccessUrl("/loginForm"));
 
+        // csrf 비활성화
+        http.csrf((csrf) -> csrf.disable());
 
-        // security context 설정
+        // 세션 비활성화
+        http.sessionManagement((session) -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // context 설정
         http.securityContext((securityContext) -> securityContext
                 .securityContextRepository(new DelegatingSecurityContextRepository(
                         new RequestAttributeSecurityContextRepository(),
                         new HttpSessionSecurityContextRepository()
-                ))
-        );
-
-
-
-        // csrf 비활성화
-//        http.csrf(AbstractHttpConfigurer::disable);
-
-        // 세션 설정
-        // JWT 토큰 사용시 세션을 이용하는 방식으로 인증을 처리하지 않겠다는 설정 추가
-        http.sessionManagement((session) -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        );
-
+                )));
 
         return http.build();
     }
 
 
+    private TokenValidateFilter tokenValidateFilter(TokenProvider tokenProvider) {
+        return new TokenValidateFilter(tokenProvider);
+    }
+
+
     @Bean
     public PersistentTokenRepository persistentTokenRepository() {
-        JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
 
+        JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
         tokenRepository.setDataSource(dataSource);
-        tokenRepository.setCreateTableOnStartup(true);
+
+        tokenRepository.setCreateTableOnStartup(false);
 
         return tokenRepository;
     }
 
-
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer () {
-        // 정적 리소스에 대한 보안 설정 무시
+    public PersistentTokenBasedRememberMeServices rememberMeServices(PersistentTokenRepository tokenRepository){
+        PersistentTokenBasedRememberMeServices rememberMeServices
+                = new PersistentTokenBasedRememberMeServices("rememberMeKey", new PrincipalDetailsService(), tokenRepository);
+        rememberMeServices.setParameter("remember-me");
+        rememberMeServices.setAlwaysRemember(false);
+
+        return rememberMeServices;
+    }
+
+
+    // UserDetailsService 및 PasswordEncoder를 사용하여 사용자 아이디와 암호를 인증하는 AuthenticationProvider 구현
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() throws Exception {
+
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
+
+        daoAuthenticationProvider.setUserDetailsService(principalDetailsService);
+        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
+
+        return daoAuthenticationProvider;
+    }
+
+    // css 나 js 파일 등의 정적 파일은 시큐리티 적용을 받을 필요 없이 무시하도록 함.
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+
         return (web) -> web.ignoring()
-                .requestMatchers(PathRequest.toStaticResources().atCommonLocations())
-                .requestMatchers("/swagger-ui/**")
-                ;
+                .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
 
-
-    // CORS 설정
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-
-        return source;
-    }
 }
