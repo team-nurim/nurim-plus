@@ -5,11 +5,11 @@ import lombok.*;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(exclude = "post")
-@Setter
 public class PostImage {
 
     @Id
