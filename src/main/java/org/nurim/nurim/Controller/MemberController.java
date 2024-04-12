@@ -2,6 +2,7 @@ package org.nurim.nurim.Controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.service.MemberService;
@@ -20,9 +21,9 @@ public class MemberController {
 
     @Operation(summary = "개인 정보 입력")
     @PostMapping
-    public ResponseEntity<CreateMemberResponse> memberInfoCreate(@RequestBody CreateMemberRequest request){
+    public ResponseEntity<CreateMemberResponse> memberInfoCreate(@RequestBody @Valid CreateMemberRequest request){
 
-        CreateMemberResponse response = memberService.createMemberInfo(request);
+        CreateMemberResponse response = memberService.createMember(request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
 
@@ -40,7 +41,7 @@ public class MemberController {
     @PutMapping("/{memberId}")
     public ResponseEntity<UpdateMemberResponse> memberInfoUpdate(@PathVariable Long memberId, @RequestBody UpdateMemberRequest request){
 
-        UpdateMemberResponse response = memberService.updateMemberInfo(memberId, request);
+        UpdateMemberResponse response = memberService.updateMember(memberId, request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -49,7 +50,7 @@ public class MemberController {
     @DeleteMapping("/{memberId}")
     public ResponseEntity<DeleteMemberResponse> memberInfoDelete(@PathVariable Long memberId){
 
-        DeleteMemberResponse response = memberService.deleteMemberInfo(memberId);
+        DeleteMemberResponse response = memberService.deleteMember(memberId);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
 

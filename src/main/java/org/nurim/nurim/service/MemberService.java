@@ -32,7 +32,7 @@ public class MemberService {
 
     // 회원 정보 입력
     @Transactional
-    public CreateMemberResponse createMemberInfo(CreateMemberRequest request) {
+    public CreateMemberResponse createMember(CreateMemberRequest request) {
 
         // 회원 정보 유효성 검증 (클래스 별도 생성 예정)
         // validateMemberRequest(request);
@@ -120,7 +120,7 @@ public class MemberService {
 
     // 특정 회원 정보 수정
     @Transactional
-    public UpdateMemberResponse updateMemberInfo(Long memberId, UpdateMemberRequest request) {
+    public UpdateMemberResponse updateMember(Long memberId, UpdateMemberRequest request) {
 
         // id 확인
         Member foundMember = memberRepository.findById(memberId)
@@ -165,7 +165,7 @@ public class MemberService {
 
     // 회원 탈퇴
     @Transactional
-    public DeleteMemberResponse deleteMemberInfo(Long memberId) {
+    public DeleteMemberResponse deleteMember(Long memberId) {
 
         Member foundMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
