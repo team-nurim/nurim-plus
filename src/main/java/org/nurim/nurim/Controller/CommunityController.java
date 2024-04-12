@@ -67,6 +67,7 @@ public class CommunityController {
     /**
      *인기 많은 게시글
      */
+    @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/popular")
     @Operation(summary = "게시글 조회수 순으로 5개 나열")
     public ResponseEntity<List<ReadCountsCommunitiesResponse>> getPopularCommunities(){
@@ -103,6 +104,7 @@ public class CommunityController {
     /**
      * 댓글 기다리는 문의글
      */
+    @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/community/Inquire")
     @Operation(summary = "문의글" , description = "댓글이 없는 게시물중 조회수가 높은 10건을 노출")
     public ResponseEntity<List<ReadInquireResponse>> inquireCommunity(){
