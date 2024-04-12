@@ -8,6 +8,6 @@ public class CustomServletConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/files/**")
-                .addResourceLocations("classpath:/static/");
+                .addResourceLocations("classpath:/static/**");
     }
 }

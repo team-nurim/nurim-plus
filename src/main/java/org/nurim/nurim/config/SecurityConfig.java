@@ -56,8 +56,7 @@ public class SecurityConfig {
 
         // 권한에 따른 허용하는 url
         http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                .requestMatchers("/user/**").authenticated()   //권한 있어야 함
-                .requestMatchers("/admin/**").hasRole("ADMIN")   //권한 있어야 함
+//                .requestMatchers("/admin/**").hasRole("ADMIN")   //권한 있어야 함
                 .requestMatchers("/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/error").permitAll()
@@ -155,7 +154,6 @@ public class SecurityConfig {
     public DaoAuthenticationProvider daoAuthenticationProvider() throws Exception {
 
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-
         daoAuthenticationProvider.setUserDetailsService(principalDetailsService);
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
 

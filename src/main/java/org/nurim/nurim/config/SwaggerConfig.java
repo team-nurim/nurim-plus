@@ -21,7 +21,7 @@ public class SwaggerConfig {
         SecurityRequirement securityRequirement = getSecurityRequirement();
 
         return new OpenAPI()
-                .components(new Components().addSecuritySchemes("Auth", securityScheme))
+                .components(new Components().addSecuritySchemes("bearerAuth", securityScheme))
                 .security(List.of(securityRequirement))
                 .info(apiInfo());
     }
