@@ -34,7 +34,7 @@ public class MemberController {
     public ResponseEntity<ReadMemberResponse> memberReadById(@PathVariable Long memberId) {
         ReadMemberResponse response = memberService.readMemberById(memberId);
 
-        return  new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Operation(summary = "개인 정보 수정")

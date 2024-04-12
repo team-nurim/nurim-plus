@@ -23,6 +23,11 @@ import java.util.Map;
 @Log4j2
 @RequiredArgsConstructor
 public class RefreshTokenFilter extends OncePerRequestFilter {
+
+    /** "/refreshToken" 엔드포인트 요청 시 작동하는 필터
+     *  클라이언트가 전송한 accessToken과 refreshToken을 검증하고, 필요에 따라 새로 생성하여 응답
+     *  유효한 액세스 토큰을 사용하고 있으며, 리프레시 토큰을 사용하여 새로운 액세스 토큰을 발급할 수 있는지 확인 */
+
     private final String refreshPath;
     private final TokenProvider tokenProvider;
 
