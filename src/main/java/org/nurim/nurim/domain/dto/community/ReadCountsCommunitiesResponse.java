@@ -4,20 +4,22 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReadCountsCommunitiesResponse {
 
-    private Long communityId;
-
     private String title;
 
-    private String category;
+    private String content;
 
     private Long counts;
 
     private Long recommend;
+
+    private LocalDateTime registerDate;
 
     private String memberNickname;
 }
