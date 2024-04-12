@@ -4,66 +4,65 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.nurim.nurim.domain.dto.*;
-import org.nurim.nurim.domain.entity.Member;
+import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.service.MemberService;
-import org.nurim.nurim.service.PrincipalDetailsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "members", description = "회원 정보 API")
 @RestController
-@ResponseBody
-@RequestMapping("/api/v1/members")
 @RequiredArgsConstructor
-@Log4j2
+@CrossOrigin(origins="*")
+@RequestMapping("/api/v1/members")
 public class MemberController {
 
-    @Autowired
-    private MemberService memberService;
+    private final MemberService memberService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private PrincipalDetailsService principalDetailsService;
-
+    @Operation(summary = "개인 정보 입력")
     @PostMapping
-    @Operation(summary = "신규 회원 등록 메소드", description = "memberEmail 기준으로 중복가입 방지")
-    public ResponseEntity<CreateMemberResponse> createMember(@Valid @RequestBody CreateMemberRequest request) {
-        // 생성된 회원 정보를 Response DTO로 변환하여 반환
+    public ResponseEntity<CreateMemberResponse> memberInfoCreate(@RequestBody @Valid CreateMemberRequest request){
+
         CreateMemberResponse response = memberService.createMember(request);
 
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
 
+    @Operation(summary = "개인 정보 단건 조회")
     @GetMapping("/{memberId}")
-    @Operation(summary = "회원 정보 조회 메소드", description = "memberId 기준으로 조회")
-    public ResponseEntity<ReadMemberResponse> readMember(@PathVariable Long memberId) {
+    public ResponseEntity<ReadMemberResponse> memberReadById(@PathVariable Long memberId) {
         ReadMemberResponse response = memberService.readMemberById(memberId);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return  new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(summary = "개인 정보 수정")
     @PutMapping("/{memberId}")
-    @Operation(summary = "회원 정보 수정 메소드", description = "memberId 기준으로 ")
-    public ResponseEntity<UpdateMemberResponse> updateMember(@PathVariable Long memberId, @RequestBody UpdateMemberRequest request) {
+    public ResponseEntity<UpdateMemberResponse> memberInfoUpdate(@PathVariable Long memberId, @RequestBody UpdateMemberRequest request){
 
         UpdateMemberResponse response = memberService.updateMember(memberId, request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(summary = "개인 정보 삭제") // 회원가입이 이뤄지면 email에 대한 정보로 탈퇴 처리해야 할 듯
     @DeleteMapping("/{memberId}")
-    @Operation(summary = "회원 탈퇴 메소드", description = "회원 탈퇴 처리")
-    public ResponseEntity<DeleteMemberResponse> deleteMember(@PathVariable Long memberId) {
+    public ResponseEntity<DeleteMemberResponse> memberInfoDelete(@PathVariable Long memberId){
+
         DeleteMemberResponse response = memberService.deleteMember(memberId);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
+
+//    @Operation(summary = "개인 정보 일부 수정") // 아직 미완
+//    @PatchMapping("/{memberId}")
+//    public ResponseEntity<PatchMemberResponse> memberPartUpdate(@PathVariable Long memberId, @RequestBody PatchMemberRequest request) {
+//
+//        PatchMemberResponse response = memberService.updateMemberPart(memberId, request);
+//
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
 }
