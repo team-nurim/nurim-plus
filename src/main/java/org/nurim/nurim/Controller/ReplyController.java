@@ -18,7 +18,6 @@ import java.util.List;
 public class ReplyController {
 
     private final ReplyService replyService;
-
     @PostMapping("/community/{communityId}/replyCreate")
     @Operation(summary = "댓글 작성")
     public ResponseEntity<CreateReplyResponse> createReply(@PathVariable Long communityId,Long memberId, @RequestBody CreateReplyRequest request) {
