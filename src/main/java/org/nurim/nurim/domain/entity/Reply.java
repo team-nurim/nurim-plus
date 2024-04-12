@@ -43,4 +43,10 @@ public class Reply {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "memberId")
     private Member member;
+
+
+
+    public void update(String replyText){
+        this.replyText = replyText;
+    }
 }
