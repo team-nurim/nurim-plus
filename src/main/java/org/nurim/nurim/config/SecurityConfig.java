@@ -145,7 +145,7 @@ public class SecurityConfig {
         PersistentTokenBasedRememberMeServices rememberMeServices
                 = new PersistentTokenBasedRememberMeServices("rememberMeKey", new PrincipalDetailsService(), tokenRepository);
         rememberMeServices.setParameter("remember-me");
-        rememberMeServices.setAlwaysRemember(false);
+        rememberMeServices.setAlwaysRemember(true);
 
         return rememberMeServices;
     }
