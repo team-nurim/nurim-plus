@@ -1,6 +1,8 @@
 package org.nurim.nurim.domain.entity;
 
-public enum MemberRole {
+import org.springframework.security.core.GrantedAuthority;
+
+public enum MemberRole implements GrantedAuthority {
     USER("ROLE_USER"), ADMIN("ROLE_ADMIN");
 
     private String role;
@@ -13,4 +15,8 @@ public enum MemberRole {
         return role;
     }
 
+    @Override
+    public String getAuthority() {
+        return null;
+    }
 }

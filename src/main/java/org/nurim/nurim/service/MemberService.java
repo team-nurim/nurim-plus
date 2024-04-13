@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.domain.entity.MemberImage;
+import org.nurim.nurim.domain.entity.MemberRole;
 import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class MemberService {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
-    // 회원 정보 입력
+    // 일반 회원 가입
     @Transactional
     public CreateMemberResponse createMember(CreateMemberRequest request) {
 
@@ -40,16 +41,18 @@ public class MemberService {
             throw new DataIntegrityViolationException("이미 존재하는 회원입니다.");   // 전역예외처리 필요
         }
 
+        // 초기 필드값 default 설정
         Member member = Member.builder()
                 .memberEmail(request.getMemberEmail())
                 .memberPw(passwordEncoder.encode(request.getMemberPw()))
                 .memberNickname(request.getMemberNickname())
-                .memberAge(request.getMemberAge())
-                .gender(request.isGender())
-                .memberResidence(request.getMemberResidence())
-                .memberMarriage(request.isMemberMarriage())
-                .memberIncome(request.getMemberIncome())
-                .type(request.isType())
+                .memberAge(30)
+                .gender(true)
+                .memberResidence("거주지 주소를 입력해주세요.")
+                .memberMarriage(true)
+                .memberIncome("소득 정보를 입력해주세요.")
+                .type(false)
+                .memberRole(MemberRole.USER)
                 .build();
 
         Member savedMember = memberRepository.save(member);
@@ -73,7 +76,63 @@ public class MemberService {
                 savedMember.getMemberResidence(),
                 savedMember.isMemberMarriage(),
                 savedMember.getMemberIncome(),
-                savedMember.isType());
+                savedMember.isType(),
+                savedMember.getMemberRole(),
+                savedMember.getMemberProfileImage()
+        );
+
+    }
+
+    // 관리자 회원 가입
+    @Transactional
+    public CreateMemberResponse createAdmin(CreateMemberRequest request) {
+
+        // 회원 정보 유효성 검증 (클래스 별도 생성 예정)
+        // validateMemberRequest(request);
+
+        if (memberRepository.findMemberByMemberEmail(request.getMemberEmail()).isPresent()) {
+            throw new DataIntegrityViolationException("이미 존재하는 회원입니다.");   // 전역예외처리 필요
+        }
+
+        // 초기 필드값 default 설정
+        Member member = Member.builder()
+                .memberEmail(request.getMemberEmail())
+                .memberPw(passwordEncoder.encode(request.getMemberPw()))
+                .memberNickname(request.getMemberNickname())
+                .memberAge(30)
+                .gender(true)
+                .memberResidence("서울시 강남구 강남대로 405")
+                .memberMarriage(true)
+                .memberIncome("해당 없음")
+                .type(false)
+                .memberRole(MemberRole.ADMIN)
+                .build();
+
+        Member savedMember = memberRepository.save(member);
+
+        // 기본 이미지 경로 MemberImage에 설정하여 저장
+        MemberImage memberImage = new MemberImage();
+        memberImage.setMember(savedMember);
+        memberImage.setMemberProfileImage(DEFAULT_PROFILE_IMAGE_URL); // 정적 경로 참조
+        memberImageRepository.save(memberImage);
+
+        // 회원 정보에 이미지 정보 연결
+        savedMember.setMemberImage(memberImage);
+        memberRepository.save(savedMember);
+
+        return new CreateMemberResponse(savedMember.getMemberId(),
+                savedMember.getMemberEmail(),
+                savedMember.getMemberPw(),
+                savedMember.getMemberNickname(),
+                savedMember.getMemberAge(),
+                savedMember.isGender(),
+                savedMember.getMemberResidence(),
+                savedMember.isMemberMarriage(),
+                savedMember.getMemberIncome(),
+                savedMember.isType(),
+                savedMember.getMemberRole(),
+                savedMember.getMemberProfileImage()
+        );
 
     }
 

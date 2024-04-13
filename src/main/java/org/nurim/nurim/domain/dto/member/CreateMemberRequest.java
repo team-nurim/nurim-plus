@@ -12,12 +12,11 @@ public class CreateMemberRequest {
     private String memberEmail;
     private String memberPw;
     private String memberNickname;
-    private int memberAge;
-    private boolean gender;
-    private String memberResidence;
-    private boolean memberMarriage;
-    private String memberIncome;
-    private boolean type;
-
+//    private int memberAge;
+//    private boolean gender;
+//    private String memberResidence;
+//    private boolean memberMarriage;
+//    private String memberIncome;
+//    private boolean type;
 
 }

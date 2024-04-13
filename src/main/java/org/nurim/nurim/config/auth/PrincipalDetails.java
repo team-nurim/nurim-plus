@@ -4,6 +4,7 @@ import org.nurim.nurim.domain.entity.Member;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 public class PrincipalDetails implements UserDetails {
@@ -15,19 +16,19 @@ public class PrincipalDetails implements UserDetails {
         this.member = member;
     }
 
-    // 회원유형 반환
-    public String getMemberTypeToString() {
-        if (member.isType()) {
-            return "전문가";
-        } else {
-            return "일반회원";
-        }
-    }
+    // 회원 유형 반환
+//    public String getMemberTypeToString() {
+//        if (member.isType()) {
+//            return "전문가";
+//        } else {
+//            return "일반회원";
+//        }
+//    }
 
     // member의 권한 리턴
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return Arrays.asList(member.getMemberRole());
     }
 
 

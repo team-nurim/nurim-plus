@@ -19,11 +19,21 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @Operation(summary = "회원 정보 등록")
-    @PostMapping
+    @Operation(summary = "일반 회원 정보 등록")
+    @PostMapping("/user")
     public ResponseEntity<CreateMemberResponse> memberInfoCreate(@RequestBody @Valid CreateMemberRequest request){
 
         CreateMemberResponse response = memberService.createMember(request);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
+    }
+
+    @Operation(summary = "관리자 회원 정보 등록")
+    @PostMapping("/admin")
+    public ResponseEntity<CreateMemberResponse> adminInfoCreate(@RequestBody @Valid CreateMemberRequest request){
+
+        CreateMemberResponse response = memberService.createAdmin(request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
 
