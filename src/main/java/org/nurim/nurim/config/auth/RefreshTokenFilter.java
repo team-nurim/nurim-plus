@@ -30,7 +30,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
     // "/refreshToken" 엔드포인트 요청 시 작동하는 필터
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-
+        /** "/refresh" 요청에 대한 access token과 refresh token 확인하고 새 토큰 발행  */
         String path = request.getRequestURI();
 
         // 요청이 "/refreshToken" 엔드포인트가 아니면 필터 스킵

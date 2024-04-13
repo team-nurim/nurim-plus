@@ -24,6 +24,8 @@ public class TokenValidateFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        /** 모든 "/api" 요청에 대해서 Authorization 헤더를 조회하고
+         *  토큰이 올바른 형식인지 && 만료되지 않았는지 확인 */
         String path = request.getRequestURI();
 
         if(!path.startsWith("/api/")) {
@@ -36,6 +38,7 @@ public class TokenValidateFilter extends OncePerRequestFilter {
         try {
             validateAccessToken(request);
             filterChain.doFilter(request, response);
+
         } catch (AccessTokenException accessTokenException) {
             accessTokenException.sendResponseError(response);
         }
