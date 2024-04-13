@@ -57,9 +57,9 @@ public class SecurityConfig {
 
         // 권한에 따른 허용하는 url
         http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-//                .requestMatchers("/admin/**").hasRole("ADMIN")   //권한 있어야 함
-                .requestMatchers("/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")   //권한 있어야 함
+                .requestMatchers("/login", "/join").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/error").permitAll()
                 .anyRequest().permitAll());   //나머지 페이지들은 모두 권한 허용
 
@@ -94,9 +94,9 @@ public class SecurityConfig {
 
         // 자동로그인 설정
         http.rememberMe((rememberMe) -> rememberMe
-                .key("remember-me")   // 인증받은 사용자 정보로 토큰 생성에 필요한 값
-                .rememberMeParameter("remember-me")   // html에서의 name 값
-                .tokenValiditySeconds(7*24*60*60)   // remember-me 토큰 유효시간 : 7일
+                .key("remember-me")//인증받은 사용자 정보로 토큰 생성에 필요한 값
+                .rememberMeParameter("remember-me")//html에서의 name 값
+                .tokenValiditySeconds(24*60*60)//remember-me 토큰 유효시간 : 1일
                 .rememberMeServices(rememberMeServices(persistentTokenRepository()))
                 .userDetailsService(new PrincipalDetailsService()));
 
@@ -128,7 +128,6 @@ public class SecurityConfig {
     }
 
 
-    // remember-me 토큰을 DB에 저장하고 검색하는 기능 (JdbcTokenRepositoryImpl로 구현)
     @Bean
     public PersistentTokenRepository persistentTokenRepository() {
 
@@ -145,7 +144,7 @@ public class SecurityConfig {
         PersistentTokenBasedRememberMeServices rememberMeServices
                 = new PersistentTokenBasedRememberMeServices("rememberMeKey", new PrincipalDetailsService(), tokenRepository);
         rememberMeServices.setParameter("remember-me");
-        rememberMeServices.setAlwaysRemember(true);
+        rememberMeServices.setAlwaysRemember(false);
 
         return rememberMeServices;
     }
