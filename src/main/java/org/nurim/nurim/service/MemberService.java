@@ -148,7 +148,7 @@ public class MemberService {
             profileimageUrl = foundMember.getMemberImage().getMemberProfileImage();
         } else {
             // 프로필 이미지가 등록되지 않은 경우
-            profileimageUrl = "기본 프로필 이미지 URL";
+            profileimageUrl = DEFAULT_PROFILE_IMAGE_URL;
         }
 
         String expertFileUrl;
@@ -246,9 +246,9 @@ public class MemberService {
         return member;
     }
 
-    public Member findMemberByMemberEmail(String username) {
+    public Member readMemberByMemberEmail(String username) {
         Member foundMember = memberRepository.findMemberByMemberEmail(username)
-                .orElseThrow(() -> new EntityNotFoundException("해당 이메일로 회원을 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("😥해당 이메일로 회원을 찾을 수 없습니다."));
 
         return foundMember;
     }
