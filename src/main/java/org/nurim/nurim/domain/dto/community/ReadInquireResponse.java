@@ -11,9 +11,11 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ReadInquireResponse {
 
-    private Long communityId;
-
     private String title;
+
+    private String category;
+
+    private String content;
 
     private Long viewCounts;
 

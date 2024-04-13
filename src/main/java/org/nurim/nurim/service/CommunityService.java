@@ -146,11 +146,11 @@ public class CommunityService {
             Long memberId = community.getMember().getMemberId();
 
             return new ReadCountsCommunitiesResponse(
-                    community.getCommunityId(),
                     community.getTitle(),
-                    community.getCommunityCategory(),
+                    community.getContent(),
                     community.getViewCounts(),
                     community.getRecommend(),
+                    community.getRegisterDate(),
                     community.getMember().getMemberNickname());
         });
     }
@@ -242,8 +242,9 @@ public class CommunityService {
             Long memberId = community.getMember().getMemberId();
 
             return new ReadInquireResponse(
-                    community.getCommunityId(),
                     community.getTitle(),
+                    community.getCommunityCategory(),
+                    community.getContent(),
                     community.getViewCounts(),
                     community.getRegisterDate());
         });

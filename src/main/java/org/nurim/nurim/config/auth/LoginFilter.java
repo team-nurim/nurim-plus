@@ -38,14 +38,15 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
 
         // 클라이언트에서 POST 요청 시 파싱된 JSON 문자열 처리 메소드
         Map<String, String> jsonData = parseRequestJSON(request);
+
         log.info(jsonData);
 
         // 인증 토큰 생성
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(jsonData.get("memberEmail"), jsonData.get("memberPw"));
 
+        // 인증 토큰으로 인증 객체 생성
         return getAuthenticationManager().authenticate(token);
     }
-
     
     
     private Map<String, String> parseRequestJSON(HttpServletRequest request) {
