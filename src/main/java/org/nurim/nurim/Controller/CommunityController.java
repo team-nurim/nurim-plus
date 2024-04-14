@@ -89,7 +89,8 @@ public class CommunityController {
     /**
      * 키워드에 따른 게시글 검색
      */
-    @PostMapping("/community/Search")
+    @CrossOrigin(origins = "http://localhost:8081")
+    @GetMapping("/community/Search")
     @Operation(summary = "검색기능" , description = "제목,카테고리,작성자 기준으로 각 게시물을 검색을 할수있습니다.")
     public ResponseEntity<Page<ReadSearchResponse>> searchCommunity(@RequestParam (required = false)String title ,
                                                                    @RequestParam (required = false) String communityCategory,
