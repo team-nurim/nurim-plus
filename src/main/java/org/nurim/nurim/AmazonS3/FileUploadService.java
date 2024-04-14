@@ -39,5 +39,33 @@ public class FileUploadService {
             return false;
         }
     }
+
+    // 프로필 이미지 저장
+    public FileDetail saveProfileImage(MultipartFile multipartFile, Long memberId) {
+        // 프로필 이미지 경로 생성
+        String profileImagePath = String.format("profile/%d/%s", memberId, multipartFile.getOriginalFilename());
+
+        // S3에 파일 저장
+        amazonS3ResourceStorage.store(profileImagePath, multipartFile);
+
+        // DB에 프로필 이미지 정보 저장
+        return FileDetail.builder()
+                .name(multipartFile.getOriginalFilename())
+                .path(profileImagePath)
+                .bytes(multipartFile.getSize())
+                .build();
+    }
+    // 프로필 이미지 삭제
+    public boolean deleteProfileImage(String profileImagePath) {
+        try {
+            // S3에서 파일 삭제
+            amazonS3.deleteObject(bucket, profileImagePath);
+            return true;
+        } catch (AmazonServiceException e) {
+            // 삭제 실패 시 에러 로그 출력
+            log.error("Failed to delete profile image from S3: " + e.getMessage());
+            return false;
+        }
+    }
 }
 

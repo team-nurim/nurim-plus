@@ -14,9 +14,12 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -442,10 +445,25 @@ public class MemberService {
     }
 
     public Member getMemberById(Long memberId) {
+        
         Member foundMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 memberId로 회원을 찾을 수 없습니다."));
 
         return foundMember;
+    }
+
+    public boolean isCurrentUser(Long memberId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return false; // 로그인한 사용자가 없는 경우
+        }
+
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        String currentUsername = userDetails.getUsername();
+
+        // 현재 로그인한 사용자의 username과 memberId에 해당하는 회원의 username이 일치하는지 확인
+        Optional<Member> memberOptional = memberRepository.findById(memberId);
+        return memberOptional.isPresent() && memberOptional.get().getMemberEmail().equals(currentUsername);
     }
 
 }
