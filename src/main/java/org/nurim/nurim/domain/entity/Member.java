@@ -45,6 +45,9 @@ public class Member {
     @Column(nullable = true, columnDefinition = "boolean default false")
     private boolean type; // true: 전문가, false: 일반
 
+    @Enumerated(EnumType.STRING)
+    private MemberRole memberRole;
+
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private MemberImage memberImage;
 
