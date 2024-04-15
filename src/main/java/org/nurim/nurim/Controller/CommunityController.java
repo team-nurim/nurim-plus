@@ -24,10 +24,9 @@ public class CommunityController {
 
     private final CommunityService communityService;
 
-    @PostMapping("/communityCreate")
+    @PostMapping("/communityCreate/{memberId}")
     @Operation(summary = "게시물 작성")
-    public ResponseEntity<CreateCommunityResponse> createCommunity(@RequestBody CreateCommunityRequest request){
-        Long memberId = request.getMemberId();
+    public ResponseEntity<CreateCommunityResponse> createCommunity(@PathVariable Long memberId, @RequestBody CreateCommunityRequest request){
         CreateCommunityResponse response = communityService.communityCreate(memberId, request);
         return ResponseEntity.ok().body(response);
     }

@@ -37,7 +37,7 @@ public class CommunityService {
     @Transactional
     public CreateCommunityResponse communityCreate(Long memberId, CreateCommunityRequest request) {
 
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new EntityNotFoundException("확인안됨"));
+        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new EntityNotFoundException("작성자 id가 확인이 안됩니다 ㅜㅜ"));
         Community community = Community.builder()
                 .member(member)
                 .title(request.getTitle())
