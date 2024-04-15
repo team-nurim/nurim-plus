@@ -27,11 +27,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Log4j2
 public class MemberService {
-//    private static final String DEFAULT_PROFILE_IMAGE_URL = "https://i.stack.imgur.com/l60Hf.png";
 
     private final MemberRepository memberRepository;
     private final MemberImageRepository memberImageRepository;
-    private final FileUploadService fileUploadService;
 
     @Autowired
     private final PasswordEncoder passwordEncoder;
@@ -48,7 +46,7 @@ public class MemberService {
         }
 
         // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
-        String defaultProfileImageUrl = "https://nurimplus1.s3.ap-northeast-2.amazonaws.com/default-image.jpg";
+        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/default-image.jpg";
 
         // 초기 필드값 default 설정
         Member member = Member.builder()
@@ -104,7 +102,7 @@ public class MemberService {
         }
 
         // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
-        String defaultProfileImageUrl = "https://nurimplus1.s3.ap-northeast-2.amazonaws.com/default-image.jpg";
+        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/default-image.jpg";
 
         // 초기 필드값 default 설정
         Member member = Member.builder()
@@ -193,7 +191,7 @@ public class MemberService {
     }
 
 
-    // 특정 회원 조회
+    // 특정 회원 조회 // 전문가에 대한 정보를 보고 싶을 때 사용 가능
     public ReadMemberResponse readMemberById(Long memberId) {
 
         Member foundMember = memberRepository.findById(memberId)
@@ -205,7 +203,7 @@ public class MemberService {
             profileimageUrl = foundMember.getMemberImage().getMemberProfileImage();
         } else {
             // 프로필 이미지가 등록되지 않은 경우
-            profileimageUrl = "https://nurimplus1.s3.ap-northeast-2.amazonaws.com/default-image.jpg";
+            profileimageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/default-image.jpg";
         }
 
         String expertFileUrl;
@@ -437,15 +435,32 @@ public class MemberService {
     public Member getMember() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        String username = authentication.getName();   // 사용자 이메일 추출
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+            String username = userDetails.getUsername();
 
-        log.info("😀"+username);
+            log.info("😀" + username);
 
-        Member member = memberRepository.findMemberByMemberEmail(username)
-                .orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
+            Member member = memberRepository.findMemberByMemberEmail(username)
+                    .orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
 
-        return member;
+            return member;
+        } else {
+            throw new IllegalStateException("로그인된 사용자가 아닙니다.");
+        }
     }
+//    public Member getMember() {
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//
+//        String username = authentication.getName();   // 사용자 이메일 추출
+//
+//        log.info("😀"+username);
+//
+//        Member member = memberRepository.findMemberByMemberEmail(username)
+//                .orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
+//
+//        return member;
+//    }
 
     public Member readMemberByMemberEmail(String username) {
         Member foundMember = memberRepository.findMemberByMemberEmail(username)

@@ -22,16 +22,10 @@ import java.util.Optional;
 public class MemberImageService {
 
     private final MemberImageRepository memberImageRepository;
-    private final AmazonS3ResourceStorage amazonS3ResourceStorage;
     private final AmazonS3 amazonS3;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-
-    private static final String DEFAULT_PROFILE_IMAGE_URL = "https://i.stack.imgur.com/l60Hf.png";
-
-    @Value("${org.yeolmae.upload.path}")
-    private String uploadPath;
 
     @Transactional
     public void saveImage(String imagePath, Long memberId) {
@@ -47,6 +41,7 @@ public class MemberImageService {
             throw new RuntimeException("Member image not found for memberId: " + memberId);
         }
     }
+
 //    @Transactional
 //    public void saveImage(String imagePath, Member member) {
 //
@@ -62,7 +57,7 @@ public class MemberImageService {
 
         Optional<MemberImage> memberImageOptional = memberImageRepository.findByMember_MemberId(memberId);
 
-        return memberImageOptional.map(MemberImage::getMemberProfileImage).orElse(DEFAULT_PROFILE_IMAGE_URL);
+        return memberImageOptional.map(MemberImage::getMemberProfileImage).orElse("https://nurimplus.s3.ap-northeast-2.amazonaws.com/default-image.jpg");
     }
 
     // 프로필 이미지 삭제

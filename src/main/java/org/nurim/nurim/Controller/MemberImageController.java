@@ -1,6 +1,8 @@
 package org.nurim.nurim.Controller;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.S3Object;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -17,6 +19,7 @@ import org.nurim.nurim.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -26,6 +29,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -42,9 +46,6 @@ public class MemberImageController {
     private final MemberImageService memberImageService;
     private final FileUploadService fileUploadService;
 
-    @Value("${org.yeolmae.upload.path}")
-    private String uploadPath;
-
     @Autowired
     private AmazonS3 amazonS3Client;
 
@@ -60,11 +61,6 @@ public class MemberImageController {
      @RequestPart("files") MultipartFile files) {
 
         Member member = memberService.getMember();
-
-//        // 현재 로그인한 사용자가 해당 회원과 동일한지 확인
-//        if (!memberService.isCurrentUser(member.getMemberId())) {
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null); // 403 Forbidden
-//        }
 
         // S3에 파일 업로드
         FileDetail fileDetail = fileUploadService.save(files);
@@ -87,37 +83,75 @@ public class MemberImageController {
     @GetMapping(value = "/view/{memberId}")
     @Operation(summary = "프로필 이미지 파일 조회")
     public ResponseEntity<Resource> getProfileByMemberId(@PathVariable @RequestParam("memberId") Long memberId) {
-
-        String fileName = memberImageService.getProfileImageFileName(memberId);
-
-        // 외부 URL 처리
-        if (fileName.startsWith("http")) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Location", fileName);
-            return new ResponseEntity<>(headers, HttpStatus.FOUND); // 302 Redirect
-        }
-
-        Path imagePath = Paths.get(uploadPath + File.separator + fileName);
-
-        Resource resource = new FileSystemResource(imagePath);
-
-        // 파일 존재 확인 및 기본 이미지 처리
-        if (!resource.exists()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // http 헤더 설정 : MIME 타입을 확인하고(proveContentType 메소드 사용), 해당 MIME 타입을 http 응답 헤더에 추가
-        HttpHeaders headers = new HttpHeaders();
-
         try {
-            headers.add("Content-Type", Files.probeContentType(resource.getFile().toPath()));
+            // memberId로 프로필 이미지 파일명 조회
+            String fileName = memberImageService.getProfileImageFileName(memberId);
 
+            // 파일명이 null이면 해당 회원의 프로필 이미지가 없는 것이므로 404를 반환합니다.
+            if (fileName == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // S3 클라이언트를 사용하여 해당 파일명으로 이미지 파일을 가져옵니다.
+            S3Object object = amazonS3Client.getObject(bucket, "images/" + fileName);
+
+            // 가져온 객체의 입력 스트림을 InputStreamResource로 변환합니다.
+            InputStream inputStream = object.getObjectContent();
+            InputStreamResource resource = new InputStreamResource(inputStream);
+
+            // MIME 타입을 확인하여 HTTP 헤더에 추가합니다.
+            String contentType = object.getObjectMetadata().getContentType();
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+
+            return ResponseEntity.ok().headers(headers).body(resource);
+        } catch (AmazonS3Exception e) {
+            // Amazon S3에서 파일을 찾을 수 없는 경우 404를 반환합니다.
+            if (e.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
+                return ResponseEntity.notFound().build();
+            }
+            // 다른 Amazon S3 예외 발생 시 500을 반환합니다.
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         } catch (Exception e) {
-            // 파일 타입 확인 실패 시 내부 서버 오류 처리
-            return ResponseEntity.internalServerError().build();
+            // 그 외의 예외가 발생한 경우 500을 반환합니다.
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return ResponseEntity.ok().headers(headers).body(resource);
     }
+
+//    @GetMapping(value = "/view/{memberId}")
+//    @Operation(summary = "프로필 이미지 파일 조회")
+//    public ResponseEntity<Resource> getProfileByMemberId(@PathVariable @RequestParam("memberId") Long memberId) {
+//
+//        String fileName = memberImageService.getProfileImageFileName(memberId);
+//
+//        // 외부 URL 처리
+//        if (fileName.startsWith("http")) {
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.add("Location", fileName);
+//            return new ResponseEntity<>(headers, HttpStatus.FOUND); // 302 Redirect
+//        }
+//
+//        Path imagePath = Paths.get(uploadPath + File.separator + fileName);
+//
+//        Resource resource = new FileSystemResource(imagePath);
+//
+//        // 파일 존재 확인 및 기본 이미지 처리
+//        if (!resource.exists()) {
+//            return ResponseEntity.notFound().build();
+//        }
+//
+//        // http 헤더 설정 : MIME 타입을 확인하고(proveContentType 메소드 사용), 해당 MIME 타입을 http 응답 헤더에 추가
+//        HttpHeaders headers = new HttpHeaders();
+//
+//        try {
+//            headers.add("Content-Type", Files.probeContentType(resource.getFile().toPath()));
+//
+//        } catch (Exception e) {
+//            // 파일 타입 확인 실패 시 내부 서버 오류 처리
+//            return ResponseEntity.internalServerError().build();
+//        }
+//        return ResponseEntity.ok().headers(headers).body(resource);
+//    }
 
 
 
