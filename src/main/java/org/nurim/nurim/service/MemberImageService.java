@@ -26,6 +26,7 @@ public class MemberImageService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+    // 프로필 이미지 업로드
     @Transactional
     public void saveImage(String imagePath, Long memberId) {
         // 해당 memberId에 대한 MemberImage가 이미 존재하는지 확인

@@ -1,5 +1,6 @@
 package org.nurim.nurim.Controller;
 
+import com.amazonaws.services.s3.AmazonS3;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -7,10 +8,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.service.ExpertService;
 import org.nurim.nurim.service.MemberService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -35,27 +38,38 @@ public class ExpertController {
 
     private final MemberService memberService;
     private final ExpertService expertService;
+    private final FileUploadService fileUploadService;
+
+    @Autowired
+    private AmazonS3 amazonS3Client;
 
     @Value("${org.yeolmae.upload.path}")
     private String uploadPath;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     // 자격증 이미지 등록
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "자격증 이미지 업로드")
     public ResponseEntity<List<UploadFileResponse>> uploadExpertFile
     (@Parameter(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))))
-     @RequestPart("files") MultipartFile[] files,
-     @RequestParam("memberId") Long memberId) {
+     @RequestPart("files") MultipartFile[] files) {
+
+        Member member = memberService.getMember();
 
         if (files != null) {
 
             final List<UploadFileResponse> responses = new ArrayList<>();
 
             for (MultipartFile multipartFile : files) {
-                String uuid = UUID.randomUUID().toString();
-                String originalName = multipartFile.getOriginalFilename();
+                String fileName = UUID.randomUUID().toString() + "_" + multipartFile.getOriginalFilename();
+//                String uuid = UUID.randomUUID().toString();
+//                String originalName = multipartFile.getOriginalFilename();
 
-                Path savedPath = Paths.get(uploadPath, uuid + "_" + originalName);
+                // 이미지를 데이터베이스에 저장
+                expertService.saveExpertFile(fileName, member.getMemberId());
+
 
                 // 이미지 여부 초기화(default = false)
                 boolean isImage = false;

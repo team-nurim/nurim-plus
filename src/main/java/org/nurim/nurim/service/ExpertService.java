@@ -1,9 +1,11 @@
 package org.nurim.nurim.service;
 
+import com.amazonaws.services.s3.AmazonS3;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.entity.Expert;
 import org.nurim.nurim.domain.entity.Member;
+import org.nurim.nurim.domain.entity.MemberImage;
 import org.nurim.nurim.repository.ExpertRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -21,19 +23,34 @@ import java.util.Optional;
 public class ExpertService {
 
     private final ExpertRepository expertRepository;
+    private final AmazonS3 amazonS3;
 
     @Value("${org.yeolmae.upload.path}")
     private String uploadPath;
 
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
     // 자격증 이미지 등록
     @Transactional
-    public void saveExpertFile(String imagePath, Member member) {
+    public void saveExpertFile(String imagePath, Long memberId) {
 
-        Expert expert = new Expert();
-        expert.setExpertFile(imagePath);
-        expert.setMember(member);
-
-        expertRepository.save(expert);
+        Optional<Expert> existingImage = expertRepository.findByMember_MemberId(memberId);
+        if (existingImage.isPresent()) {
+            // 이미지가 존재하면 업데이트
+            Expert expert = existingImage.get();
+            expert.setExpertFile(imagePath);
+            expertRepository.save(expert);
+        } else {
+            // 이미지가 존재하지 않으면 예외 throw
+            throw new RuntimeException("Member image not found for memberId: " + memberId);
+        }
+//
+//        Expert expert = new Expert();
+//        expert.setExpertFile(imagePath);
+//        expert.setMember(getExpertImageFileName(memberId));
+//
+//        expertRepository.save(expert);
 
     }
 
