@@ -4,8 +4,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.entity.Expert;
-import org.nurim.nurim.domain.entity.Member;
-import org.nurim.nurim.domain.entity.MemberImage;
 import org.nurim.nurim.repository.ExpertRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
