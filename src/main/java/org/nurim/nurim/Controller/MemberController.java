@@ -110,7 +110,7 @@ public class MemberController {
 
     // 💌 검토 필요 (로그인한 사용자가 본인 정보만 수정 가능)
     @Operation(summary = "회원 정보 수정")
-    @PatchMapping("/{memberId}")
+    @PutMapping("/{memberId}")
     public ResponseEntity<UpdateMemberResponse> memberUpdate(@RequestBody UpdateMemberRequest request) {
 
         Member accessMember = memberService.getMember();
