@@ -44,6 +44,7 @@ public class Community {
     @Column
     private Long recommend;
 
+    @Builder.Default
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommunityImage> communityImage = new ArrayList<>();
 

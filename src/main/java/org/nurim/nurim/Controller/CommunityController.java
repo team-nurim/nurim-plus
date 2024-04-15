@@ -22,10 +22,9 @@ public class CommunityController {
 
     private final CommunityService communityService;
 
-    @PostMapping("/communityCreate")
+    @PostMapping("/communityCreate/{memberId}")
     @Operation(summary = "게시물 작성")
-    public ResponseEntity<CreateCommunityResponse> createCommunity(@RequestBody CreateCommunityRequest request){
-        Long memberId = request.getMemberId();
+    public ResponseEntity<CreateCommunityResponse> createCommunity(@PathVariable Long memberId, @RequestBody CreateCommunityRequest request){
         CreateCommunityResponse response = communityService.communityCreate(memberId, request);
         return ResponseEntity.ok().body(response);
     }
@@ -38,9 +37,9 @@ public class CommunityController {
     }
     @DeleteMapping("/communityDelete/{communityId}")
     @Operation(summary = "게시물 삭제", description = "게시물 memberId에 속한 유저만 삭제가 가능합니다.")
-    public ResponseEntity<DeleteCommunityResponse> deleteCommunity(@PathVariable Long communityId, @RequestParam Long memberId) {
+    public ResponseEntity<DeleteCommunityResponse> deleteCommunity(@PathVariable Long communityId, String memberEmail) {
         try {
-            DeleteCommunityResponse response = communityService.communityDelete(communityId, memberId);
+            DeleteCommunityResponse response = communityService.communityDelete(communityId, memberEmail);
             return ResponseEntity.ok().body(response);
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -49,8 +48,8 @@ public class CommunityController {
 
     @PutMapping("/communityUpdate/{communityId}")
     @Operation(summary = "게시물 수정")
-    public ResponseEntity<UpdateCommunityResponse> updateCommunity(@PathVariable Long communityId, @RequestBody UpdateCommunityRequest request){
-        UpdateCommunityResponse response = communityService.communityUpdate(communityId, request);
+    public ResponseEntity<UpdateCommunityResponse> updateCommunity(@PathVariable Long communityId, String memberEmail, @RequestBody UpdateCommunityRequest request) throws AccessDeniedException {
+        UpdateCommunityResponse response = communityService.communityUpdate(communityId, memberEmail, request);
         return ResponseEntity.ok().body(response);
     }
 
