@@ -18,7 +18,6 @@ import org.nurim.nurim.service.MemberImageService;
 import org.nurim.nurim.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -28,11 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -118,43 +113,6 @@ public class MemberImageController {
         }
     }
 
-//    @GetMapping(value = "/view/{memberId}")
-//    @Operation(summary = "프로필 이미지 파일 조회")
-//    public ResponseEntity<Resource> getProfileByMemberId(@PathVariable @RequestParam("memberId") Long memberId) {
-//
-//        String fileName = memberImageService.getProfileImageFileName(memberId);
-//
-//        // 외부 URL 처리
-//        if (fileName.startsWith("http")) {
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.add("Location", fileName);
-//            return new ResponseEntity<>(headers, HttpStatus.FOUND); // 302 Redirect
-//        }
-//
-//        Path imagePath = Paths.get(uploadPath + File.separator + fileName);
-//
-//        Resource resource = new FileSystemResource(imagePath);
-//
-//        // 파일 존재 확인 및 기본 이미지 처리
-//        if (!resource.exists()) {
-//            return ResponseEntity.notFound().build();
-//        }
-//
-//        // http 헤더 설정 : MIME 타입을 확인하고(proveContentType 메소드 사용), 해당 MIME 타입을 http 응답 헤더에 추가
-//        HttpHeaders headers = new HttpHeaders();
-//
-//        try {
-//            headers.add("Content-Type", Files.probeContentType(resource.getFile().toPath()));
-//
-//        } catch (Exception e) {
-//            // 파일 타입 확인 실패 시 내부 서버 오류 처리
-//            return ResponseEntity.internalServerError().build();
-//        }
-//        return ResponseEntity.ok().headers(headers).body(resource);
-//    }
-
-
-
     // 프로필 이미지 삭제
     @DeleteMapping(value = "/remove/{memberId}")
     @Operation(summary = "프로필 이미지 파일 삭제")
@@ -178,26 +136,5 @@ public class MemberImageController {
         return response;
 
     }
-//    @DeleteMapping(value = "/remove/{memberId}")
-//    @Operation(summary = "프로필 이미지 파일 삭제")
-//    public Map<String, Boolean> deleteProfile(@PathVariable Long memberId) {
-//
-//        Map<String, Boolean> response = new HashMap<>();
-//        boolean isRemoved = false;
-//
-//        try {
-//            // memberId를 기반으로 프로필 이미지 삭제
-//            response = memberImageService.deleteImage(memberId);
-//            isRemoved = response.get("result");
-//        } catch (Exception e) {
-//            log.error(e.getMessage());
-//        }
-//
-//        response.put("result", isRemoved);
-//        log.info(response);
-//
-//        return response;
-//
-//    }
 
 }

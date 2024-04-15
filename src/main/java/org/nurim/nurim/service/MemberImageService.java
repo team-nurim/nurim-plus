@@ -4,7 +4,6 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.nurim.nurim.AmazonS3.AmazonS3ResourceStorage;
 import org.nurim.nurim.domain.entity.MemberImage;
 import org.nurim.nurim.repository.MemberImageRepository;
 import org.springframework.beans.factory.annotation.Value;
