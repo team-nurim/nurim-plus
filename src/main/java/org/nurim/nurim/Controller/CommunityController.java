@@ -3,9 +3,7 @@ package org.nurim.nurim.Controller;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.nurim.nurim.domain.dto.community.*;
-import org.nurim.nurim.domain.dto.reply.ReadReplyResponse;
 import org.nurim.nurim.service.CommunityService;
-import org.nurim.nurim.service.ReplyService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -55,6 +53,17 @@ public class CommunityController {
         return ResponseEntity.ok().body(response);
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
+    @GetMapping("/communityList")
+    @Operation(summary = "게시물 전체 조회")
+    public ResponseEntity<Page<ReadAllCommunityResponse>> readAllCommunity(){
+        PageRequest pageRequest = PageRequest.of(0,20,Sort.by("communityId").descending());
+        Page<ReadAllCommunityResponse> communityResponses = communityService.getCommunityList(pageRequest);
+        return ResponseEntity.ok().body(communityResponses);
+    }
+
+
+    @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/categoryPage/{category}")
     @Operation(summary = "게시물 카테고리 별 게시물조회 페이징")
     public ResponseEntity<Page<ReadSearchResponse>> readCommunityList(@PathVariable String category, @RequestParam(defaultValue = "0")int page){
@@ -79,7 +88,8 @@ public class CommunityController {
     /**
      * 키워드에 따른 게시글 검색
      */
-    @PostMapping("/community/Search")
+    @CrossOrigin(origins = "http://localhost:8081")
+    @GetMapping("/community/Search")
     @Operation(summary = "검색기능" , description = "제목,카테고리,작성자 기준으로 각 게시물을 검색을 할수있습니다.")
     public ResponseEntity<Page<ReadSearchResponse>> searchCommunity(@RequestParam (required = false)String title ,
                                                                    @RequestParam (required = false) String communityCategory,
