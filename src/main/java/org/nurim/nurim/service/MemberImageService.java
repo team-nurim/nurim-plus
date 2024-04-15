@@ -28,14 +28,31 @@ public class MemberImageService {
     private String uploadPath;
 
     @Transactional
-    public void saveImage(String imagePath, Member member) {
-
-        MemberImage memberImage = new MemberImage();
-        memberImage.setMemberProfileImage(imagePath);
-        memberImage.setMember(member);
-
-        memberImageRepository.save(memberImage);
+    public void saveImage(String imagePath, Long memberId) {
+        // 해당 memberId에 대한 MemberImage가 이미 존재하는지 확인
+        Optional<MemberImage> existingImage = memberImageRepository.findByMember_MemberId(memberId);
+        if (existingImage.isPresent()) {
+            // 이미지가 존재하면 업데이트
+            MemberImage memberImage = existingImage.get();
+            memberImage.setMemberProfileImage(imagePath);
+            memberImageRepository.save(memberImage);
+        } else {
+            // 이미지가 없으면 새로 저장
+            MemberImage newImage = new MemberImage();
+            newImage.setMember(newImage.getMember());
+            newImage.setMemberProfileImage(imagePath);
+            memberImageRepository.save(newImage);
+        }
     }
+//    @Transactional
+//    public void saveImage(String imagePath, Member member) {
+//
+//        MemberImage memberImage = new MemberImage();
+//        memberImage.setMemberProfileImage(imagePath);
+//        memberImage.setMember(member);
+//
+//        memberImageRepository.save(memberImage);
+//    }
 
     // 프로필 이미지 조회
     public String getProfileImageFileName(Long memberId) {
