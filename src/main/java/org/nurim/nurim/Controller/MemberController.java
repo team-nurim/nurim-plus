@@ -4,11 +4,16 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.config.auth.PrincipalDetails;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "members", description = "회원 정보 API")
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @CrossOrigin(origins="*")
 @RequestMapping("/api/v1/members")
+@Log4j2
 public class MemberController {
 
     private final MemberService memberService;
@@ -60,17 +66,33 @@ public class MemberController {
     }
 
     // 💌 검토 필요 (추가)
+//    @Operation(summary = "JWT를 통한 Mypage 정보 불러오기")
+//    @GetMapping("/mypage")
+//    public ResponseEntity<ReadMemberResponse> getMyInfo(){
+//
+//        Member accessMember = memberService.getMember();
+//
+//        ReadMemberResponse response = memberService.readMemberById(accessMember.getMemberId());
+//
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//
+//    }
+
     @Operation(summary = "JWT를 통한 Mypage 정보 불러오기")
     @GetMapping("/mypage")
-    public ResponseEntity<ReadMemberResponse> getMyInfo(){
+    public ResponseEntity<ReadMemberResponse> getMyInfo(@AuthenticationPrincipal PrincipalDetails principalDetails){
 
-        Member accessMember = memberService.getMember();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("🍎authentication: " + authentication);
 
+        String username = authentication.getName();
+
+        Member accessMember = memberService.readMemberByMemberEmail(username);
         ReadMemberResponse response = memberService.readMemberById(accessMember.getMemberId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
+
 
     // 다른 회원 프로필 조회
 //    @Operation(summary = "다른 회원 프로필 정보 조회")
