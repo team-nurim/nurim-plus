@@ -46,7 +46,7 @@ public class JWTTests {
 //        String memberEmail = "aaaa@gmail.com";
 //        String memberPw = "111111";
 
-        String loginRequestJson = objectMapper.writeValueAsString(new LoginRequest("aaaa@gmail.com", "111111"));
+        String loginRequestJson = objectMapper.writeValueAsString(new LoginRequest("test02", "string"));
 
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/generateToken")
                         .contentType(MediaType.APPLICATION_JSON)

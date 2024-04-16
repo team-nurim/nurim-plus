@@ -1,6 +1,5 @@
 package org.nurim.nurim.service;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +7,6 @@ import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.domain.entity.MemberImage;
-import org.nurim.nurim.domain.entity.Post;
 import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,11 +25,6 @@ public class MemberImageService {
 
     private final MemberImageRepository memberImageRepository;
     private final MemberRepository memberRepository;
-    private final FileUploadService fileUploadService;
-    private final AmazonS3 amazonS3;
-
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
 
     // 프로필 이미지 업로드
     @Transactional

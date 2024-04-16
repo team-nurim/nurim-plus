@@ -10,12 +10,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.nurim.nurim.AmazonS3.FileDetail;
 import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
-import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.service.MemberImageService;
-import org.nurim.nurim.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
@@ -38,7 +35,6 @@ import java.util.UUID;
 @RequestMapping("/api/v1/images")
 public class MemberImageController {
 
-    private final MemberService memberService;
     private final MemberImageService memberImageService;
     private final FileUploadService fileUploadService;
 
