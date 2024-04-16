@@ -1,15 +1,12 @@
 package org.nurim.nurim.service;
 
-import com.amazonaws.services.s3.AmazonS3;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.domain.entity.MemberImage;
 import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.repository.MemberRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -48,14 +45,6 @@ public class MemberImageService {
             throw new RuntimeException("Member image not found for memberId: " + memberId);
         }
 
-    }
-
-    // 프로필 이미지 조회
-    public String getProfileImageFileName(Long memberId) {
-
-        Optional<MemberImage> memberImageOptional = memberImageRepository.findByMember_MemberId(memberId);
-
-        return memberImageOptional.map(MemberImage::getMemberProfileImage).orElse("https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/default_image.jpg");
     }
 
     // 프로필 이미지 삭제
