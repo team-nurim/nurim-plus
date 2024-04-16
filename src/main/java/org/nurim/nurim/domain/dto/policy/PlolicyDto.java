@@ -1,4 +1,4 @@
-package org.nurim.nurim.dto;
+package org.nurim.nurim.domain.dto.policy;
 
 
 //엔티티통해 저장했으면, api호출로 받은 데이터를 담아서 쓰기위한 dto 클래스 생성!

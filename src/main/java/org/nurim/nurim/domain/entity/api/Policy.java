@@ -1,10 +1,12 @@
-package org.nurim.nurim.domain.entity;
+package org.nurim.nurim.domain.entity.api;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.nurim.nurim.domain.entity.Member;
+
 import java.time.LocalDate;
 
 
