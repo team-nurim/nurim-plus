@@ -21,14 +21,14 @@ public class Notice {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long noticeId;
 
-    @Column(nullable = false)
-    private String noticeWriter;
-
     @Column(length = 50)
     private String noticeTitle;
 
     @Column(length = 500)
     private String noticeContent;
+
+    @Column(nullable = false)
+    private String noticeWriter;
 
     @CreationTimestamp
     private LocalDate noticeRegisterDate;
@@ -36,4 +36,10 @@ public class Notice {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "adminId")
     private Admin admin;
+
+    public void update(String noticeTitle, String noticeContent, String noticeWriter) {
+        this.noticeTitle = noticeTitle;
+        this.noticeContent = noticeContent;
+        this.noticeWriter = noticeWriter;
+    }
 }

@@ -7,18 +7,19 @@ import jakarta.persistence.*;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString(exclude = "curation")
+@ToString(exclude = "post")
 public class PostImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "postimage_id", nullable = false)
-    private int postImageId;
+    @Column(name = "postImageId", nullable = false)
+    private Long postImageId;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne()
     @JoinColumn(name = "postId")
     Post post;
 
@@ -31,5 +32,6 @@ public class PostImage {
     public void changePost(Post post) {
         this.post = post;
     }
+
 
 }
