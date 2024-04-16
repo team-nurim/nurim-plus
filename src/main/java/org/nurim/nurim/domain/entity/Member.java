@@ -2,6 +2,7 @@ package org.nurim.nurim.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.nurim.nurim.domain.entity.api.Policy;
 
 import java.util.ArrayList;
 import java.util.List;
