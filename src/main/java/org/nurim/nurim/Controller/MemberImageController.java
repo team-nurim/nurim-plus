@@ -56,23 +56,27 @@ public class MemberImageController {
 //        Member member = memberService.getMember();
         // memberId 인증 객체 여부 판단 로직 추가....
 
-        String uuid = UUID.randomUUID().toString();
-        String fileName = files.getOriginalFilename();
+        if (files != null) {
 
-        // DB에 이미지 uuid 저장
-        memberImageService.saveImage(memberId, uuid, fileName);
+            String uuid = UUID.randomUUID().toString();
+            String originalName = files.getOriginalFilename();
 
-        // S3에 파일 업로드
-        fileUploadService.save(files);
+            // DB에 이미지 uuid 저장
+            memberImageService.saveImage(memberId, uuid, originalName);
 
-        // 응답 생성
-        UploadFileResponse response = UploadFileResponse.builder()
-                .uuid(uuid)
-                .fileName(fileName)
-                .img(true) // 이미지인 경우 true로 설정
-                .build();
+            // S3에 파일 업로드
+            fileUploadService.save(files);
 
-        return ResponseEntity.ok(response);
+            // 응답 생성
+            UploadFileResponse response = UploadFileResponse.builder()
+                    .uuid(uuid)
+                    .fileName(originalName)
+                    .img(true) // 이미지인 경우 true로 설정
+                    .build();
+
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().build();
 
     }
 

@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.entity.Expert;
 import org.nurim.nurim.domain.entity.Member;
+import org.nurim.nurim.domain.entity.Post;
+import org.nurim.nurim.domain.entity.PostImage;
 import org.nurim.nurim.repository.ExpertRepository;
 import org.nurim.nurim.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +28,6 @@ public class ExpertService {
     private final ExpertRepository expertRepository;
     private final MemberRepository memberRepository;
 
-
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
@@ -34,22 +35,16 @@ public class ExpertService {
     @Transactional
     public void saveImage(Long memberId, String expertFile, String expertFileName) {
 
-        Optional<Expert> existingImage = expertRepository.findByMember_MemberId(memberId);
-        if (existingImage.isPresent()) {
-            // 이미지가 존재하면 업데이트
-            Expert expert = existingImage.get();
-            expert.setExpertFile(expertFile);
-            expert.setExpertFileName(expertFileName);
+        Expert expert = new Expert();
+        expert.setExpertFile(expertFile);
+        expert.setExpertFileName(expertFileName);
 
-            // memberId를 사용하여 해당하는 Member 엔티티를 가져와서 설정
-            Member member = memberRepository.findById(memberId).orElseThrow(() -> new EntityNotFoundException("Member not found with id : " + memberId));
-            expert.setMember(member);
+        // memberId를 사용하여 해당하는 Member 엔티티를 가져와서 설정
+        Member member = memberRepository.findById(memberId).orElseThrow(() -> new EntityNotFoundException("Member not found with id : " + memberId));
+        expert.setMember(member);
 
-            expertRepository.save(expert);
-        } else {
-            // 이미지가 존재하지 않으면 예외 throw
-            throw new RuntimeException("Expert image not found for memberId: " + memberId);
-        }
+        expertRepository.save(expert);
+
     }
 
 //    // 자격증 이미지 조회
