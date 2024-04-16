@@ -255,7 +255,7 @@ public class MemberService {
                 request.isMemberMarriage(),
                 request.getMemberIncome(),
                 request.isType());
-//
+
 //        // MemberImage 정보 업데이트
 //        String newMemberProfileImage = request.getMemberProfileImage(); // 새로운 이미지 정보
 //        UpdateMemberImageRequest imageRequest = new UpdateMemberImageRequest(newMemberProfileImage); // 이미지 정보 갖는 객체

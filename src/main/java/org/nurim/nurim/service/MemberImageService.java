@@ -67,7 +67,7 @@ public class MemberImageService {
 
             } catch (Exception e) {
                 // 데이터베이스에서 삭제 실패 시, 에러
-                log.error("😀Failed to delete imagge from the database: " + e.getMessage());
+                log.error("😀memberId로 데이터베이스 삭제 실패 : " + e.getMessage());
             }
         } else {
             log.warn("해당 memberId가 존재하지 않아 삭제할 수 없습니다.");
