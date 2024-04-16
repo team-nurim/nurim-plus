@@ -2,10 +2,15 @@ package org.nurim.nurim.service;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.AmazonS3.FileUploadService;
+import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.domain.entity.MemberImage;
+import org.nurim.nurim.domain.entity.Post;
 import org.nurim.nurim.repository.MemberImageRepository;
+import org.nurim.nurim.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +26,8 @@ import java.util.Optional;
 public class MemberImageService {
 
     private final MemberImageRepository memberImageRepository;
+    private final MemberRepository memberRepository;
+    private final FileUploadService fileUploadService;
     private final AmazonS3 amazonS3;
 
     @Value("${cloud.aws.s3.bucket}")
@@ -28,18 +35,26 @@ public class MemberImageService {
 
     // 프로필 이미지 업로드
     @Transactional
-    public void saveImage(String imagePath, Long memberId) {
+    public void saveImage(Long memberId, String memberProfileImage, String profileName) {
         // 해당 memberId에 대한 MemberImage가 이미 존재하는지 확인
         Optional<MemberImage> existingImage = memberImageRepository.findByMember_MemberId(memberId);
+
         if (existingImage.isPresent()) {
             // 이미지가 존재하면 업데이트
             MemberImage memberImage = existingImage.get();
-            memberImage.setMemberProfileImage(imagePath);
+            memberImage.setMemberProfileImage(memberProfileImage);
+            memberImage.setProfileName(profileName);
+
+            // memberId를 사용하여 해당하는 Member 엔티티를 가져와서 설정
+            Member member = memberRepository.findById(memberId).orElseThrow(() -> new EntityNotFoundException("Member not found with id : " + memberId));
+            memberImage.setMember(member);
+
             memberImageRepository.save(memberImage);
         } else {
             // 이미지가 존재하지 않으면 예외 throw
             throw new RuntimeException("Member image not found for memberId: " + memberId);
         }
+
     }
 
     // 프로필 이미지 조회
@@ -47,7 +62,7 @@ public class MemberImageService {
 
         Optional<MemberImage> memberImageOptional = memberImageRepository.findByMember_MemberId(memberId);
 
-        return memberImageOptional.map(MemberImage::getMemberProfileImage).orElse("https://nurimplus.s3.ap-northeast-2.amazonaws.com/default-image.jpg");
+        return memberImageOptional.map(MemberImage::getMemberProfileImage).orElse("https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/default_image.jpg");
     }
 
     // 프로필 이미지 삭제
@@ -55,44 +70,43 @@ public class MemberImageService {
     public Map<String, Boolean> deleteImage(Long memberId) {
 
         Map<String, Boolean> response = new HashMap<>();
-        boolean isRemoved = false;
+        boolean isRemovedFromDatabase = false;
+        boolean isRemovedFromS3 = false;
 
-        try {
-            // memberId로 프로필 이미지 조회
-            MemberImage memberImage = memberImageRepository.findByMember_MemberId(memberId)
-                    .orElse(null);
-
-            if (memberImage != null) {
-                String fileName = memberImage.getMemberProfileImage();
+        if (memberId != null) {
+            try {
+                // 데이터베이스에서 이미지 정보 삭제
+                memberImageRepository.deleteByMemberId(memberId);
+                isRemovedFromDatabase = true; // 삭제 성공 시, true
 
                 // S3에서 이미지 삭제
-                amazonS3.deleteObject(bucket, fileName);
 
-                // DB에서 이미지 삭제
-                memberImageRepository.delete(memberImage);
-                isRemoved = true;
+                // 초기 프로필 이미지로 변경
 
-                // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
-                String defaultProfileImageUrl = "https://nurimplus1.s3.ap-northeast-2.amazonaws.com/default-image.jpg";
-
-                // Default 이미지로 변경
-                memberImage.setMemberProfileImage(defaultProfileImageUrl);
-                memberImageRepository.save(memberImage);
-            } else {
-                // 해당 memberId에 대한 프로필 이미지가 없는 경우
-                log.warn("No profile image found for memberId: " + memberId);
+            } catch (Exception e) {
+                // 데이터베이스에서 삭제 실패 시, 에러
+                log.error("😀Failed to delete imagge from the database: " + e.getMessage());
             }
-        } catch (AmazonServiceException e) {
-            // S3에서 삭제 실패한 경우
-            log.error("Failed to delete profile image from S3: " + e.getMessage());
-        } catch (Exception e) {
-            // 그 외 에러 발생 시
-            log.error("Failed to delete profile image and update to default: " + e.getMessage());
+        } else {
+            log.warn("해당 memberId가 존재하지 않아 삭제할 수 없습니다.");
         }
 
-        response.put("result", isRemoved);
+        response.put("result", isRemovedFromDatabase);
         return response;
 
+    }
+
+    public boolean setDefaultImage (Long memberId) {
+        // 기본 이미지 uuid
+        String defaultImage = "8590a967-d772-4872-9a98-4c7e3ad434f9";
+
+        try {
+            memberImageRepository.updateByMemberId(defaultImage, memberId);
+            return true;
+        } catch (Exception e) {
+            log.error("기본 이미지로 반환 실패" + e.getMessage());
+            return false;
+        }
     }
 
 }

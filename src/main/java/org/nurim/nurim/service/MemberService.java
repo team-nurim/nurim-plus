@@ -45,7 +45,7 @@ public class MemberService {
         }
 
         // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
-        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/default-image.jpg";
+        String defaultProfileImageUrl = "b9b29138-612e-4f1d-8ff2-8aaca82b9fc6";
 
         // 초기 필드값 default 설정
         Member member = Member.builder()
@@ -67,6 +67,7 @@ public class MemberService {
         MemberImage memberImage = new MemberImage();
         memberImage.setMember(savedMember);
         memberImage.setMemberProfileImage(defaultProfileImageUrl); // 정적 경로 참조
+        memberImage.setProfileName("default_image.jpg");
         memberImageRepository.save(memberImage);
 
         // 회원 정보에 이미지 정보 연결
@@ -100,8 +101,8 @@ public class MemberService {
             throw new DataIntegrityViolationException("이미 존재하는 회원입니다.");   // 전역예외처리 필요
         }
 
-        // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
-        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/default-image.jpg";
+        // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 UUID)
+        String defaultProfileImageUrl = "b9b29138-612e-4f1d-8ff2-8aaca82b9fc6";
 
         // 초기 필드값 default 설정
         Member member = Member.builder()
@@ -123,6 +124,7 @@ public class MemberService {
         MemberImage memberImage = new MemberImage();
         memberImage.setMember(savedMember);
         memberImage.setMemberProfileImage(defaultProfileImageUrl); // 정적 경로 참조
+        memberImage.setProfileName("default_image.jpg");
         memberImageRepository.save(memberImage);
 
         // 회원 정보에 이미지 정보 연결

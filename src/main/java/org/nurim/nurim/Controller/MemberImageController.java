@@ -30,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @Log4j2
@@ -53,20 +54,25 @@ public class MemberImageController {
     @Operation(summary = "프로필 이미지 업로드", description = "POST로 파일 등록")
     public ResponseEntity<UploadFileResponse> uploadProfile
     (@Parameter(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))))
-     @RequestPart("files") MultipartFile files) {
+     @RequestPart("files") MultipartFile files,
+     @RequestParam Long memberId) {
 
-        Member member = memberService.getMember();
+//        Member member = memberService.getMember();
+        // memberId 인증 객체 여부 판단 로직 추가....
+
+        String uuid = UUID.randomUUID().toString();
+        String fileName = files.getOriginalFilename();
+
+        // DB에 이미지 uuid 저장
+        memberImageService.saveImage(memberId, uuid, fileName);
 
         // S3에 파일 업로드
-        FileDetail fileDetail = fileUploadService.save(files);
-
-        // DB에 이미지 경로 저장
-        memberImageService.saveImage(fileDetail.getPath(), member.getMemberId());
+        fileUploadService.save(files);
 
         // 응답 생성
         UploadFileResponse response = UploadFileResponse.builder()
-                .uuid(fileDetail.getId())
-                .fileName(fileDetail.getName())
+                .uuid(uuid)
+                .fileName(fileName)
                 .img(true) // 이미지인 경우 true로 설정
                 .build();
 
@@ -75,20 +81,18 @@ public class MemberImageController {
     }
 
     // 프로필 이미지 조회
-    @GetMapping(value = "/view/{memberId}")
+    @GetMapping(value = "/view/{uuid}")
     @Operation(summary = "프로필 이미지 파일 조회")
-    public ResponseEntity<Resource> getProfileByMemberId(@PathVariable @RequestParam("memberId") Long memberId) {
+    public ResponseEntity<Resource> getProfile(@PathVariable String uuid) {
         try {
-            // memberId로 프로필 이미지 파일명 조회
-            String fileName = memberImageService.getProfileImageFileName(memberId);
-
-            // 파일명이 null이면 해당 회원의 프로필 이미지가 없는 것이므로 404를 반환합니다.
-            if (fileName == null) {
-                return ResponseEntity.notFound().build();
-            }
 
             // S3 클라이언트를 사용하여 해당 파일명으로 이미지 파일을 가져옵니다.
-            S3Object object = amazonS3Client.getObject(bucket, "images/" + fileName);
+            S3Object object = amazonS3Client.getObject(bucket, "images/" + uuid);
+
+            // S3에 올라간 파일이 null이면 해당 회원의 프로필 이미지가 없는 것이므로 404를 반환합니다.
+            if (object == null) {
+                return ResponseEntity.notFound().build();
+            }
 
             // 가져온 객체의 입력 스트림을 InputStreamResource로 변환합니다.
             InputStream inputStream = object.getObjectContent();
@@ -114,25 +118,48 @@ public class MemberImageController {
     }
 
     // 프로필 이미지 삭제
-    @DeleteMapping(value = "/remove/{memberId}")
+    @DeleteMapping(value = "/remove/{uuid}")
     @Operation(summary = "프로필 이미지 파일 삭제")
-    public Map<String, Boolean> deleteProfile(@PathVariable Long memberId) {
+    public Map<String, Boolean> deleteProfile(@PathVariable String uuid, Long memberId) {
 
         Map<String, Boolean> response = new HashMap<>();
-        boolean isRemoved = false;
+        boolean isRemovedFromDatabase = false;
+        boolean isRemovedFromS3 = false;
+        boolean isDefaultSet = false;
 
         try {
-            // memberId를 기반으로 프로필 이미지 삭제
-            response = memberImageService.deleteImage(memberId);
-            isRemoved = response.get("result");
+            // 데이터베이스에서 파일 삭제 시도 확인
+            Map<String, Boolean> databaseResponse = memberImageService.deleteImage(memberId);
+            isRemovedFromDatabase = databaseResponse.get("result");
+
+            // S3에서 파일 삭제
+            isRemovedFromS3 = fileUploadService.deleteFile(uuid);
+
+            // 디버그 로그
+            log.info("데이터베이스 삭제 상태(삭제 - true) : " + isRemovedFromDatabase);
+            log.info("S3 삭제 상태(삭제 - true) : " + isRemovedFromS3);
+
+            // 삭제가 모두 이뤄지면 default 이미지 uuid로 변경
+            if (isRemovedFromDatabase && isRemovedFromS3) {
+                isDefaultSet = memberImageService.setDefaultImage(memberId);
+            }
+
+            log.info("기본 이미지 설정 상태(설정 - true)" + isDefaultSet);
+
 
         } catch (Exception e) {
-            log.error(e.getMessage());
+            // 삭제 실패 시 에러 로그 출력
+            log.error("Error occurred during file removal: " + e.getMessage());
         }
 
-        response.put("result", isRemoved);
-        log.info(response);
+//        // 두 작업 모두 성공했을 때만 결과를 true로 설정
+//        if (isRemovedFromDatabase && isRemovedFromS3) {
+//            response.put("result", true);
+//        } else {
+//            response.put("result", false);
+//        }
 
+        log.info(response);
         return response;
 
     }

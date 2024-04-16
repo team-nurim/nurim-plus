@@ -22,6 +22,9 @@ public class MemberImage {
     @Column(length = 500)
     private String memberProfileImage;
 
+    @Column(length = 500)
+    private String profileName;
+
     public void changeMember(Member member) {
         this.member = member;
     }

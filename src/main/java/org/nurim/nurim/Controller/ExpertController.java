@@ -49,60 +49,60 @@ public class ExpertController {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    // 자격증 이미지 등록
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "자격증 이미지 업로드")
-    public ResponseEntity<List<UploadFileResponse>> uploadExpertFile
-    (@Parameter(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))))
-     @RequestPart("files") MultipartFile[] files) {
-
-        Member member = memberService.getMember();
-
-        if (files != null) {
-
-            final List<UploadFileResponse> responses = new ArrayList<>();
-
-            for (MultipartFile multipartFile : files) {
-                String fileName = UUID.randomUUID().toString() + "_" + multipartFile.getOriginalFilename();
-//                String uuid = UUID.randomUUID().toString();
-//                String originalName = multipartFile.getOriginalFilename();
-
-                // 이미지를 데이터베이스에 저장
-                expertService.saveExpertFile(fileName, member.getMemberId());
-
-
-                // 이미지 여부 초기화(default = false)
-                boolean isImage = false;
-
-                try {
-                    // 실제 파일 저장
-                    multipartFile.transferTo(savedPath);
-
-                    // 저장된 파일이 MIME 유형인지 확인
-                    if (Files.probeContentType(savedPath).startsWith("image")) {
-                        isImage = true;
-
-                        // memberId로 회원 정보 가져오기
-                        Member member = memberService.getMemberById(memberId);
-
-                        // 이미지를 데이터베이스에 저장
-                        expertService.saveExpertFile(savedPath.getFileName().toString(), member);
-                    }
-
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                }
-
-                responses.add(UploadFileResponse.builder()
-                        .uuid(uuid)
-                        .fileName(originalName)
-                        .img(isImage)
-                        .build());
-            }
-            return ResponseEntity.ok(responses);
-        }
-        return ResponseEntity.badRequest().build();
-    }
+//    // 자격증 이미지 등록
+//    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    @Operation(summary = "자격증 이미지 업로드")
+//    public ResponseEntity<List<UploadFileResponse>> uploadExpertFile
+//    (@Parameter(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))))
+//     @RequestPart("files") MultipartFile[] files) {
+//
+//        Member member = memberService.getMember();
+//
+//        if (files != null) {
+//
+//            final List<UploadFileResponse> responses = new ArrayList<>();
+//
+//            for (MultipartFile multipartFile : files) {
+//                String fileName = UUID.randomUUID().toString() + "_" + multipartFile.getOriginalFilename();
+////                String uuid = UUID.randomUUID().toString();
+////                String originalName = multipartFile.getOriginalFilename();
+//
+//                // 이미지를 데이터베이스에 저장
+//                expertService.saveExpertFile(fileName, member.getMemberId());
+//
+//
+//                // 이미지 여부 초기화(default = false)
+//                boolean isImage = false;
+//
+//                try {
+//                    // 실제 파일 저장
+//                    multipartFile.transferTo(savedPath);
+//
+//                    // 저장된 파일이 MIME 유형인지 확인
+//                    if (Files.probeContentType(savedPath).startsWith("image")) {
+//                        isImage = true;
+//
+//                        // memberId로 회원 정보 가져오기
+//                        Member member = memberService.getMemberById(memberId);
+//
+//                        // 이미지를 데이터베이스에 저장
+//                        expertService.saveExpertFile(savedPath.getFileName().toString(), member);
+//                    }
+//
+//                } catch (IOException e) {
+//                    log.error(e.getMessage());
+//                }
+//
+//                responses.add(UploadFileResponse.builder()
+//                        .uuid(uuid)
+//                        .fileName(originalName)
+//                        .img(isImage)
+//                        .build());
+//            }
+//            return ResponseEntity.ok(responses);
+//        }
+//        return ResponseEntity.badRequest().build();
+//    }
 
     // 자격증 이미지 조회
     @GetMapping(value = "/view/{memberId}")
