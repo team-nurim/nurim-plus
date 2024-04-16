@@ -32,5 +32,4 @@ public class MemberImage {
     public void update(String memberProfileImage){
         this.memberProfileImage = memberProfileImage;
     }
-
 }
