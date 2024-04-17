@@ -21,12 +21,12 @@ public class PostController {
     private final PostService postService;
 
     @CrossOrigin(origins = "http://localhost:8081")
-    @PostMapping("/post/register/{adminId}")
+    @PostMapping("/post/register/{memberId}")
     public ResponseEntity<CreatePostResponse> postCreate(
-            @PathVariable Long adminId,
+            @PathVariable Long memberId,
             @RequestBody CreatePostRequest request) {
 
-        CreatePostResponse response = postService.createPost(adminId, request);
+        CreatePostResponse response = postService.createPost(memberId, request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
