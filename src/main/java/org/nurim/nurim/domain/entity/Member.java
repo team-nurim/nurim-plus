@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.nurim.nurim.domain.entity.api.Policy;
 
 import java.util.ArrayList;
 import java.util.List;
