@@ -3,10 +3,14 @@ package org.nurim.nurim.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.AmazonS3.FileUploadService;
+import org.nurim.nurim.domain.dto.post.upload.UploadFileRequest;
+import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.domain.entity.MemberImage;
 import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.repository.MemberRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +26,7 @@ public class MemberImageService {
 
     private final MemberImageRepository memberImageRepository;
     private final MemberRepository memberRepository;
+    private final FileUploadService fileUploadService;
 
     // 프로필 이미지 업로드
     @Transactional
@@ -49,34 +54,38 @@ public class MemberImageService {
 
     // 프로필 이미지 삭제
     @Transactional
-    public Map<String, Boolean> deleteImage(Long memberId) {
+    public boolean deleteAndSetDefaultImage(Long memberId) {
+        Optional<MemberImage> memberImageOptional = memberImageRepository.findByMember_MemberId(memberId);
+        if (memberImageOptional.isPresent()) {
+            MemberImage memberImage = memberImageOptional.get();
 
-        Map<String, Boolean> response = new HashMap<>();
-        boolean isRemovedFromDatabase = false;
-        boolean isRemovedFromS3 = false;
+            // S3에서 파일 삭제
+            boolean isRemovedFromS3 = fileUploadService.deleteFile(memberImage.getProfileName());
 
-        if (memberId != null) {
-            try {
-                // 데이터베이스에서 이미지 정보 삭제
-                memberImageRepository.deleteByMemberId(memberId);
-                isRemovedFromDatabase = true; // 삭제 성공 시, true
+            // S3에서 이미지 삭제에 성공하면 DB에서 기본 이미지로 변경
+            if (isRemovedFromS3) {
+                // 기본 이미지로 변경할 이미지 경로
+                String defaultImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
+                String defaultKey = "images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
 
-                // S3에서 이미지 삭제
+                // DB에서 해당 회원의 이미지를 기본 이미지로 변경
+                memberImage.setMemberProfileImage(defaultImageUrl);
+                memberImage.setProfileName(defaultKey);
+                memberImageRepository.save(memberImage);
 
-                // 초기 프로필 이미지로 변경
-
-            } catch (Exception e) {
-                // 데이터베이스에서 삭제 실패 시, 에러
-                log.error("😀memberId로 데이터베이스 삭제 실패 : " + e.getMessage());
+                return true;
+            } else {
+                // S3에서의 이미지 삭제 실패 시 처리할 로직
+                return false;
             }
         } else {
-            log.warn("해당 memberId가 존재하지 않아 삭제할 수 없습니다.");
+            // 해당 회원의 이미지가 존재하지 않을 경우 처리할 로직
+            return false;
         }
-
-        response.put("result", isRemovedFromDatabase);
-        return response;
-
     }
+
+    // DB는 default 이미지 경로로 변경, S3에서는 삭제
+
 
 //    public boolean setDefaultImage (Long memberId) {
 //        // 기본 이미지 uuid

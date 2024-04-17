@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.AmazonS3.FileDetail;
 import org.nurim.nurim.AmazonS3.FileUploadService;
+import org.nurim.nurim.domain.dto.post.upload.UploadFileRequest;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.service.MemberImageService;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,19 +56,22 @@ public class MemberImageController {
         // memberId 인증 객체 여부 판단 로직 추가...
         if (files != null) {
 
-            // S3에 파일 업로드 및 url 반환
-            String url = fileUploadService.saveUrl(files);
+            Map<String, String> s3Result = fileUploadService.saveUrlAndKey(files);
+            String url = s3Result.get("url");
             log.info(url);
+            String key = s3Result.get("key");
+            log.info(key);
 
-            String originalName = files.getOriginalFilename();
+//            // uuid 저장
+//            String originalName = files.getOriginalFilename();
 
             // DB에 이미지 url 저장
-            memberImageService.saveImage(memberId, url, originalName);
+            memberImageService.saveImage(memberId, url, key);
 
             // 응답 생성
             UploadFileResponse response = UploadFileResponse.builder()
                     .uuid(url)
-                    .fileName(originalName)
+                    .fileName(key)
                     .img(true) // 이미지인 경우 true로 설정
                     .build();
 
@@ -114,45 +118,66 @@ public class MemberImageController {
 //        }
 //    }
 
+
+
     // 프로필 이미지 삭제
     @PutMapping(value = "/remove/{memberId}")
     @Operation(summary = "프로필 이미지 파일 삭제")
     public Map<String, Boolean> deleteProfile(@PathVariable Long memberId) {
-
         Map<String, Boolean> response = new HashMap<>();
-        boolean isRemovedFromDatabase = false;
-        boolean isRemovedFromS3 = false;
-        boolean isDefaultSet = false;
+        boolean isDeletedAndSetDefault = false;
 
         try {
-            // 데이터베이스에서 파일 삭제 시도 확인
-            Map<String, Boolean> databaseResponse = memberImageService.deleteImage(memberId);
-            isRemovedFromDatabase = databaseResponse.get("result");
-
-            // S3에서 파일 삭제
-            isRemovedFromS3 = fileUploadService.deleteFile(uuid);
-
-            // 디버그 로그
-            log.info("데이터베이스 삭제 상태(삭제 - true) : " + isRemovedFromDatabase);
-            log.info("S3 삭제 상태(삭제 - true) : " + isRemovedFromS3);
-
-            // 삭제가 모두 이뤄지면 default 이미지 uuid로 변경
-            if (isRemovedFromDatabase && isRemovedFromS3) {
-                isDefaultSet = memberImageService.setDefaultImage(memberId);
-
-            }
-
-            log.info("기본 이미지 설정 상태(설정 - true)" + isDefaultSet);
-
-
+            // 이미지 삭제 및 기본 이미지로 변경
+            isDeletedAndSetDefault = memberImageService.deleteAndSetDefaultImage(memberId);
+            log.info("프로필 이미지 삭제 및 기본 이미지로 변경 상태: " + isDeletedAndSetDefault);
         } catch (Exception e) {
-            // 삭제 실패 시 에러 로그 출력
-            log.error("Error occurred during file removal: " + e.getMessage());
+            // 처리 중 에러가 발생한 경우 로그 출력
+            log.error("프로필 이미지 삭제 및 기본 이미지로 변경 중 오류 발생: " + e.getMessage());
         }
 
-        log.info(response);
+        response.put("success", isDeletedAndSetDefault);
         return response;
-
     }
+//    public Map<String, Boolean> deleteProfile(@PathVariable Long memberId) {
+//
+//        Map<String, Boolean> response = new HashMap<>();
+////        boolean isRemovedFromDatabase = false;
+//        boolean isRemovedFromS3 = false;
+//        boolean isDefaultSet = false;
+//
+//        try {
+//
+//            String key = memberImageService.getkeyByMemberId(memberId);
+//            log.info(key);
+//
+////            // 데이터베이스에서 파일 삭제 시도 확인
+////            Map<String, Boolean> databaseResponse = memberImageService.deleteImage(memberId);
+////            isRemovedFromDatabase = databaseResponse.get("result");
+//
+//            // S3에서 파일 삭제
+//            isRemovedFromS3 = fileUploadService.deleteFile(key);
+//
+//            // 디버그 로그
+//            log.info("S3 삭제 상태(삭제 - true) : " + isRemovedFromS3);
+//
+////            // 삭제가 모두 이뤄지면 default 이미지 uuid로 변경
+////            if (isRemovedFromDatabase && isRemovedFromS3) {
+////                isDefaultSet = memberImageService.setDefaultImage(memberId);
+////
+////            }
+//
+//            log.info("기본 이미지 설정 상태(설정 - true)" + isDefaultSet);
+//
+//
+//        } catch (Exception e) {
+//            // 삭제 실패 시 에러 로그 출력
+//            log.error("Error occurred during file removal: " + e.getMessage());
+//        }
+//
+//        log.info(response);
+//        return response;
+//
+//    }
 
 }
