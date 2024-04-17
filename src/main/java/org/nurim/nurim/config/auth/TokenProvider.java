@@ -39,6 +39,7 @@ public class TokenProvider {
     // Member 정보를 가지고 토큰 생성
     public String generateToken(Map<String, Object> valueMap, int days) {
 
+        log.info("=============== TokenProvider : generateToken() 작동 ===============");
         // header
         Map<String, Object> headers = new HashMap<>();
         headers.put("typ", "JWT");
@@ -58,6 +59,8 @@ public class TokenProvider {
                 .setExpiration(Date.from(ZonedDateTime.now().plusMinutes(time).toInstant()))
                 .signWith(SignatureAlgorithm.HS256, jwtSecret.getBytes())
                 .compact();
+
+        log.info("🎯jwtStr: " + jwtStr);
 
         return jwtStr;
     }

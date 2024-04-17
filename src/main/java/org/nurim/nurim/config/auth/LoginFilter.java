@@ -31,6 +31,8 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException, IOException, ServletException {
 
+        log.info("=============== LoginFilter ===============");
+
         if(request.getMethod().equalsIgnoreCase("GET")) {
             log.info("GET Method Not Support");
             return null;
@@ -39,7 +41,7 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
         // 클라이언트에서 POST 요청 시 파싱된 JSON 문자열 처리 메소드
         Map<String, String> jsonData = parseRequestJSON(request);
 
-        log.info(jsonData);
+        log.info("📢jsonData: " + jsonData);
 
         // 인증 토큰 생성
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(jsonData.get("memberEmail"), jsonData.get("memberPw"));

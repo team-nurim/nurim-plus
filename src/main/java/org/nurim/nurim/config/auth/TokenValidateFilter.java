@@ -13,6 +13,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.security.SignatureException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 @Log4j2
@@ -21,11 +23,16 @@ public class TokenValidateFilter extends OncePerRequestFilter {
 
     private final TokenProvider tokenProvider;
 
+    // 토큰이 필요하지 않은 API URL
+    List<String> list = Arrays.asList(
+            "/api/v1/auth/login",
+            "/api/v1/members/user",
+            "/api/v1/members/admin"
+    );
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        /** 모든 "/api" 요청에 대해서 Authorization 헤더를 조회하고
-         *  토큰이 올바른 형식인지 && 만료되지 않았는지 확인 */
         String path = request.getRequestURI();
 
         if(!path.startsWith("/api/")) {
@@ -33,6 +40,7 @@ public class TokenValidateFilter extends OncePerRequestFilter {
             return;
         }
 
+        log.info("=============== TokenValidateFilter ===============");
         log.info("TokenProvider: " + tokenProvider);
 
         try {
