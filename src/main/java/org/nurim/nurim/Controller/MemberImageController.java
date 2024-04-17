@@ -1,6 +1,5 @@
 package org.nurim.nurim.Controller;
 
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.S3Object;
@@ -15,7 +14,6 @@ import org.nurim.nurim.AmazonS3.FileDetail;
 import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.service.MemberImageService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -29,7 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 @RestController
 @Log4j2

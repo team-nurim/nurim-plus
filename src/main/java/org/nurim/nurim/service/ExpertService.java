@@ -1,23 +1,18 @@
 package org.nurim.nurim.service;
 
-import com.amazonaws.services.s3.AmazonS3;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.entity.Expert;
 import org.nurim.nurim.domain.entity.Member;
-import org.nurim.nurim.domain.entity.Post;
-import org.nurim.nurim.domain.entity.PostImage;
 import org.nurim.nurim.repository.ExpertRepository;
 import org.nurim.nurim.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
