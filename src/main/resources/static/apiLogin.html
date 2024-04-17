@@ -6,6 +6,10 @@
 </head>
 <body>
 
+<button class="btn1">generate token</button>
+
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
 <h1>Access Token</h1>
 <h3 class="accessOld"></h3>
 <h3 class="accessResult"></h3>
@@ -18,9 +22,14 @@
 <button class="btn1">Refresh</button>
 
 
-
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
+
+    document.querySelector(".btn1").addEventListener("click", () => {
+        const data = {memberEmail: "mangoperry2015@gmail.com", memberPw: "111111"}
+
+        axios.post("http://localhost:8080/generateToken", data)
+    }, false)
+
 
     const oldAccessToken = localStorage.getItem("accessToken")
     const oldRefreshToken = localStorage.getItem("refreshToken")
