@@ -27,7 +27,6 @@ public class FileUploadService {
     public FileDetail save(MultipartFile multipartFile) {
         FileDetail fileDetail = FileDetail.multipartOf(multipartFile);
         amazonS3ResourceStorage.store(fileDetail.getPath(), multipartFile);
-//        amazonS3Client.getUrl(bucket, fileDetail.getPath());
 
         return fileDetail;
     }
@@ -44,6 +43,7 @@ public class FileUploadService {
         }
     }
 
+    // 이미지 저장 및 url 반환
     public String saveUrl(MultipartFile multipartFile) {
         FileDetail fileDetail = FileDetail.multipartOf(multipartFile);
         amazonS3ResourceStorage.store(fileDetail.getPath(), multipartFile);

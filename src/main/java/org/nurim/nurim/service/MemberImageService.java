@@ -78,19 +78,19 @@ public class MemberImageService {
 
     }
 
-    public boolean setDefaultImage (Long memberId) {
-        // 기본 이미지 uuid
-        String defaultImage = "8590a967-d772-4872-9a98-4c7e3ad434f9";
-
-        try {
-            memberImageRepository.updateByMemberId(defaultImage, memberId);
-
-
-            return true;
-        } catch (Exception e) {
-            log.error("기본 이미지로 반환 실패" + e.getMessage());
-            return false;
-        }
-    }
+//    public boolean setDefaultImage (Long memberId) {
+//        // 기본 이미지 uuid
+//        String defaultImage = "8590a967-d772-4872-9a98-4c7e3ad434f9";
+//
+//        try {
+//            memberImageRepository.updateByMemberId(defaultImage, memberId);
+//
+//
+//            return true;
+//        } catch (Exception e) {
+//            log.error("기본 이미지로 반환 실패" + e.getMessage());
+//            return false;
+//        }
+//    }
 
 }

@@ -55,13 +55,13 @@ public class MemberImageController {
         // memberId 인증 객체 여부 판단 로직 추가...
         if (files != null) {
 
-            // S3에 파일 업로드
+            // S3에 파일 업로드 및 url 반환
             String url = fileUploadService.saveUrl(files);
             log.info(url);
 
             String originalName = files.getOriginalFilename();
 
-            // DB에 이미지 uuid 저장
+            // DB에 이미지 url 저장
             memberImageService.saveImage(memberId, url, originalName);
 
             // 응답 생성
@@ -77,47 +77,47 @@ public class MemberImageController {
 
     }
 
-    // 프로필 이미지 조회
-    @GetMapping(value = "/view/{uuid}")
-    @Operation(summary = "프로필 이미지 파일 조회")
-    public ResponseEntity<Resource> getProfile(@PathVariable String uuid) {
-        try {
-
-            // S3 클라이언트를 사용하여 해당 파일명으로 이미지 파일을 가져옵니다.
-            S3Object object = amazonS3Client.getObject(bucket, "images/" + uuid);
-
-            // S3에 올라간 파일이 null이면 해당 회원의 프로필 이미지가 없는 것이므로 404를 반환합니다.
-            if (object == null) {
-                return ResponseEntity.notFound().build();
-            }
-
-            // 가져온 객체의 입력 스트림을 InputStreamResource로 변환합니다.
-            InputStream inputStream = object.getObjectContent();
-            InputStreamResource resource = new InputStreamResource(inputStream);
-
-            // MIME 타입을 확인하여 HTTP 헤더에 추가합니다.
-            String contentType = object.getObjectMetadata().getContentType();
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_TYPE, contentType);
-
-            return ResponseEntity.ok().headers(headers).body(resource);
-        } catch (AmazonS3Exception e) {
-            // Amazon S3에서 파일을 찾을 수 없는 경우 404를 반환합니다.
-            if (e.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
-                return ResponseEntity.notFound().build();
-            }
-            // 다른 Amazon S3 예외 발생 시 500을 반환합니다.
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        } catch (Exception e) {
-            // 그 외의 예외가 발생한 경우 500을 반환합니다.
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+//    // 프로필 이미지 조회
+//    @GetMapping(value = "/view/{uuid}")
+//    @Operation(summary = "프로필 이미지 파일 조회")
+//    public ResponseEntity<Resource> getProfile(@PathVariable String uuid) {
+//        try {
+//
+//            // S3 클라이언트를 사용하여 해당 파일명으로 이미지 파일을 가져옵니다.
+//            S3Object object = amazonS3Client.getObject(bucket, "images/" + uuid);
+//
+//            // S3에 올라간 파일이 null이면 해당 회원의 프로필 이미지가 없는 것이므로 404를 반환합니다.
+//            if (object == null) {
+//                return ResponseEntity.notFound().build();
+//            }
+//
+//            // 가져온 객체의 입력 스트림을 InputStreamResource로 변환합니다.
+//            InputStream inputStream = object.getObjectContent();
+//            InputStreamResource resource = new InputStreamResource(inputStream);
+//
+//            // MIME 타입을 확인하여 HTTP 헤더에 추가합니다.
+//            String contentType = object.getObjectMetadata().getContentType();
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+//
+//            return ResponseEntity.ok().headers(headers).body(resource);
+//        } catch (AmazonS3Exception e) {
+//            // Amazon S3에서 파일을 찾을 수 없는 경우 404를 반환합니다.
+//            if (e.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
+//                return ResponseEntity.notFound().build();
+//            }
+//            // 다른 Amazon S3 예외 발생 시 500을 반환합니다.
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        } catch (Exception e) {
+//            // 그 외의 예외가 발생한 경우 500을 반환합니다.
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
 
     // 프로필 이미지 삭제
-    @DeleteMapping(value = "/remove/{uuid}")
+    @PutMapping(value = "/remove/{memberId}")
     @Operation(summary = "프로필 이미지 파일 삭제")
-    public Map<String, Boolean> deleteProfile(@PathVariable String uuid, Long memberId) {
+    public Map<String, Boolean> deleteProfile(@PathVariable Long memberId) {
 
         Map<String, Boolean> response = new HashMap<>();
         boolean isRemovedFromDatabase = false;
