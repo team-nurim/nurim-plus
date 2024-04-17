@@ -29,12 +29,6 @@ public class MemberImageController {
 
     private final MemberImageService memberImageService;
     private final FileUploadService fileUploadService;
-    private final AmazonS3Client amazonS3Client;
-
-    private final FileDetail fileDetail;
-
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
 
     // 프로필 이미지 등록
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

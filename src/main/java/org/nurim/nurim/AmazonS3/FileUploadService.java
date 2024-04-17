@@ -38,8 +38,7 @@ public class FileUploadService {
         try {
             // S3에서 파일 삭제
 //            amazonS3.deleteObject(bucket, uuid);
-//            amazonS3.delete
-            amazonS3Client.deleteObject(bucket, uuid);
+            amazonS3Client.deleteObject(bucket, uuid); // key 값으로 삭제해야 하므로 S3client로 변경
             return true;
         } catch (AmazonServiceException e) {
             // 삭제 실패 시 에러 로그 출력

@@ -4,18 +4,13 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.AmazonS3.FileUploadService;
-import org.nurim.nurim.domain.dto.post.upload.UploadFileRequest;
-import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.domain.entity.MemberImage;
 import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.repository.MemberRepository;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -83,23 +78,4 @@ public class MemberImageService {
             return false;
         }
     }
-
-    // DB는 default 이미지 경로로 변경, S3에서는 삭제
-
-
-//    public boolean setDefaultImage (Long memberId) {
-//        // 기본 이미지 uuid
-//        String defaultImage = "8590a967-d772-4872-9a98-4c7e3ad434f9";
-//
-//        try {
-//            memberImageRepository.updateByMemberId(defaultImage, memberId);
-//
-//
-//            return true;
-//        } catch (Exception e) {
-//            log.error("기본 이미지로 반환 실패" + e.getMessage());
-//            return false;
-//        }
-//    }
-
 }
