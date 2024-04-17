@@ -21,7 +21,7 @@ public class FileDetail {
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public static FileDetail multipartOf(MultipartFile multipartFile, String uuid) {
+    public static FileDetail multipartOf(MultipartFile multipartFile) {
         final String fileId = MultipartUtil.createFileId();
         final String format = MultipartUtil.getFormat(multipartFile.getContentType());
         return FileDetail.builder()
@@ -33,4 +33,5 @@ public class FileDetail {
                 .build();
     }
 
+    // createPath = %s/%s.%s images uuid.jpg
 }

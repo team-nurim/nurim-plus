@@ -16,10 +16,10 @@ import static org.springframework.util.MimeTypeUtils.APPLICATION_JSON_VALUE;
 public class UploadController {
     private final FileUploadService fileUploadService;
 
-    @PostMapping
-    public ResponseEntity<FileDetail> post(
-            @RequestPart("file") MultipartFile multipartFile) {
-        return ResponseEntity.ok(fileUploadService.save(multipartFile));
-    }
+//    @PostMapping
+//    public ResponseEntity<FileDetail> post(
+//            @RequestPart("file") MultipartFile multipartFile) {
+//        return ResponseEntity.ok(fileUploadService.save(multipartFile));
+//    }
 
 }

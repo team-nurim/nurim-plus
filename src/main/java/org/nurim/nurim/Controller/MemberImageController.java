@@ -1,6 +1,7 @@
 package org.nurim.nurim.Controller;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.S3Object;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.AmazonS3.FileDetail;
 import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.service.MemberImageService;
@@ -37,10 +39,9 @@ public class MemberImageController {
 
     private final MemberImageService memberImageService;
     private final FileUploadService fileUploadService;
+    private final AmazonS3Client amazonS3Client;
 
-    @Autowired
-    private AmazonS3 amazonS3Client;
-
+    private final FileDetail fileDetail;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -54,22 +55,21 @@ public class MemberImageController {
      @RequestParam Long memberId) {
 
 //        Member member = memberService.getMember();
-        // memberId 인증 객체 여부 판단 로직 추가....
-
+        // memberId 인증 객체 여부 판단 로직 추가...
         if (files != null) {
 
-            String uuid = UUID.randomUUID().toString();
+            // S3에 파일 업로드
+            String url = fileUploadService.saveUrl(files);
+            log.info(url);
+
             String originalName = files.getOriginalFilename();
 
             // DB에 이미지 uuid 저장
-            memberImageService.saveImage(memberId, uuid, originalName);
-
-            // S3에 파일 업로드
-            fileUploadService.save(files);
+            memberImageService.saveImage(memberId, url, originalName);
 
             // 응답 생성
             UploadFileResponse response = UploadFileResponse.builder()
-                    .uuid(uuid)
+                    .uuid(url)
                     .fileName(originalName)
                     .img(true) // 이미지인 경우 true로 설정
                     .build();
