@@ -142,6 +142,7 @@ public class MemberImageController {
             // 삭제가 모두 이뤄지면 default 이미지 uuid로 변경
             if (isRemovedFromDatabase && isRemovedFromS3) {
                 isDefaultSet = memberImageService.setDefaultImage(memberId);
+
             }
 
             log.info("기본 이미지 설정 상태(설정 - true)" + isDefaultSet);
@@ -151,13 +152,6 @@ public class MemberImageController {
             // 삭제 실패 시 에러 로그 출력
             log.error("Error occurred during file removal: " + e.getMessage());
         }
-
-//        // 두 작업 모두 성공했을 때만 결과를 true로 설정
-//        if (isRemovedFromDatabase && isRemovedFromS3) {
-//            response.put("result", true);
-//        } else {
-//            response.put("result", false);
-//        }
 
         log.info(response);
         return response;

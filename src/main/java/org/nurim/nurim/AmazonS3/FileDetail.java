@@ -21,7 +21,7 @@ public class FileDetail {
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public static FileDetail multipartOf(MultipartFile multipartFile) {
+    public static FileDetail multipartOf(MultipartFile multipartFile, String uuid) {
         final String fileId = MultipartUtil.createFileId();
         final String format = MultipartUtil.getFormat(multipartFile.getContentType());
         return FileDetail.builder()

@@ -20,11 +20,18 @@ public class FileUploadService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public FileDetail save(MultipartFile multipartFile) {
+    public FileDetail save(MultipartFile multipartFile, String uuid) {
         FileDetail fileDetail = FileDetail.multipartOf(multipartFile);
         amazonS3ResourceStorage.store(fileDetail.getPath(), multipartFile);
         return fileDetail;
     }
+
+//    public FileDetail save(MultipartFile multipartFile) {
+//        FileDetail fileDetail = FileDetail.multipartOf(multipartFile);
+//        amazonS3ResourceStorage.store(fileDetail.getPath(), multipartFile);
+//        return fileDetail;
+//    }
+
     public boolean deleteFile(String uuid) {
         try {
             // S3에서 파일 삭제
@@ -36,5 +43,6 @@ public class FileUploadService {
             return false;
         }
     }
+
 }
 
