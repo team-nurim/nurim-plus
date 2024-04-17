@@ -1,5 +1,6 @@
 package org.nurim.nurim.config;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.nurim.nurim.config.auth.*;
 import org.nurim.nurim.service.PrincipalDetailsService;
@@ -15,6 +16,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,9 +28,12 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 
 import javax.sql.DataSource;
+import java.util.Collections;
 
 
 @Configuration
@@ -93,9 +98,9 @@ public class SecurityConfig {
 
         // 자동로그인 설정
         http.rememberMe((rememberMe) -> rememberMe
-                .key("remember-me")//인증받은 사용자 정보로 토큰 생성에 필요한 값
-                .rememberMeParameter("remember-me")//html에서의 name 값
-                .tokenValiditySeconds(24*60*60)//remember-me 토큰 유효시간 : 1일
+                .key("remember-me")   // 인증받은 사용자 정보로 토큰 생성에 필요한 값
+                .rememberMeParameter("remember-me")   // html에서의 name 값
+                .tokenValiditySeconds(7*24*60*60)   // remember-me 토큰 유효시간 : 7일
                 .rememberMeServices(rememberMeServices(persistentTokenRepository()))
                 .userDetailsService(new PrincipalDetailsService()));
 
@@ -105,11 +110,25 @@ public class SecurityConfig {
                 .logoutSuccessUrl("/loginForm"));
 
         // csrf 비활성화
-        http.csrf((csrf) -> csrf.disable());
+        http.csrf(AbstractHttpConfigurer::disable);
 
         // 세션 비활성화
         http.sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // cors
+        http.cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
+                    @Override
+                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                        CorsConfiguration config = new CorsConfiguration();
+                        config.setAllowedOrigins(Collections.singletonList("http://localhost:8081"));
+                        config.setAllowedMethods(Collections.singletonList("*"));
+                        config.setAllowCredentials(true);
+                        config.setAllowedHeaders(Collections.singletonList("*"));
+                        config.setMaxAge(3600L); //1시간
+                        return config;
+                    }
+                }));
 
         // context 설정
         http.securityContext((securityContext) -> securityContext
@@ -127,6 +146,7 @@ public class SecurityConfig {
     }
 
 
+    // remember-me 토큰을 DB에 저장하고 검색하는 기능 (JdbcTokenRepositoryImpl로 구현)
     @Bean
     public PersistentTokenRepository persistentTokenRepository() {
 
@@ -143,7 +163,7 @@ public class SecurityConfig {
         PersistentTokenBasedRememberMeServices rememberMeServices
                 = new PersistentTokenBasedRememberMeServices("rememberMeKey", new PrincipalDetailsService(), tokenRepository);
         rememberMeServices.setParameter("remember-me");
-        rememberMeServices.setAlwaysRemember(false);
+        rememberMeServices.setAlwaysRemember(true);
 
         return rememberMeServices;
     }

@@ -40,11 +40,13 @@ public class TokenValidateFilter extends OncePerRequestFilter {
             return;
         }
 
+        log.info("=============== TokenValidateFilter ===============");
         log.info("TokenProvider: " + tokenProvider);
 
         try {
             validateAccessToken(request);
             filterChain.doFilter(request, response);
+
         } catch (AccessTokenException accessTokenException) {
             accessTokenException.sendResponseError(response);
         }

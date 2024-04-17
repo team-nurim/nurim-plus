@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.config.auth.LoginSuccessHandler;
 import org.nurim.nurim.config.auth.PrincipalDetails;
-import org.nurim.nurim.domain.dto.LoginRequest;
 import org.nurim.nurim.domain.dto.LoginResponse;
 import org.nurim.nurim.domain.dto.ReadMemberResponse;
 import org.nurim.nurim.service.AuthService;
