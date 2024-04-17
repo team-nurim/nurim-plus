@@ -36,7 +36,7 @@ public class PrincipalDetailsService implements UserDetailsService {
 //                .authorities("ROLE_USER")
                 .build();
 
-        log.info("💎userDetails : ", userDetails);
+        log.info("💎userDetails : {}", userDetails);
 
         return userDetails;
     }

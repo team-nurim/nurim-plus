@@ -38,23 +38,23 @@
     document.querySelector(".refreshOld").innerHTML = oldRefreshToken
 
 
-    document.querySelector(".btn1").addEventListener("click", () => {
-
-        axios.post("http://localhost:8080/generateToken",
-            {accessToken: oldAccessToken, refreshToken: oldRefreshToken})
-            .then(res => {
-                console.log(res.data)
-
-                const newAccessToken = res.data.accessToken
-                const newRefreshToken = res.data.refreshToken
-
-                document.querySelector(".accessResult").innerHTML = oldAccessToken !== newAccessToken ? newAccessToken : 'OLD'
-                document.querySelector(".refreshResult").innerHTML = oldRefreshToken !== newRefreshToken ? newRefreshToken : 'OLD'
-        })
-            .catch(error => {
-                console.error(error)
-            })
-    }, false)
+    // document.querySelector(".btn1").addEventListener("click", () => {
+    //
+    //     axios.post("http://localhost:8080/generateToken",
+    //         {accessToken: oldAccessToken, refreshToken: oldRefreshToken})
+    //         .then(res => {
+    //             console.log(res.data)
+    //
+    //             const newAccessToken = res.data.accessToken
+    //             const newRefreshToken = res.data.refreshToken
+    //
+    //             document.querySelector(".accessResult").innerHTML = oldAccessToken !== newAccessToken ? newAccessToken : 'OLD'
+    //             document.querySelector(".refreshResult").innerHTML = oldRefreshToken !== newRefreshToken ? newRefreshToken : 'OLD'
+    //     })
+    //         .catch(error => {
+    //             console.error(error)
+    //         })
+    // }, false)
 
 </script>
 
