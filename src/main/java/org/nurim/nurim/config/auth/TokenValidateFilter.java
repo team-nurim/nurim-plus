@@ -35,7 +35,7 @@ public class TokenValidateFilter extends OncePerRequestFilter {
 
         String path = request.getRequestURI();
 
-        if(!path.startsWith("/api/")) {
+        if(!path.startsWith("/api/") || list.contains(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }

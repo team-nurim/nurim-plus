@@ -15,6 +15,7 @@ import java.awt.*;
 import java.io.IOException;
 import java.util.Map;
 
+@Configuration
 @RequiredArgsConstructor
 @Log4j2
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
@@ -28,8 +29,8 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         // HTTP 응답 콘텐츠 타입을 JSON으로 설정
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        log.info("👀" + authentication);
-        log.info("👀" + authentication.getName());   // username 추출
+        log.info(authentication);
+        log.info(authentication.getName());   // username 추출
 
         Map<String, Object> claim = Map.of("memberEmail", authentication.getName());
         // access token 유효기간 1일
@@ -39,14 +40,11 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         Gson gson = new Gson();
 
-        // 토큰을 Map 형태에 저장
+        // access, refresh token 포함하는 map 생성
         Map<String, String> keyMap = Map.of("accessToken", accessToken, "refreshToken", refreshToken);
+        String jsonStr = gson.toJson(keyMap);   // map 객체를 JSON 문자열로 변환
 
-        // keyMap을 JSON 형식의 문자열로 변환
-        String jsonStr = gson.toJson(keyMap);
-
-        // JSON 문자열을 HTTP 응답으로 전송
-        response.getWriter().println(jsonStr);
+        response.getWriter().println(jsonStr);   // JSON 문자열을 HTTP 응답에 기록하여 클라이언트에 반환
 
         return;
     }

@@ -25,6 +25,7 @@ public class ReplyController {
         return ResponseEntity.ok().body(response);
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/community/{communityId}/replyRead")
     @Operation(summary = "댓글 리스트 조회")
     public ResponseEntity<List<ReadReplyResponse>>readReplyList(@PathVariable Long communityId) {
