@@ -1,6 +1,5 @@
 package org.nurim.nurim.Controller;
 
-import com.amazonaws.services.s3.AmazonS3Client;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -8,11 +7,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.nurim.nurim.AmazonS3.FileDetail;
 import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.service.MemberImageService;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
