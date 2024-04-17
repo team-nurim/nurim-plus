@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +30,7 @@ public class CommunityController {
         return ResponseEntity.ok().body(response);
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/communityRead/{communityId}")
     @Operation(summary = "게시물 단위조회 및 조회수", description = "게시물을 조회하고 조회한만큼 조회수가 오릅니다.")
     public ResponseEntity<ReadCommunityResponse> readCommunity(@PathVariable Long communityId){
@@ -56,9 +58,9 @@ public class CommunityController {
     @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/communityList")
     @Operation(summary = "게시물 전체 조회")
-    public ResponseEntity<Page<ReadAllCommunityResponse>> readAllCommunity(){
-        PageRequest pageRequest = PageRequest.of(0,20,Sort.by("communityId").descending());
-        Page<ReadAllCommunityResponse> communityResponses = communityService.getCommunityList(pageRequest);
+    public ResponseEntity<Page<ReadAllCommunityResponse>> readAllCommunity(@PageableDefault(
+            size = 20, sort = "communityId", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<ReadAllCommunityResponse> communityResponses = communityService.getCommunityList(pageable);
         return ResponseEntity.ok().body(communityResponses);
     }
 
@@ -66,8 +68,9 @@ public class CommunityController {
     @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/categoryPage/{category}")
     @Operation(summary = "게시물 카테고리 별 게시물조회 페이징")
-    public ResponseEntity<Page<ReadSearchResponse>> readCommunityList(@PathVariable String category, @RequestParam(defaultValue = "0")int page){
-        Pageable pageable = PageRequest.of(0, 20, Sort.by("communityId").descending());
+    public ResponseEntity<Page<ReadSearchResponse>> readCommunityList(
+            @PathVariable String category,
+            @PageableDefault( size = 20, sort = "communityId",direction = Sort.Direction.DESC) Pageable pageable){
         Page<ReadSearchResponse> communityResponsePage = communityService.getCommunityListByCategory(category, pageable);
         return ResponseEntity.ok().body(communityResponsePage);
     }
@@ -93,17 +96,18 @@ public class CommunityController {
     @Operation(summary = "검색기능" , description = "제목,카테고리,작성자 기준으로 각 게시물을 검색을 할수있습니다.")
     public ResponseEntity<Page<ReadSearchResponse>> searchCommunity(@RequestParam (required = false)String title ,
                                                                    @RequestParam (required = false) String communityCategory,
-                                                                   @RequestParam (required = false) String memberNickname){
-        PageRequest pageRequest = PageRequest.of(0,20,Sort.by("title").descending());
+                                                                   @RequestParam (required = false) String memberNickname,
+            @PageableDefault(size = 20, sort = "communityId", direction = Sort.Direction.DESC) Pageable pageable){
+
         Page<ReadSearchResponse> searchResultPage;
         if(title != null && communityCategory !=null && memberNickname !=null){
-            searchResultPage = communityService.SearchTitleAndCategoryAndMemberNickName(title,communityCategory,memberNickname,pageRequest);
+            searchResultPage = communityService.SearchTitleAndCategoryAndMemberNickName(title,communityCategory,memberNickname,pageable);
         } else if (title !=null) {
-            searchResultPage = communityService.SearchTitle(title, pageRequest);
+            searchResultPage = communityService.SearchTitle(title, pageable);
         } else if (communityCategory != null){
-            searchResultPage = communityService.SearchCategory(communityCategory, pageRequest);
+            searchResultPage = communityService.SearchCategory(communityCategory, pageable);
         } else if ( memberNickname!= null){
-        searchResultPage = communityService.SearchMemberNickName(memberNickname, pageRequest);
+        searchResultPage = communityService.SearchMemberNickName(memberNickname, pageable);
         } else{
             return ResponseEntity.badRequest().build();
         }

@@ -1,38 +1,33 @@
 package org.nurim.nurim.Controller;
 
-import com.google.gson.Gson;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.nurim.nurim.config.auth.TokenProvider;
+import org.nurim.nurim.config.auth.LoginSuccessHandler;
+import org.nurim.nurim.config.auth.PrincipalDetails;
 import org.nurim.nurim.domain.dto.LoginRequest;
 import org.nurim.nurim.domain.dto.LoginResponse;
+import org.nurim.nurim.domain.dto.ReadMemberResponse;
 import org.nurim.nurim.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Tag(name = "auth", description = "회원 인증/인가 API")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
 @Log4j2
 public class AuthController {
 
     @Autowired
     private AuthService authService;
-
-    @Autowired
-    private TokenProvider tokenProvider;
 
 
     @GetMapping("/sample")
@@ -42,12 +37,12 @@ public class AuthController {
 
 
 //    @PostMapping("/login")
-//    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request) {
+//    public ResponseEntity<LoginResponse> login(@Valid @RequestBody LoginRequest request) {
+//        // 로그인 정보로 토큰 생성
+//        LoginResponse response = authService.login(request);
 //
-//
-//        return ResponseEntity.ok(new LoginResponse(jsonStr));
+//        return ResponseEntity.status(HttpStatus.OK).body(response);
 //    }
-
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout() {

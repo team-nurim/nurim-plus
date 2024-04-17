@@ -12,6 +12,8 @@ import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -256,7 +258,7 @@ public class MemberService {
                 request.isMemberMarriage(),
                 request.getMemberIncome(),
                 request.isType());
-//
+
 //        // MemberImage 정보 업데이트
 //        String newMemberProfileImage = request.getMemberProfileImage(); // 새로운 이미지 정보
 //        UpdateMemberImageRequest imageRequest = new UpdateMemberImageRequest(newMemberProfileImage); // 이미지 정보 갖는 객체
@@ -301,20 +303,28 @@ public class MemberService {
 
     // context에서 회원정보 가져오기
     public Member getMember() {
+
+        // SecurityContext에서 인증 정보 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        String username = authentication.getName();   // 사용자 이메일 추출
-        if(username == null) {
-            log.info("사용자 인증 정보가 없습니다.");
+        if(authentication == null || !authentication.isAuthenticated()) {
+           log.info("인증 객체를 찾을 수 없습니다.");
         }
 
-        log.info("😀" + username);
+        String username = authentication.getName();   // 사용자 이메일 추출
+
+        if(username == null) {
+            log.info("사용자 이메일 정보가 없습니다.");
+        }
+
+        log.info("😀사용자 이메일" + username);
 
         Member member = memberRepository.findMemberByMemberEmail(username)
-                .orElseThrow(() -> new EntityNotFoundException("사용자 정보를 찾을 수 없습니다."));
+                .orElseThrow(() -> new EntityNotFoundException("사용자 정보를 DB에서 찾을 수 없습니다."));
 
         return member;
     }
+
 
     public Member readMemberByMemberEmail(String username) {
         Member foundMember = memberRepository.findMemberByMemberEmail(username)
