@@ -64,11 +64,11 @@ public class SecurityConfig {
                 .anyRequest().permitAll());   //나머지 페이지들은 모두 권한 허용
 
         // login 설정
-        http.formLogin((formLogin) -> formLogin
-                .loginPage("/login")
-                .usernameParameter("email")
-                .defaultSuccessUrl("/")
-        );
+//        http.formLogin((formLogin) -> formLogin
+//                .loginPage("/login")
+//                .usernameParameter("email")
+//                .defaultSuccessUrl("/")
+//        );
 
         // Authentication Manager 설정
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
