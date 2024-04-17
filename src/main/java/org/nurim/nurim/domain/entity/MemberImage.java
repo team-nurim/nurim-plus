@@ -19,9 +19,11 @@ public class MemberImage {
     @JoinColumn(name = "memberId", unique = true)
     private Member member;
 
+    // url
     @Column(length = 500)
     private String memberProfileImage;
 
+    // key 값
     @Column(length = 500)
     private String profileName;
 
