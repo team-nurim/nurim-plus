@@ -42,13 +42,11 @@ public class JWTTests {
     }
 
     @Test
-    public void testLogin() throws Exception {
-//        String memberEmail = "aaaa@gmail.com";
-//        String memberPw = "111111";
+    public void testLoginAndGetMember() throws Exception {
+        String loginRequestJson = objectMapper.writeValueAsString(new LoginRequest("mangoperry2015@gmail.com", "111111"));
 
-        String loginRequestJson = objectMapper.writeValueAsString(new LoginRequest("aaaa@gmail.com", "111111"));
-
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/generateToken")
+        // Login and get the access token
+        MvcResult loginResult = mockMvc.perform(MockMvcRequestBuilders.post("/generateToken")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(loginRequestJson))
                 .andExpect(MockMvcResultMatchers.status().isOk())
@@ -56,14 +54,20 @@ public class JWTTests {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.refreshToken").exists())
                 .andReturn();
 
-        // returns the result as a string
-        String resultString = result.getResponse().getContentAsString();
+        String loginResultString = loginResult.getResponse().getContentAsString();
+        JSONObject loginResponseJson = new JSONObject(loginResultString);
+        String accessToken = loginResponseJson.getString("accessToken");
+        String refreshToken = loginResponseJson.getString("refreshToken");
 
-        // convert the string to JSON
-        JSONObject responseJson = new JSONObject(resultString);
+        // Now use the access token to access getMember
+        mockMvc.perform(MockMvcRequestBuilders.get("/api/v1/members/mypage")
+                        .header("Authorization", "Bearer " + accessToken)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andReturn();
 
-        System.out.println("🎈access token: " + responseJson.getString("accessToken"));
-        System.out.println("🎈refresh token: " + responseJson.getString("refreshToken"));
+        System.out.println("🎈access token: " + accessToken);
+        System.out.println("🎈refresh token: " + refreshToken);
     }
 
     @Test

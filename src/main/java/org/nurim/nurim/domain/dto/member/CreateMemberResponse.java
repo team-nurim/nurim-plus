@@ -22,5 +22,4 @@ public class CreateMemberResponse {
     private boolean type;
     private MemberRole memberRole;
     private String memberProfileImage;
-
 }

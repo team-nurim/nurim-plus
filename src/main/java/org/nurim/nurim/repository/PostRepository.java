@@ -16,7 +16,8 @@ public interface PostRepository extends JpaRepository<Post,Long> {
     @Query("select a from Post a where a.postId =:id")
     Optional<Post> findByIdWithImages(@Param("id") Long postId);
 
-    Page<Post> findByPostTitleContainingOrPostContentContaining(String keyword1, String keyword2, Pageable pageable);
+    @Query("select p from Post p where p.postCategory = :category")
+    Page<Post> findByPostCategory(@Param("category") String category, Pageable pageable);
 
 
 }
