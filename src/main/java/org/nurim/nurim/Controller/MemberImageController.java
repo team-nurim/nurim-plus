@@ -1,8 +1,6 @@
 package org.nurim.nurim.Controller;
 
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.S3Object;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -12,20 +10,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.AmazonS3.FileDetail;
 import org.nurim.nurim.AmazonS3.FileUploadService;
-import org.nurim.nurim.domain.dto.post.upload.UploadFileRequest;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.service.MemberImageService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,14 +48,12 @@ public class MemberImageController {
         // memberId 인증 객체 여부 판단 로직 추가...
         if (files != null) {
 
+            // S3에서의 이미지 저장 및 url, key값 반환
             Map<String, String> s3Result = fileUploadService.saveUrlAndKey(files);
             String url = s3Result.get("url");
             log.info(url);
             String key = s3Result.get("key");
             log.info(key);
-
-//            // uuid 저장
-//            String originalName = files.getOriginalFilename();
 
             // DB에 이미지 url 저장
             memberImageService.saveImage(memberId, url, key);
@@ -139,45 +129,5 @@ public class MemberImageController {
         response.put("success", isDeletedAndSetDefault);
         return response;
     }
-//    public Map<String, Boolean> deleteProfile(@PathVariable Long memberId) {
-//
-//        Map<String, Boolean> response = new HashMap<>();
-////        boolean isRemovedFromDatabase = false;
-//        boolean isRemovedFromS3 = false;
-//        boolean isDefaultSet = false;
-//
-//        try {
-//
-//            String key = memberImageService.getkeyByMemberId(memberId);
-//            log.info(key);
-//
-////            // 데이터베이스에서 파일 삭제 시도 확인
-////            Map<String, Boolean> databaseResponse = memberImageService.deleteImage(memberId);
-////            isRemovedFromDatabase = databaseResponse.get("result");
-//
-//            // S3에서 파일 삭제
-//            isRemovedFromS3 = fileUploadService.deleteFile(key);
-//
-//            // 디버그 로그
-//            log.info("S3 삭제 상태(삭제 - true) : " + isRemovedFromS3);
-//
-////            // 삭제가 모두 이뤄지면 default 이미지 uuid로 변경
-////            if (isRemovedFromDatabase && isRemovedFromS3) {
-////                isDefaultSet = memberImageService.setDefaultImage(memberId);
-////
-////            }
-//
-//            log.info("기본 이미지 설정 상태(설정 - true)" + isDefaultSet);
-//
-//
-//        } catch (Exception e) {
-//            // 삭제 실패 시 에러 로그 출력
-//            log.error("Error occurred during file removal: " + e.getMessage());
-//        }
-//
-//        log.info(response);
-//        return response;
-//
-//    }
 
 }
