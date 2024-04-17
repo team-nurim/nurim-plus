@@ -13,6 +13,7 @@ import java.util.List;
 @Setter
 public class CreateCommunityRequest {
 
+    private Long memberId;
 
     private String title; //게시글 제목
 

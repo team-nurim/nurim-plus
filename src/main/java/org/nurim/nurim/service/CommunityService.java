@@ -169,6 +169,7 @@ public class CommunityService {
             Long memberId = community.getMember().getMemberId();
 
             return new ReadCountsCommunitiesResponse(
+                    community.getCommunityId(),
                     community.getTitle(),
                     community.getContent(),
                     community.getViewCounts(),
@@ -265,6 +266,7 @@ public class CommunityService {
             Long memberId = community.getMember().getMemberId();
 
             return new ReadInquireResponse(
+                    community.getCommunityId(),
                     community.getTitle(),
                     community.getCommunityCategory(),
                     community.getContent(),

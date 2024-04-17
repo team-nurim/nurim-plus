@@ -23,6 +23,7 @@ public class CommunityController {
 
     private final CommunityService communityService;
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @PostMapping("/communityCreate/{memberId}")
     @Operation(summary = "게시물 작성")
     public ResponseEntity<CreateCommunityResponse> createCommunity(@PathVariable Long memberId, @RequestBody CreateCommunityRequest request){
@@ -37,6 +38,7 @@ public class CommunityController {
         ReadCommunityResponse response = communityService.communityRead(communityId);
         return ResponseEntity.ok().body(response);
     }
+    @CrossOrigin(origins = "http://localhost:8081")
     @DeleteMapping("/communityDelete/{communityId}")
     @Operation(summary = "게시물 삭제", description = "게시물 memberId에 속한 유저만 삭제가 가능합니다.")
     public ResponseEntity<DeleteCommunityResponse> deleteCommunity(@PathVariable Long communityId, String memberEmail) {
@@ -48,6 +50,7 @@ public class CommunityController {
         }
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @PutMapping("/communityUpdate/{communityId}")
     @Operation(summary = "게시물 수정")
     public ResponseEntity<UpdateCommunityResponse> updateCommunity(@PathVariable Long communityId, String memberEmail, @RequestBody UpdateCommunityRequest request) throws AccessDeniedException {

@@ -18,6 +18,8 @@ import java.util.List;
 public class ReplyController {
 
     private final ReplyService replyService;
+
+    @CrossOrigin(origins = "http://localhost:8081")
     @PostMapping("/community/{communityId}/replyCreate")
     @Operation(summary = "댓글 작성")
     public ResponseEntity<CreateReplyResponse> createReply(@PathVariable Long communityId,Long memberId, @RequestBody CreateReplyRequest request) {
@@ -33,6 +35,7 @@ public class ReplyController {
         return ResponseEntity.ok().body(response);
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @PutMapping("/replyUpdate/{replyId}")
     @Operation(summary = "댓글 수정")
     public ResponseEntity<UpdateReplyResponse> updateReply(@PathVariable Long replyId,@RequestBody UpdateReplyRequest request){
@@ -41,6 +44,7 @@ public class ReplyController {
     }
 
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @DeleteMapping("/replyDelete/{replyId}")
     @Operation(summary = "댓글 삭제")
     public ResponseEntity<DeleteReplyResponse> deleteReply(@PathVariable Long replyId){
@@ -48,6 +52,7 @@ public class ReplyController {
         return ResponseEntity.ok().body(response);
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/myPage/{memberId}")
     @Operation(summary = "회원 아이디 별 댓글조회")
     public ResponseEntity<List<ReadReplyResponse>> ReadReply(@PathVariable Long memberId){
