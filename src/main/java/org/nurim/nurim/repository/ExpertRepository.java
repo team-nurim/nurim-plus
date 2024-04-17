@@ -13,8 +13,8 @@ public interface ExpertRepository extends JpaRepository<Expert, Long> {
 
     @Transactional
     @Modifying
-    @Query("delete from Expert ei where ei.expertFile = :fileName")
-    void deleteByFileName(@Param("fileName") String fileName);
+    @Query("delete from Expert ei where ei.member.memberId = :memberId")
+    void deleteByMemberID(@Param("memberId") Long memberId);
 
     Optional<Expert> findByMember_MemberId(Long memberId);
 

@@ -19,8 +19,13 @@ public class MemberImage {
     @JoinColumn(name = "memberId", unique = true)
     private Member member;
 
+    // url
     @Column(length = 500)
     private String memberProfileImage;
+
+    // key 값
+    @Column(length = 500)
+    private String profileName;
 
     public void changeMember(Member member) {
         this.member = member;
@@ -29,5 +34,4 @@ public class MemberImage {
     public void update(String memberProfileImage){
         this.memberProfileImage = memberProfileImage;
     }
-
 }
