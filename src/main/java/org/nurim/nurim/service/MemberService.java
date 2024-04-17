@@ -12,8 +12,6 @@ import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,11 +27,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Log4j2
 public class MemberService {
-//    private static final String DEFAULT_PROFILE_IMAGE_URL = "https://i.stack.imgur.com/l60Hf.png";
 
     private final MemberRepository memberRepository;
     private final MemberImageRepository memberImageRepository;
-    private final FileUploadService fileUploadService;
 
     @Autowired
     private final PasswordEncoder passwordEncoder;
