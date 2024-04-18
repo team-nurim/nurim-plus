@@ -33,7 +33,7 @@ public class PostController {
 
 
     @CrossOrigin(origins = "http://localhost:8081")
-    @GetMapping("/post/read{postId}")
+    @GetMapping("/post/read/{postId}")
     public ResponseEntity<ReadPostResponse> postRead(@PathVariable Long postId) {
 
         ReadPostResponse response = postService.readPostById(postId);
@@ -42,7 +42,7 @@ public class PostController {
     }
 
     @CrossOrigin(origins = "http://localhost:8081")
-    @PutMapping("/post/update{postId}")
+    @PutMapping("/post/update/{postId}")
     public ResponseEntity<UpdatePostResponse> postUpdate(@PathVariable Long postId,
                                                          @RequestBody UpdatePostRequest request){
 
