@@ -13,6 +13,7 @@ import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.domain.entity.PostImage;
 import org.nurim.nurim.service.PostImageService;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,17 +36,8 @@ public class PostUpDownController {
     private final FileUploadService fileUploadService; // AWS S3 서비스 추가
     private final AmazonS3Client amazonS3Client;
 
-//    @Autowired
-//    private AmazonS3 amazonS3Client;
-
-
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-
-//    public PostUpDownController(PostImageService postImageService, FileUploadService fileUploadService) {
-//        this.postImageService = postImageService;
-//        this.fileUploadService = fileUploadService;
-//    }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "이미지 업로드", description = "POST로 파일 등록")
@@ -164,7 +156,18 @@ public class PostUpDownController {
 //        }
 //    }
 
-//    // 첨부파일 삭제
+    // 첨부파일 삭제
+    @DeleteMapping(value = "/images/{postId}")
+    @Operation(summary = "이미지 파일 삭제", description = "DELETE 방식으로 파일 조회")
+    public ResponseEntity<String> deletePostImages(@PathVariable Long postId) {
+        boolean success = postImageService.deletePostImages(postId);
+        if (success) {
+            return ResponseEntity.ok("Post images deleted successfully.");
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to delete post images.");
+        }
+    }
+
 //    @DeleteMapping(value = "/images/{postId}")
 //    @Operation(summary = "이미지 파일 삭제", description = "DELETE 방식으로 파일 조회")
 //    public Map<String, Boolean> removeFile(@PathVariable Long postId) {

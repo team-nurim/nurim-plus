@@ -3,6 +3,7 @@ package org.nurim.nurim.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.entity.Post;
 import org.nurim.nurim.domain.entity.PostImage;
 import org.nurim.nurim.repository.PostImageRepository;
@@ -23,17 +24,9 @@ public class PostImageService {
 
     private final PostImageRepository postImageRepository;
     private final PostRepository postRepository; // PostRepository 추가
-//    private final String uploadPath;
+    private final FileUploadService fileUploadService;
 
-//    @Autowired
-//    public PostImageService(PostImageRepository postImageRepository, PostRepository postRepository, @Value("${org.yeolmae.upload.path}") String uploadPath) {
-//        this.postImageRepository = postImageRepository;
-//        this.postRepository = postRepository;
-//        this.uploadPath = uploadPath;
-//    }
-
-
-    @Transactional
+    @Transactional(readOnly = false)
     public void saveImages(Long postId, List<PostImage> postImages) {
 
         // 해당 postId로 Post 엔티티 조회
@@ -48,9 +41,6 @@ public class PostImageService {
         // PostImage 엔티티들을 저장
         postImageRepository.saveAll(postImages);
 
-//        Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("Post not found with id: " + postId));
-//        post.addPostImages(postImages);
-//        postRepository.save(post);
     }
 
 //    @Transactional
@@ -96,6 +86,26 @@ public class PostImageService {
         return postImageOptional.map(PostImage::getImage_thumb).orElse(null);
     }
 
+    @Transactional
+    public boolean deletePostImages(Long postId) {
+
+        // 해당 postId로 Post 엔티티 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found with id: " + postId));
+
+        // PostImage 엔티티들을 삭제하고 S3에서도 이미지 삭제
+        for (PostImage postImage : post.getImageSet()) {
+            fileUploadService.deleteFile(postImage.getImage_thumb());
+            postImageRepository.deleteById(postImage.getPost().getPostId());
+        }
+
+        // Post 엔티티의 이미지 목록 비우기
+        post.getImageSet().clear();
+
+        return true;
+
+    }
+
 //    public List<String> getImageUrlsByPostId(Long postId) throws ChangeSetPersister.NotFoundException {
 //        List<String> imageUrls = new ArrayList<>();
 //        List<PostImage> postImages = postImageRepository.findByPost_PostId(postId)
@@ -104,5 +114,6 @@ public class PostImageService {
 //        }
 //        return imageUrls;
 //    }
+
 }
 
