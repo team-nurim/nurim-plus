@@ -69,43 +69,21 @@ public class MemberController {
         return  new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    // 💌 검토 필요 (추가)
-//    @Operation(summary = "JWT를 통한 Mypage 정보 불러오기")
-//    @GetMapping("/mypage")
-//    public ResponseEntity<ReadMemberResponse> getMyInfo(){
-//
-//        Member accessMember = memberService.getMember();
-//
-//        ReadMemberResponse response = memberService.readMemberById(accessMember.getMemberId());
-//
-//        return new ResponseEntity<>(response, HttpStatus.OK);
-//
-//    }
 
     @Operation(summary = "JWT를 통한 Mypage 정보 불러오기")
     @GetMapping("/mypage")
     public ResponseEntity<ReadMemberResponse> getMyInfo(HttpServletRequest request){
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String accessToken = tokenProvider.getAccessToken(request);
+        log.info("🍎accessToken: " + accessToken);
+        Authentication authentication = tokenProvider.getAuthenticationFromToken(accessToken);
         log.info("🍎authentication: " + authentication);
 
-        String username = authentication.getName();
+        String username = tokenProvider.getUsernameFromToken(accessToken);
         log.info("🍎username: " + username);
 
         Member accessMember = memberService.readMemberByMemberEmail(username);
         ReadMemberResponse response = memberService.readMemberById(accessMember.getMemberId());
-
-//        String accessToken = tokenProvider.getAccessToken(request);
-//
-//        // 토큰 파싱하여 이메일 정보 가져오기
-//        String username = tokenProvider.getUsernameFromToken(accessToken);
-//        log.info("🍎username: " + username);
-//
-//        // 이메일 정보를 사용하여 회원 정보 조회
-//        Member accessMember = memberService.readMemberByMemberEmail(username);
-//
-//        // 회원 정보를 응답으로 반환
-//        ReadMemberResponse response = memberService.readMemberById(accessMember.getMemberId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

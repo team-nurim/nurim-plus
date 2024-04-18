@@ -11,9 +11,12 @@ import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.nurim.nurim.domain.dto.TokenDTO;
+import org.nurim.nurim.service.PrincipalDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +38,9 @@ public class TokenProvider {
     public static final String AUTHORIZATION_HEADER = "Authorization";
     public static final String REFRESH_HEADER = "Refresh";
     public static final String BEARER_PREFIX = "Bearer";
+
+    @Autowired
+    private PrincipalDetailsService principalDetailsService;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -150,8 +156,9 @@ public class TokenProvider {
     // JWT 토큰을 디코딩하여 사용자 인증 정보 반환
     public String getUsernameFromToken(String token) {
         Claims claims = parseClaims(token);
+        String memberEmailFromToken = claims.get("memberEmail").toString();
 
-        return claims.getSubject();
+        return memberEmailFromToken;   /// 이메일 값 반환
     }
 
     // token 디코드 및 예외 발생 (토큰 만료, 시그니처 오류 시 Claims 객체가 안만들어짐)
@@ -165,19 +172,23 @@ public class TokenProvider {
 
     public Authentication getAuthenticationFromToken(String accessToken) {
 
+        log.info("=============== TokenProvider의 getAuthenticationFromToken ===============");
+
         // 주어진 access token을 해석해서 포함된 claims 추출
         Claims claims = parseClaims(accessToken);
 
-        if(claims.get("memberType") == null) {
-            throw new UsernameNotFoundException("📢 Not Valid Aceess Token");
+        if(claims.get("memberEmail") == null) {
+            throw new UsernameNotFoundException("📢 유효한 토큰이 아닙니다.");
         }
 
-        String memberType = claims.get("memberType").toString();
-        PrincipalDetails principalDetails = PrincipalDetails.of(claims.getSubject(), memberType);
+        String memberEmail = claims.get("memberEmail").toString();
+        UserDetails userDetails = principalDetailsService.loadUserByUsername(memberEmail);
 
-        log.info("#회원유형 체크 = {}", memberType);
+        log.info("✅ claims.get(memberEmail).toString() = {}", claims.get("memberEmail").toString());
+        log.info("✅ 회원 이메일 체크 = {}", memberEmail);
+        log.info("✅ userDetails.getAuthorities : " + userDetails.getAuthorities());
 
-        return new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
+        return new UsernamePasswordAuthenticationToken(userDetails, null, null);
     }
 
 
