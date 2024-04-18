@@ -20,18 +20,20 @@ public class PostController {
 
     private final PostService postService;
 
-    @PostMapping("/post/register/{adminId}")
+    @CrossOrigin(origins = "http://localhost:8081")
+    @PostMapping("/post/register/{memberId}")
     public ResponseEntity<CreatePostResponse> postCreate(
-            @PathVariable Long adminId,
+            @PathVariable Long memberId,
             @RequestBody CreatePostRequest request) {
 
-        CreatePostResponse response = postService.createPost(adminId, request);
+        CreatePostResponse response = postService.createPost(memberId, request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
-    @GetMapping("/post/read{postId}")
+    @CrossOrigin(origins = "http://localhost:8081")
+    @GetMapping("/post/read/{postId}")
     public ResponseEntity<ReadPostResponse> postRead(@PathVariable Long postId) {
 
         ReadPostResponse response = postService.readPostById(postId);
@@ -39,7 +41,8 @@ public class PostController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping("/post/update{postId}")
+    @CrossOrigin(origins = "http://localhost:8081")
+    @PutMapping("/post/update/{postId}")
     public ResponseEntity<UpdatePostResponse> postUpdate(@PathVariable Long postId,
                                                          @RequestBody UpdatePostRequest request){
 
@@ -48,6 +51,7 @@ public class PostController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @DeleteMapping("/post/{postId}")
     public ResponseEntity<DeletePostResponse> postDelete(@PathVariable Long postId) {
 
@@ -57,21 +61,23 @@ public class PostController {
 
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/post/list")
     public ResponseEntity<Page<ReadPostResponse>> postReadAll(@PageableDefault(
-            size = 5, sort = "postId", direction = Sort.Direction.DESC) Pageable pageable) {
+            size = 15, sort = "postId", direction = Sort.Direction.DESC) Pageable pageable) {
 
         Page<ReadPostResponse>  response = postService.readAllPost(pageable);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/post/search")
+    @CrossOrigin(origins = "http://localhost:8081")
+    @GetMapping("/post/{category}")
     public Page<ReadPostResponse> readPostByKeywordAndCategory(
-            @RequestParam String keyword,
-            @RequestParam(required = false) String category,
-            Pageable pageable) {
+            @PathVariable String category,
+            @PageableDefault(
+                    size = 15, sort = "postId", direction = Sort.Direction.DESC) Pageable pageable) {
         // 키워드와 카테고리로 게시물 검색
-        return postService.readPostsByKeywordAndCategory(keyword, category, pageable);
+        return postService.readPostsByKeywordAndCategory(category, pageable);
     }
 }

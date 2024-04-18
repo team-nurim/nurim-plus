@@ -2,6 +2,7 @@ package org.nurim.nurim.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.nurim.nurim.domain.entity.api.Policy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,9 @@ public class Member {
 
     @Column(nullable = true, columnDefinition = "boolean default false")
     private boolean type; // true: 전문가, false: 일반
+
+    @Enumerated(EnumType.STRING)
+    private MemberRole memberRole;
 
     @OneToOne(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private MemberImage memberImage;

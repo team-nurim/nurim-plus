@@ -7,7 +7,6 @@ import org.nurim.nurim.domain.dto.community.*;
 import org.nurim.nurim.domain.dto.reply.ReadReplyResponse;
 import org.nurim.nurim.domain.entity.Community;
 import org.nurim.nurim.domain.entity.Member;
-import org.nurim.nurim.domain.entity.Reply;
 import org.nurim.nurim.repository.*;
 //import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.data.domain.Page;
@@ -37,7 +36,7 @@ public class CommunityService {
     @Transactional
     public CreateCommunityResponse communityCreate(Long memberId, CreateCommunityRequest request) {
 
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new EntityNotFoundException("확인안됨"));
+        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new EntityNotFoundException("작성자 id가 확인이 안됩니다 ㅜㅜ"));
         Community community = Community.builder()
                 .member(member)
                 .title(request.getTitle())
@@ -85,13 +84,13 @@ public class CommunityService {
      *게시글 삭제 글쓴이 본인만!
      */
     @Transactional
-    public DeleteCommunityResponse communityDelete(Long communityId, Long memberId) throws AccessDeniedException {
+    public DeleteCommunityResponse communityDelete(Long communityId, String memberEmail) throws AccessDeniedException {
         Community findCommunity = communityRepository.findById(communityId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 communityId로 조회된 게시글이 없습니다."));
 
-        Long memberInCommunityId = findCommunity.getMember().getMemberId();
+        String memberEmailCommunityId = findCommunity.getMember().getMemberEmail();
 
-        if (Objects.equals(memberInCommunityId, memberId)) {
+        if (Objects.equals(memberEmailCommunityId, memberEmail)) {
             communityRepository.delete(findCommunity);
             return new DeleteCommunityResponse(findCommunity.getCommunityId());
         } else {
@@ -99,21 +98,45 @@ public class CommunityService {
         }
     }
 
+    /**
+     * 게시글 수정 글쓴이 본인만!
+     */
 
     @Transactional
-    public UpdateCommunityResponse communityUpdate(Long communityId, UpdateCommunityRequest request) {
+    public UpdateCommunityResponse communityUpdate(Long communityId,String memberEmail, UpdateCommunityRequest request) throws AccessDeniedException {
 
         Community findCommunity = communityRepository.findById(communityId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 아이디로 조회안됨"));
 
-        Long memberInCommunityId = findCommunity.getMember().getMemberId();
+        String memberEmailInCommunityId = findCommunity.getMember().getMemberEmail();
 
-        findCommunity.update(request.getTitle(), request.getContent(), request.getCategory());
+        if(Objects.equals(memberEmailInCommunityId,memberEmail )) {
 
-        return new UpdateCommunityResponse(
-                findCommunity.getTitle(),
-                findCommunity.getContent(),
-                findCommunity.getModifyDate());
+            findCommunity.update(request.getTitle(), request.getContent(), request.getCategory());
+
+            return new UpdateCommunityResponse(
+                    findCommunity.getTitle(),
+                    findCommunity.getContent(),
+                    findCommunity.getModifyDate());
+        }else {
+            throw new AccessDeniedException("커뮤니티를 수정할 권한이 없습니다.");
+        }
+    }
+    public Page<ReadAllCommunityResponse> getCommunityList(Pageable pageable){
+        Page<Community> communities = communityRepository.findAll(pageable);
+        return communities.map(community -> {
+            Long memberId = community.getMember().getMemberId();
+            return new ReadAllCommunityResponse(
+                    community.getCommunityId(),
+                    community.getCommunityImage(),
+                    community.getTitle(),
+                    community.getContent(),
+                    community.getCommunityCategory(),
+                    community.getRegisterDate(),
+                    community.getViewCounts(),
+                    community.getRecommend(),
+                    community.getMember().getMemberNickname());
+        });
     }
 
     public Page<ReadSearchResponse> getCommunityListByCategory(String category, Pageable pageable) {

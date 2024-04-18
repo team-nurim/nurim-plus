@@ -1,5 +1,6 @@
 package org.nurim.nurim.config;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.nurim.nurim.config.auth.*;
 import org.nurim.nurim.service.PrincipalDetailsService;
@@ -27,9 +28,12 @@ import org.springframework.security.web.authentication.rememberme.PersistentToke
 import org.springframework.security.web.context.DelegatingSecurityContextRepository;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 
 import javax.sql.DataSource;
+import java.util.Collections;
 
 
 @Configuration
@@ -64,11 +68,11 @@ public class SecurityConfig {
                 .anyRequest().permitAll());   //나머지 페이지들은 모두 권한 허용
 
         // login 설정
-        http.formLogin((formLogin) -> formLogin
-                .loginPage("/login")
-                .usernameParameter("email")
-                .defaultSuccessUrl("/")
-        );
+//        http.formLogin((formLogin) -> formLogin
+//                .loginPage("/login")
+//                .usernameParameter("email")
+//                .defaultSuccessUrl("/")
+//        );
 
         // Authentication Manager 설정
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
@@ -111,6 +115,20 @@ public class SecurityConfig {
         // 세션 비활성화
         http.sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
+        // cors
+        http.cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
+                    @Override
+                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                        CorsConfiguration config = new CorsConfiguration();
+                        config.setAllowedOrigins(Collections.singletonList("http://localhost:8081"));
+                        config.setAllowedMethods(Collections.singletonList("*"));
+                        config.setAllowCredentials(true);
+                        config.setAllowedHeaders(Collections.singletonList("*"));
+                        config.setMaxAge(3600L); //1시간
+                        return config;
+                    }
+                }));
 
         // context 설정
         http.securityContext((securityContext) -> securityContext
