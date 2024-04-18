@@ -12,6 +12,9 @@ import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.nurim.nurim.domain.dto.TokenDTO;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
@@ -145,29 +148,37 @@ public class TokenProvider {
 
 
     // JWT 토큰을 디코딩하여 사용자 인증 정보 반환
-//    public String getUsernameFromToken(String token) {
-//        Claims claims = parseClaims(token);
-//        return claims.getSubject();
-//    }
-//    public Authentication getAuthenticationFromToken(String accessToken) {
-//
-//        // 주어진 access token을 해석해서 포함된 claims 추출
-//        Claims claims = parseClaims(accessToken);
-//
-//        if(claims.get("memberType") == null) {
-//            throw new UsernameNotFoundException("📢 Not Valid Aceess Token");
-//        }
-//
-//        String memberType = claims.get("memberType").toString();
-//        PrincipalDetails principalDetails = PrincipalDetails.of(claims.getSubject(), memberType);
-//
-//        log.info("#회원유형 체크 = {}", memberType);
-//
-//        return new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
-//    }
+    public String getUsernameFromToken(String token) {
+        Claims claims = parseClaims(token);
+
+        return claims.getSubject();
+    }
+
+    // token 디코드 및 예외 발생 (토큰 만료, 시그니처 오류 시 Claims 객체가 안만들어짐)
+    public Claims parseClaims(String token) {
+        return Jwts.parser()
+                .setSigningKey(jwtSecret.getBytes())
+                .parseClaimsJws(token)   // 파싱 및 검증, 실패 시 에러
+                .getBody();
+    }
 
 
+    public Authentication getAuthenticationFromToken(String accessToken) {
 
+        // 주어진 access token을 해석해서 포함된 claims 추출
+        Claims claims = parseClaims(accessToken);
+
+        if(claims.get("memberType") == null) {
+            throw new UsernameNotFoundException("📢 Not Valid Aceess Token");
+        }
+
+        String memberType = claims.get("memberType").toString();
+        PrincipalDetails principalDetails = PrincipalDetails.of(claims.getSubject(), memberType);
+
+        log.info("#회원유형 체크 = {}", memberType);
+
+        return new UsernamePasswordAuthenticationToken(principalDetails, null, principalDetails.getAuthorities());
+    }
 
 
 
@@ -177,17 +188,8 @@ public class TokenProvider {
 //        return new Date(date.getTime() + accessTokenExpirationMs);
 //    }
 //
-//    // token 디코드 및 예외 발생 (토큰 만료, 시그니처 오류 시 Claims 객체가 안만들어짐)
-//    public Claims parseClaims(String token) {
-//        return Jwts.parserBuilder()
-//                .setSigningKey(key)
-//                .build()
-//                .parseClaimsJws(token)
-//                .getBody();
-//    }
-//
-//
-//
+
+
 //    public void accessTokenSetHeader(String accessToken, HttpServletResponse response) {
 //        String headerValue = BEARER_PREFIX + accessToken;
 //        response.setHeader(AUTHORIZATION_HEADER, headerValue);
@@ -197,14 +199,14 @@ public class TokenProvider {
 //        response.setHeader("Refresh", refreshToken);
 //    }
 //
-//    // Request Header에 access token 정보를 추출하는 메소드
-//    public String getAccessToken(HttpServletRequest request) {
-//        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-//        if(!StringUtils.isEmpty(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
-//            return bearerToken.substring(7);
-//        }
-//        return null;
-//    }
+    // Request Header에 access token 정보를 추출하는 메소드
+    public String getAccessToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
+        if(!StringUtils.isEmpty(bearerToken) && bearerToken.startsWith(BEARER_PREFIX)) {
+            return bearerToken.substring(7);
+        }
+        return null;
+    }
 //
 //    // Request Header에 refresh token 정보를 추출하는 메소드
 //    public String getRefreshToken(HttpServletRequest request) {

@@ -2,10 +2,13 @@ package org.nurim.nurim.Controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.config.auth.PrincipalDetails;
+import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.service.MemberService;
@@ -25,6 +28,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+    private final TokenProvider tokenProvider;
 
     @Operation(summary = "일반 회원 등록")
     @PostMapping("/user")
@@ -80,15 +84,28 @@ public class MemberController {
 
     @Operation(summary = "JWT를 통한 Mypage 정보 불러오기")
     @GetMapping("/mypage")
-    public ResponseEntity<ReadMemberResponse> getMyInfo(@AuthenticationPrincipal PrincipalDetails principalDetails){
+    public ResponseEntity<ReadMemberResponse> getMyInfo(HttpServletRequest request){
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         log.info("🍎authentication: " + authentication);
 
         String username = authentication.getName();
+        log.info("🍎username: " + username);
 
         Member accessMember = memberService.readMemberByMemberEmail(username);
         ReadMemberResponse response = memberService.readMemberById(accessMember.getMemberId());
+
+//        String accessToken = tokenProvider.getAccessToken(request);
+//
+//        // 토큰 파싱하여 이메일 정보 가져오기
+//        String username = tokenProvider.getUsernameFromToken(accessToken);
+//        log.info("🍎username: " + username);
+//
+//        // 이메일 정보를 사용하여 회원 정보 조회
+//        Member accessMember = memberService.readMemberByMemberEmail(username);
+//
+//        // 회원 정보를 응답으로 반환
+//        ReadMemberResponse response = memberService.readMemberById(accessMember.getMemberId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
