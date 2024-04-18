@@ -1,6 +1,5 @@
 package org.nurim.nurim.service;
 
-import com.amazonaws.services.kms.model.NotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -8,15 +7,12 @@ import org.nurim.nurim.domain.entity.Post;
 import org.nurim.nurim.domain.entity.PostImage;
 import org.nurim.nurim.repository.PostImageRepository;
 import org.nurim.nurim.repository.PostRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
-import java.io.File;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
