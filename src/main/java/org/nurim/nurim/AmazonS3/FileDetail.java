@@ -32,4 +32,6 @@ public class FileDetail {
                 .bytes(multipartFile.getSize())
                 .build();
     }
+
+    // createPath = %s/%s.%s images uuid.jpg
 }

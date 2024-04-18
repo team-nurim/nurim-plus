@@ -3,7 +3,6 @@ package org.nurim.nurim.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.domain.entity.MemberImage;
@@ -12,8 +11,6 @@ import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,11 +26,9 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Log4j2
 public class MemberService {
-//    private static final String DEFAULT_PROFILE_IMAGE_URL = "https://i.stack.imgur.com/l60Hf.png";
 
     private final MemberRepository memberRepository;
     private final MemberImageRepository memberImageRepository;
-    private final FileUploadService fileUploadService;
 
     @Autowired
     private final PasswordEncoder passwordEncoder;
@@ -48,9 +43,6 @@ public class MemberService {
         if (memberRepository.findMemberByMemberEmail(request.getMemberEmail()).isPresent()) {
             throw new DataIntegrityViolationException("이미 존재하는 회원입니다.");   // 전역예외처리 필요
         }
-
-        // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
-        String defaultProfileImageUrl = "https://nurimplus1.s3.ap-northeast-2.amazonaws.com/default-image.jpg";
 
         // 초기 필드값 default 설정
         Member member = Member.builder()
@@ -68,10 +60,15 @@ public class MemberService {
 
         Member savedMember = memberRepository.save(member);
 
+        // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
+        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
+        String defaultKey = "images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
+
         // 기본 이미지 경로 MemberImage에 설정하여 저장
         MemberImage memberImage = new MemberImage();
         memberImage.setMember(savedMember);
         memberImage.setMemberProfileImage(defaultProfileImageUrl); // 정적 경로 참조
+        memberImage.setProfileName(defaultKey);
         memberImageRepository.save(memberImage);
 
         // 회원 정보에 이미지 정보 연결
@@ -105,9 +102,6 @@ public class MemberService {
             throw new DataIntegrityViolationException("이미 존재하는 회원입니다.");   // 전역예외처리 필요
         }
 
-        // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
-        String defaultProfileImageUrl = "https://nurimplus1.s3.ap-northeast-2.amazonaws.com/default-image.jpg";
-
         // 초기 필드값 default 설정
         Member member = Member.builder()
                 .memberEmail(request.getMemberEmail())
@@ -124,10 +118,16 @@ public class MemberService {
 
         Member savedMember = memberRepository.save(member);
 
+        // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
+        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
+        String defaultKey = "images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
+
+
         // 기본 이미지 경로 MemberImage에 설정하여 저장
         MemberImage memberImage = new MemberImage();
         memberImage.setMember(savedMember);
         memberImage.setMemberProfileImage(defaultProfileImageUrl); // 정적 경로 참조
+        memberImage.setProfileName(defaultKey);
         memberImageRepository.save(memberImage);
 
         // 회원 정보에 이미지 정보 연결
@@ -207,7 +207,7 @@ public class MemberService {
             profileimageUrl = foundMember.getMemberImage().getMemberProfileImage();
         } else {
             // 프로필 이미지가 등록되지 않은 경우
-            profileimageUrl = "https://nurimplus1.s3.ap-northeast-2.amazonaws.com/default-image.jpg";
+            profileimageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
         }
 
         String expertFileUrl;
@@ -258,14 +258,6 @@ public class MemberService {
                 request.isMemberMarriage(),
                 request.getMemberIncome(),
                 request.isType());
-
-//        // MemberImage 정보 업데이트
-//        String newMemberProfileImage = request.getMemberProfileImage(); // 새로운 이미지 정보
-//        UpdateMemberImageRequest imageRequest = new UpdateMemberImageRequest(newMemberProfileImage); // 이미지 정보 갖는 객체
-//        memberImageService.updateMemberImage(foundMember.getMemberImage().getProfileImageId(), imageRequest);
-
-        // Expert 자격증 이미지 정보 업데이트
-
 
         return new UpdateMemberResponse(foundMember.getMemberId(),
                 foundMember.getMemberEmail(),
