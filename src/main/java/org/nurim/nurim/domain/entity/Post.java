@@ -52,7 +52,6 @@ public class Post {
             postImage.setPost(this);
         }
     }
-
 //    public void addPostImage(String uuid, String fileName) {
 //
 //        PostImage postImage = PostImage.builder()

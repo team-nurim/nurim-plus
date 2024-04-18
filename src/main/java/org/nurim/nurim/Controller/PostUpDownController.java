@@ -156,6 +156,7 @@ public class PostUpDownController {
 //        }
 //    }
 
+
     // 첨부파일 삭제
     @DeleteMapping(value = "/images/{postId}")
     @Operation(summary = "이미지 파일 삭제", description = "DELETE 방식으로 파일 조회")
