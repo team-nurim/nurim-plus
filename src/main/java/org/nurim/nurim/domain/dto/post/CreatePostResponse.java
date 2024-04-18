@@ -28,6 +28,6 @@ public class CreatePostResponse {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate postRegisterDate;
 
-    private List<String> fileNames;
+//    private List<String> fileNames;
 
 }
