@@ -26,11 +26,14 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
+        log.info("=============== LoginSuccessHandler ===============");
+
         // HTTP 응답 콘텐츠 타입을 JSON으로 설정
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         log.info(authentication);
         log.info(authentication.getName());   // username 추출
+        log.info("🎯LoginSuccessHandler 내에 있는 authentication.getName() : {}", authentication.getName());
 
         Map<String, Object> claim = Map.of("memberEmail", authentication.getName());
         // access token 유효기간 1일
