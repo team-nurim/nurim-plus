@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -33,18 +34,38 @@ public class PostImageService {
 
 
     @Transactional
-    public void saveImage(Long postId, String imagePath, String thumbPath) {
-        PostImage postImage = new PostImage();
-        postImage.setImage_detail(imagePath);
-        postImage.setImage_thumb(thumbPath);
+    public void saveImages(Long postId, List<PostImage> postImages) {
 
-        // postId를 사용하여 해당하는 Post 엔티티를 가져와서 설정
-        Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("Post not found with id: " + postId));
-        postImage.setPost(post);
+        // 해당 postId로 Post 엔티티 조회
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new EntityNotFoundException("Post not found with id: " + postId));
 
+        // PostImage 엔티티에 Post 엔티티 할당
+        for (PostImage postImage : postImages) {
+            postImage.setPost(post);
+        }
 
-        postImageRepository.save(postImage);
+        // PostImage 엔티티들을 저장
+        postImageRepository.saveAll(postImages);
+
+//        Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("Post not found with id: " + postId));
+//        post.addPostImages(postImages);
+//        postRepository.save(post);
     }
+
+//    @Transactional
+//    public void saveImage(Long postId, String imagePath, String thumbPath) {
+//        PostImage postImage = new PostImage();
+//        postImage.setImage_detail(imagePath);
+//        postImage.setImage_thumb(thumbPath);
+//
+//        // postId를 사용하여 해당하는 Post 엔티티를 가져와서 설정
+//        Post post = postRepository.findById(postId).orElseThrow(() -> new EntityNotFoundException("Post not found with id: " + postId));
+//        postImage.setPost(post);
+//
+//
+//        postImageRepository.save(postImage);
+//    }
 
     @Transactional
     public Map<String, Boolean> deleteImage(Long postId) {

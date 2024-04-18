@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
+import org.nurim.nurim.domain.entity.PostImage;
 import org.nurim.nurim.service.PostImageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @Transactional(readOnly = true)
@@ -53,30 +55,33 @@ public class PostUpDownController {
             @RequestPart("files") MultipartFile[] files) {
 
         if (files != null && files.length > 0) {
-
-            final List<UploadFileResponse> responses = new ArrayList<>();
+            List<PostImage> postImages = new ArrayList<>();
 
             for (MultipartFile multipartFile : files) {
-
                 if (!multipartFile.isEmpty()) {
-                    // 파일을 S3에 저장하고 URL과 key값을 받아옴
                     Map<String, String> s3Result = fileUploadService.saveUrlAndKey(multipartFile);
                     String url = s3Result.get("url");
+                    log.info(url);
                     String key = s3Result.get("key");
+                    log.info(key);
+                    PostImage postImage = PostImage.builder()
+                            .image_detail(url)
+                            .image_thumb(key)
+                            .build();
 
-                    // 이미지를 데이터베이스에 저장
-                    postImageService.saveImage(postId, url, key);
-
-                    // 응답 생성
-                    responses.add(UploadFileResponse.builder()
-                            .uuid(url) // 여기서 uuid를 key로 사용
-                            .fileName(key)
-                            .img(true) // 이미지인 경우 true로 설정
-                            .build());
+                    postImages.add(postImage);
                 }
             }
-            return ResponseEntity.ok(responses);
+            postImageService.saveImages(postId, postImages);
 
+            List<UploadFileResponse> responses = postImages.stream()
+                    .map(postImage -> UploadFileResponse.builder()
+                            .uuid(postImage.getImage_detail())
+                            .fileName(postImage.getImage_thumb())
+                            .img(true)
+                            .build())
+                    .toList();
+            return ResponseEntity.ok(responses);
         }
         return ResponseEntity.badRequest().build();
     }
@@ -159,34 +164,34 @@ public class PostUpDownController {
 //        }
 //    }
 
-    // 첨부파일 삭제
-    @DeleteMapping(value = "/images/{postId}")
-    @Operation(summary = "이미지 파일 삭제", description = "DELETE 방식으로 파일 조회")
-    public Map<String, Boolean> removeFile(@PathVariable Long postId) {
-        Map<String, Boolean> response = new HashMap<>();
-        boolean isRemovedFromS3 = false;
-        boolean isRemoveddFromDatabase = false;
-
-        try {
-            // postId에 해당하는 DB에 저장된 S3 이미지 key 값 가져옴.
-            String key = postImageService.getKeyByPostId(postId);
-
-            // S3의 이미지 삭제
-            isRemovedFromS3 = fileUploadService.deleteFile(key);
-
-            // DB의 이미지 삭제
-            isRemoveddFromDatabase = postImageService.deleteImage(postId).get("result");
-
-            // 삭제 결과 응답 설정
-            response.put("isRemovedFromS3", isRemovedFromS3);
-            response.put("isRemoedFromDatabase", isRemoveddFromDatabase);
-
-        } catch (Exception e) {
-            log.error("post 파일 삭제 실패 : " + e.getMessage());
-        }
-
-        return response;
-    }
+//    // 첨부파일 삭제
+//    @DeleteMapping(value = "/images/{postId}")
+//    @Operation(summary = "이미지 파일 삭제", description = "DELETE 방식으로 파일 조회")
+//    public Map<String, Boolean> removeFile(@PathVariable Long postId) {
+//        Map<String, Boolean> response = new HashMap<>();
+//        boolean isRemovedFromS3 = false;
+//        boolean isRemoveddFromDatabase = false;
+//
+//        try {
+//            // postId에 해당하는 DB에 저장된 S3 이미지 key 값 가져옴.
+//            String key = postImageService.getKeyByPostId(postId);
+//
+//            // S3의 이미지 삭제
+//            isRemovedFromS3 = fileUploadService.deleteFile(key);
+//
+//            // DB의 이미지 삭제
+//            isRemoveddFromDatabase = postImageService.deleteImage(postId).get("result");
+//
+//            // 삭제 결과 응답 설정
+//            response.put("isRemovedFromS3", isRemovedFromS3);
+//            response.put("isRemoedFromDatabase", isRemoveddFromDatabase);
+//
+//        } catch (Exception e) {
+//            log.error("post 파일 삭제 실패 : " + e.getMessage());
+//        }
+//
+//        return response;
+//    }
 
 //    @DeleteMapping(value = "/images/{uuid}")
 //    @Operation(summary = "이미지 파일 삭제", description = "DELETE 방식으로 파일 조회")
