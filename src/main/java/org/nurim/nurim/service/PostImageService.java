@@ -1,6 +1,8 @@
 package org.nurim.nurim.service;
 
+import com.amazonaws.services.kms.model.NotFoundException;
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.entity.Post;
 import org.nurim.nurim.domain.entity.PostImage;
@@ -8,29 +10,30 @@ import org.nurim.nurim.repository.PostImageRepository;
 import org.nurim.nurim.repository.PostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 @Log4j2
 public class PostImageService {
 
     private final PostImageRepository postImageRepository;
     private final PostRepository postRepository; // PostRepository 추가
-    private final String uploadPath;
+//    private final String uploadPath;
 
-    @Autowired
-    public PostImageService(PostImageRepository postImageRepository, PostRepository postRepository, @Value("${org.yeolmae.upload.path}") String uploadPath) {
-        this.postImageRepository = postImageRepository;
-        this.postRepository = postRepository;
-        this.uploadPath = uploadPath;
-    }
+//    @Autowired
+//    public PostImageService(PostImageRepository postImageRepository, PostRepository postRepository, @Value("${org.yeolmae.upload.path}") String uploadPath) {
+//        this.postImageRepository = postImageRepository;
+//        this.postRepository = postRepository;
+//        this.uploadPath = uploadPath;
+//    }
 
 
     @Transactional
@@ -48,15 +51,15 @@ public class PostImageService {
     }
 
     @Transactional
-    public Map<String, Boolean> deleteImage(Long postImageId) {
+    public Map<String, Boolean> deleteImage(Long postId) {
         Map<String, Boolean> response = new HashMap<>();
         boolean isRemovedFromDatabase = false;
 
-        // postImageId가 null이 아닌 경우에만 삭제 진행
-        if (postImageId != null) {
+        // postId가 null이 아닌 경우에만 삭제 진행
+        if (postId != null) {
             try {
                 // 데이터베이스에서 이미지 정보 삭제
-                postImageRepository.deleteById(postImageId);
+                postImageRepository.deleteByPost_PostId(postId);
                 isRemovedFromDatabase = true; // 삭제 성공 시 true로 설정
             } catch (Exception e) {
                 // 삭제 실패 시 에러 로그 출력
@@ -70,5 +73,19 @@ public class PostImageService {
         response.put("result", isRemovedFromDatabase);
         return response;
     }
+
+    public String getKeyByPostId(Long postId) {
+        Optional<PostImage> postImageOptional = postImageRepository.findByPost_PostId(postId);
+        return postImageOptional.map(PostImage::getImage_thumb).orElse(null);
+    }
+
+//    public List<String> getImageUrlsByPostId(Long postId) throws ChangeSetPersister.NotFoundException {
+//        List<String> imageUrls = new ArrayList<>();
+//        List<PostImage> postImages = postImageRepository.findByPost_PostId(postId)
+//        for (PostImage postImage : postImages) {
+//            imageUrls.add(postImage.getImage_detail());
+//        }
+//        return imageUrls;
+//    }
 }
 

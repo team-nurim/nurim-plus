@@ -25,7 +25,7 @@ public class JWTTests {
 
     @Test
     public void testGenerate() {
-        Map<String, Object> claimMap = Map.of("aaaa@gmail.com", "111111");
+        Map<String, Object> claimMap = Map.of("test02", "string");
 
         String jwtStr = tokenProvider.generateToken(claimMap, 1);
 

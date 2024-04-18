@@ -49,10 +49,10 @@ public class MemberImageController {
             // DB에 이미지 url 저장
             memberImageService.saveImage(memberId, url, key);
 
-            // 응답 생성
+            // 응답 생성 // 변경
             UploadFileResponse response = UploadFileResponse.builder()
-                    .uuid(url)
-                    .fileName(key)
+                    .uuid(key)
+                    .fileName(files.getOriginalFilename())
                     .img(true) // 이미지인 경우 true로 설정
                     .build();
 
