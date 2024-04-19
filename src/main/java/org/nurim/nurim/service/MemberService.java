@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.member.*;
+import org.nurim.nurim.domain.entity.Expert;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.domain.entity.MemberImage;
 import org.nurim.nurim.domain.entity.MemberRole;
@@ -71,8 +72,14 @@ public class MemberService {
         memberImage.setProfileName(defaultKey);
         memberImageRepository.save(memberImage);
 
+        Expert expert = new Expert();
+        expert.setMember(savedMember);
+        expert.setExpertFile(defaultProfileImageUrl);
+        expert.setExpertFileName(defaultKey);
+
         // 회원 정보에 이미지 정보 연결
         savedMember.setMemberImage(memberImage);
+        savedMember.setExpert(expert);
         memberRepository.save(savedMember);
 
         return new CreateMemberResponse(savedMember.getMemberId(),
@@ -86,7 +93,8 @@ public class MemberService {
                 savedMember.getMemberIncome(),
                 savedMember.isType(),
                 savedMember.getMemberRole(),
-                savedMember.getMemberProfileImage()
+                savedMember.getMemberImage().getMemberProfileImage(),
+                savedMember.getExpert().getExpertFile()
         );
 
     }
@@ -145,42 +153,43 @@ public class MemberService {
                 savedMember.getMemberIncome(),
                 savedMember.isType(),
                 savedMember.getMemberRole(),
-                savedMember.getMemberProfileImage()
+                savedMember.getMemberImage().getMemberProfileImage(),
+                savedMember.getExpert().getExpertFile()
         );
 
     }
 
-    // 회원 정보 입력
-    @Transactional
-    public CreateMemberResponse createMemberInfo(CreateMemberInfoRequest request) {
-
-        Member member = Member.builder()
-                .memberEmail(getMember().getMemberEmail())
-                .memberPw(getMember().getMemberPw())
-                .memberNickname(getMember().getMemberNickname())
-                .memberAge(request.getMemberAge())
-                .gender(request.isGender())
-                .memberResidence(request.getMemberResidence())
-                .memberMarriage(request.isMemberMarriage())
-                .memberIncome(request.getMemberIncome())
-                .type(request.isType())
-                .memberRole(getMember().getMemberRole())
-                .build();
-
-        return new CreateMemberResponse(member.getMemberId(),
-                member.getMemberEmail(),
-                member.getMemberPw(),
-                member.getMemberNickname(),
-                member.getMemberAge(),
-                member.isGender(),
-                member.getMemberResidence(),
-                member.isMemberMarriage(),
-                member.getMemberIncome(),
-                member.isType(),
-                member.getMemberRole(),
-                member.getMemberProfileImage());
-
-    }
+//    // 회원 정보 입력
+//    @Transactional
+//    public CreateMemberResponse createMemberInfo(CreateMemberInfoRequest request) {
+//
+//        Member member = Member.builder()
+//                .memberEmail(getMember().getMemberEmail())
+//                .memberPw(getMember().getMemberPw())
+//                .memberNickname(getMember().getMemberNickname())
+//                .memberAge(request.getMemberAge())
+//                .gender(request.isGender())
+//                .memberResidence(request.getMemberResidence())
+//                .memberMarriage(request.isMemberMarriage())
+//                .memberIncome(request.getMemberIncome())
+//                .type(request.isType())
+//                .memberRole(getMember().getMemberRole())
+//                .build();
+//
+//        return new CreateMemberResponse(member.getMemberId(),
+//                member.getMemberEmail(),
+//                member.getMemberPw(),
+//                member.getMemberNickname(),
+//                member.getMemberAge(),
+//                member.isGender(),
+//                member.getMemberResidence(),
+//                member.isMemberMarriage(),
+//                member.getMemberIncome(),
+//                member.isType(),
+//                member.getMemberRole(),
+//                member.getMemberProfileImage());
+//
+//    }
 
     // 특정 회원 조회
     public ReadMemberResponse readMemberById(Long memberId) {
@@ -230,10 +239,10 @@ public class MemberService {
         Member foundMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
 
-        // 현재 로그인한 사용자만 수정 가능
-        if(!foundMember.getMemberEmail().equals(getMember().getMemberEmail())) {
-            throw new AccessDeniedException("수정 권한이 없습니다.");
-        }
+//        // 현재 로그인한 사용자만 수정 가능
+//        if(!foundMember.getMemberEmail().equals(getMember().getMemberEmail())) {
+//            throw new AccessDeniedException("수정 권한이 없습니다.");
+//        }
 
         // Member 정보 업데이트
         foundMember.update(
@@ -261,49 +270,26 @@ public class MemberService {
 
     }
 
-    // 회원 탈퇴
-    @Transactional
-    public DeleteMemberResponse deleteMember(Long memberId) {
-
-        Member foundMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
-
-        // 현재 로그인한 사용자만 탈퇴 가능
-        if(!foundMember.getMemberEmail().equals(getMember().getMemberEmail())) {
-            throw new AccessDeniedException("이 계정 탈퇴에 대한 권한이 없습니다.");
-        }
-
-        memberRepository.delete(foundMember);
-
-        return new DeleteMemberResponse(foundMember.getMemberId());
-
-    }
+//    // 회원 탈퇴
+//    @Transactional
+//    public DeleteMemberResponse deleteMember(Long memberId) {
+//
+//        Member foundMember = memberRepository.findById(memberId)
+//                .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
+//
+////        // 현재 로그인한 사용자만 탈퇴 가능
+////        if(!foundMember.getMemberEmail().equals(getMember().getMemberEmail())) {
+////            throw new AccessDeniedException("이 계정 탈퇴에 대한 권한이 없습니다.");
+////        }
+//
+//        memberRepository.delete(foundMember);
+//
+//        return new DeleteMemberResponse(foundMember.getMemberId());
+//
+//    }
 
 
     // context에서 회원정보 가져오기
-    public Member getMember() {
-
-        // SecurityContext에서 인증 정보 추출
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if(authentication == null || !authentication.isAuthenticated()) {
-           log.info("인증 객체를 찾을 수 없습니다.");
-        }
-
-        String username = authentication.getName();   // 사용자 이메일 추출
-
-        if(username == null) {
-            log.info("사용자 이메일 정보가 없습니다.");
-        }
-
-        log.info("😀사용자 이메일" + username);
-
-        Member member = memberRepository.findMemberByMemberEmail(username)
-                .orElseThrow(() -> new EntityNotFoundException("사용자 정보를 DB에서 찾을 수 없습니다."));
-
-        return member;
-    }
-
 
     public Member readMemberByMemberEmail(String username) {
         Member foundMember = memberRepository.findMemberByMemberEmail(username)

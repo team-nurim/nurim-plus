@@ -50,14 +50,14 @@ public class MemberController {
 
     }
 
-    @Operation(summary = "회원 정보 입력")
-    @PostMapping("/memberInfo")
-    public ResponseEntity<CreateMemberResponse> memberInfoCreate(@RequestBody @Valid CreateMemberInfoRequest request) {
-
-        CreateMemberResponse response = memberService.createMemberInfo(request);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    @Operation(summary = "회원 정보 입력")
+//    @PostMapping("/memberInfo")
+//    public ResponseEntity<CreateMemberResponse> memberInfoCreate(@RequestBody @Valid CreateMemberInfoRequest request) {
+//
+//        CreateMemberResponse response = memberService.createMemberInfo(request);
+//
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
 
     @Operation(summary = "회원 정보 단건 조회")
@@ -113,25 +113,32 @@ public class MemberController {
 //    }
 
     // 💌 검토 필요 (로그인한 사용자만 회원탈퇴 가능)
-    @Operation(summary = "회원 정보 삭제") // 회원가입이 이뤄지면 email에 대한 정보로 탈퇴 처리해야 할 듯
-    @DeleteMapping
-    public ResponseEntity<DeleteMemberResponse> memberDelete(){
-
-        Member accessMember = memberService.getMember();
-
-        DeleteMemberResponse response = memberService.deleteMember(accessMember.getMemberId());
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-
-    }
+//    @Operation(summary = "회원 정보 삭제") // 회원가입이 이뤄지면 email에 대한 정보로 탈퇴 처리해야 할 듯
+//    @DeleteMapping
+//    public ResponseEntity<DeleteMemberResponse> memberDelete(){
+//
+//        Member accessMember = memberService.getMember();
+//
+//        DeleteMemberResponse response = memberService.deleteMember(accessMember.getMemberId());
+//
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//
+//    }
 
     // 💌 검토 필요 (로그인한 사용자가 본인 정보만 수정 가능)
     @Operation(summary = "회원 정보 수정")
     @PutMapping("/{memberId}")
-    public ResponseEntity<UpdateMemberResponse> memberUpdate(@RequestBody UpdateMemberRequest request) {
+    public ResponseEntity<UpdateMemberResponse> memberUpdate(@RequestBody UpdateMemberRequest request, HttpServletRequest httpRequest) {
 
-        Member accessMember = memberService.getMember();
+        String accessToken = tokenProvider.getAccessToken(httpRequest);
+        log.info("🍎accessToken: " + accessToken);
+        Authentication authentication = tokenProvider.getAuthenticationFromToken(accessToken);
+        log.info("🍎authentication: " + authentication);
 
+        String username = tokenProvider.getUsernameFromToken(accessToken);
+        log.info("🍎username: " + username);
+
+        Member accessMember = memberService.readMemberByMemberEmail(username);
         UpdateMemberResponse response = memberService.updateMember(accessMember.getMemberId(), request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -1,5 +1,7 @@
 package org.nurim.nurim.Controller;
 
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.nurim.nurim.domain.dto.member.DeleteMemberResponse;
 import org.nurim.nurim.domain.dto.member.ReadMemberResponse;
 import org.nurim.nurim.domain.dto.member.UpdateMemberRequest;
@@ -15,16 +17,11 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/admin/members")
 public class AdminController {
 
     private final AdminService adminService;
-
-
-    @Autowired
-    public AdminController(AdminService adminService) {
-        this.adminService = adminService;
-    }
 
     @GetMapping("/")
     public List<Member> getAllMembers() {
