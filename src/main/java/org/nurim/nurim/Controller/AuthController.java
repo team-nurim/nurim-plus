@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Arrays;
 import java.util.List;
 
-@Tag(name = "auth", description = "회원 인증/인가 API")
+@Tag(name = "Auth", description = "회원 인증/인가 API")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/auth")
