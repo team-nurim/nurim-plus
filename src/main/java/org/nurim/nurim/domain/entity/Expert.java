@@ -18,6 +18,9 @@ public class Expert {
     @Column(length = 500, nullable = true)
     private String expertFile;
 
+    @Column(length = 500, nullable = true)
+    private String expertFileName;
+
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "memberId")
     private Member member;

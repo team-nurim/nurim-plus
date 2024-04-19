@@ -26,22 +26,25 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
+        log.info("=============== LoginSuccessHandler ===============");
+
         // HTTP 응답 콘텐츠 타입을 JSON으로 설정
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         log.info(authentication);
         log.info(authentication.getName());   // username 추출
+        log.info("🎯LoginSuccessHandler 내에 있는 authentication.getName() : {}", authentication.getName());
 
         Map<String, Object> claim = Map.of("memberEmail", authentication.getName());
         // access token 유효기간 1일
         String accessToken = tokenProvider.generateToken(claim, 1);
-        // refresh token 유효기간 30일
-        String refreshToken = tokenProvider.generateToken(claim, 30);
+//        // refresh token 유효기간 30일
+//        String refreshToken = tokenProvider.generateToken(claim, 30);
 
         Gson gson = new Gson();
 
         // access, refresh token 포함하는 map 생성
-        Map<String, String> keyMap = Map.of("accessToken", accessToken, "refreshToken", refreshToken);
+        Map<String, String> keyMap = Map.of("accessToken", accessToken);
         String jsonStr = gson.toJson(keyMap);   // map 객체를 JSON 문자열로 변환
 
         response.getWriter().println(jsonStr);   // JSON 문자열을 HTTP 응답에 기록하여 클라이언트에 반환

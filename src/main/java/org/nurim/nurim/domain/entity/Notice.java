@@ -33,8 +33,8 @@ public class Notice {
     private LocalDate noticeRegisterDate;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "adminId")
-    private Admin admin;
+    @JoinColumn(name = "memberId")
+    private Member member;
 
     public void update(String noticeTitle, String noticeContent, String noticeWriter) {
         this.noticeTitle = noticeTitle;
