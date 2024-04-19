@@ -64,6 +64,8 @@ public class MemberService {
         String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
         String defaultKey = "images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
 
+        String defaultExpert = "증빙서류가 등록되지 않았습니다.";
+
         // 기본 이미지 경로 MemberImage에 설정하여 저장
         MemberImage memberImage = new MemberImage();
         memberImage.setMember(savedMember);
@@ -73,8 +75,8 @@ public class MemberService {
 
         Expert expert = new Expert();
         expert.setMember(savedMember);
-        expert.setExpertFile(defaultProfileImageUrl);
-        expert.setExpertFileName(defaultKey);
+        expert.setExpertFile(defaultExpert);
+        expert.setExpertFileName(defaultExpert);
 
         // 회원 정보에 이미지 정보 연결
         savedMember.setMemberImage(memberImage);
@@ -129,6 +131,7 @@ public class MemberService {
         String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
         String defaultKey = "images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
 
+        String defaultExpert = "증빙서류가 등록되지 않았습니다.";
 
         // 기본 이미지 경로 MemberImage에 설정하여 저장
         MemberImage memberImage = new MemberImage();
@@ -137,9 +140,15 @@ public class MemberService {
         memberImage.setProfileName(defaultKey);
         memberImageRepository.save(memberImage);
 
+        Expert expert = new Expert();
+        expert.setMember(savedMember);
+        expert.setExpertFile(defaultExpert);
+        expert.setExpertFileName(defaultExpert);
+
         // 회원 정보에 이미지 정보 연결
         savedMember.setMemberImage(memberImage);
-        memberRepository.save(savedMember);
+        savedMember.setExpert(expert);
+        memberRepository.save(savedMember);;
 
         return new CreateMemberResponse(savedMember.getMemberId(),
                 savedMember.getMemberEmail(),
