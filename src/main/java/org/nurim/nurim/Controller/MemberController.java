@@ -3,11 +3,9 @@ package org.nurim.nurim.Controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.nurim.nurim.config.auth.PrincipalDetails;
 import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Member;
@@ -15,8 +13,6 @@ import org.nurim.nurim.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Members", description = "회원 정보 API")
