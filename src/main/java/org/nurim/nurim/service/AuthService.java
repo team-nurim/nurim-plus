@@ -4,7 +4,6 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.config.auth.TokenProvider;
-import org.nurim.nurim.domain.dto.LoginRequest;
 import org.nurim.nurim.domain.dto.LoginResponse;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.repository.MemberImageRepository;

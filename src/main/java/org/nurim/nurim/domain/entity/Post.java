@@ -40,8 +40,8 @@ public class Post {
     private Set<PostImage> imageSet = new HashSet<>();
 
     @ManyToOne
-    @JoinColumn(name = "adminId")
-    private Admin admin;
+    @JoinColumn(name = "memberId")
+    private Member member;
 
     public void addPostImage(String uuid, String fileName) {
 

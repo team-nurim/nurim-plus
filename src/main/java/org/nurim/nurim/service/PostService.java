@@ -3,13 +3,12 @@ package org.nurim.nurim.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.nurim.nurim.domain.dto.notice.*;
 import org.nurim.nurim.domain.dto.post.*;
-import org.nurim.nurim.domain.entity.Admin;
+import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.domain.entity.Notice;
 import org.nurim.nurim.domain.entity.Post;
 import org.nurim.nurim.domain.entity.PostImage;
-import org.nurim.nurim.repository.AdminRepository;
+import org.nurim.nurim.repository.MemberRepository;
 import org.nurim.nurim.repository.PostImageRepository;
 import org.nurim.nurim.repository.PostRepository;
 import org.springframework.data.domain.Page;
@@ -28,13 +27,13 @@ import java.util.stream.Collectors;
 public class PostService {
 
     private final PostRepository postRepository;
-    private final AdminRepository adminRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
-    public CreatePostResponse createPost(Long adminId, CreatePostRequest request) {
+    public CreatePostResponse createPost(Long memberId, CreatePostRequest request) {
 
-        Admin admin = adminRepository.findById(adminId)
-                .orElseThrow(() -> new IllegalArgumentException("Admin with ID " + adminId + " not found"));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Admin with ID " + memberId + " not found"));
 
         Post post = Post.builder()
                 .postTitle(request.getPostTitle())
@@ -42,22 +41,22 @@ public class PostService {
                 .postWriter(request.getPostWriter())
                 .postCategory(request.getPostCategory())
                 .postRegisterDate(request.getPostRegisterDate())
-                .admin(admin)// Admin 객체를 Post 객체의 admin 필드에 할당합니다.
+                .member(member)// Admin 객체를 Post 객체의 admin 필드에 할당합니다.
                 .build();
 
-            request.getFileNames().forEach(fileName -> {
-                String[] arr = fileName.split("_");
-                if(arr.length > 1){post.addPostImage(arr[0], arr[1]);
-                }
-            });
+//            request.getFileNames().forEach(fileName -> {
+//                String[] arr = fileName.split("_");
+//                if(arr.length > 1){post.addPostImage(arr[0], arr[1]);
+//                }
+//            });
 
 
         Post savedPost = postRepository.save(post);
 
-        List<String> fileNames = savedPost.getImageSet().stream()
-                .sorted()
-                .map(postImage -> postImage.getImage_detail() + "_" + postImage.getImage_thumb())
-                .collect(Collectors.toList());
+//        List<String> fileNames = savedPost.getImageSet().stream()
+//                .sorted()
+//                .map(postImage -> postImage.getImage_detail() + "_" + postImage.getImage_thumb())
+//                .collect(Collectors.toList());
 
 
         return new CreatePostResponse(
@@ -66,8 +65,8 @@ public class PostService {
                 savedPost.getPostContent(),
                 savedPost.getPostWriter(),
                 savedPost.getPostCategory(),
-                savedPost.getPostRegisterDate(),
-                fileNames
+                savedPost.getPostRegisterDate()
+//                fileNames
 
         );
     }
