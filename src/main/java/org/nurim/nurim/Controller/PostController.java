@@ -36,9 +36,9 @@ public class PostController {
 
     @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/post/read/{postId}")
-    public ResponseEntity<ReadPostResponse> postRead(@PathVariable Long postId) {
+    public ResponseEntity<ReadOnePostResponse> postRead(@PathVariable Long postId) {
 
-        ReadPostResponse response = postService.readPostById(postId);
+        ReadOnePostResponse response = postService.readPostById(postId);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

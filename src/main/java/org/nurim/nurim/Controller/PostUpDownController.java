@@ -37,7 +37,7 @@ public class PostUpDownController {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/api/v1/posts/post/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "이미지 업로드", description = "POST로 파일 등록")
     public ResponseEntity<List<UploadFileResponse>> upload(
             @RequestParam Long postId,
@@ -84,7 +84,7 @@ public class PostUpDownController {
 //        List<String> imageUrls = postImageService.getImageUrlsByPostId(postId);
 //        return ResponseEntity.ok(imageUrls);
 //    }
-
+//
 //    @GetMapping(value = "/images/{uuid}")
 //    @Operation(summary = "이미지 파일 조회", description = "GET 방식으로 파일 조회")
 //    public ResponseEntity<Resource> getViewFile(@PathVariable String uuid) {
@@ -122,7 +122,7 @@ public class PostUpDownController {
 
 
     // 첨부파일 삭제
-    @DeleteMapping(value = "/images/{postId}")
+    @DeleteMapping(value = "/api/v1/posts/post/delete/images/{postId}")
     @Operation(summary = "이미지 파일 삭제", description = "DELETE 방식으로 파일 조회")
     public ResponseEntity<String> deletePostImages(@PathVariable Long postId) {
         boolean success = postImageService.deletePostImages(postId);

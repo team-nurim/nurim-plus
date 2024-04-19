@@ -17,9 +17,9 @@ public class PostImage {
     @Column(name = "postImageId", nullable = false)
     private Long postImageId;
 
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "postId")
-    Post post;
+    private Post post;
 
     @Column(name = "image_detail", length = 500)
     private String image_detail;
