@@ -148,7 +148,7 @@ public class MemberService {
         // 회원 정보에 이미지 정보 연결
         savedMember.setMemberImage(memberImage);
         savedMember.setExpert(expert);
-        memberRepository.save(savedMember);;
+        memberRepository.save(savedMember);
 
         return new CreateMemberResponse(savedMember.getMemberId(),
                 savedMember.getMemberEmail(),
