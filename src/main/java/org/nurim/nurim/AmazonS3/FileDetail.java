@@ -33,5 +33,4 @@ public class FileDetail {
                 .build();
     }
 
-    // createPath = %s/%s.%s images uuid.jpg
 }

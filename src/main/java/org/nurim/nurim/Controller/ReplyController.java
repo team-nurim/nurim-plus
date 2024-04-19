@@ -1,6 +1,7 @@
 package org.nurim.nurim.Controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.nurim.nurim.domain.dto.community.CreateCommunityResponse;
 import org.nurim.nurim.domain.dto.reply.*;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Tag(name = "Reply", description = "댓글 API")
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor

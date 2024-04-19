@@ -1,6 +1,7 @@
 package org.nurim.nurim.Controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.nurim.nurim.domain.dto.community.*;
 import org.nurim.nurim.service.CommunityService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 
+@Tag(name = "Community", description = "커뮤니티 API")
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
