@@ -74,40 +74,6 @@ public class PostUpDownController {
         return ResponseEntity.badRequest().build();
     }
 
-//    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    @Operation(summary = "이미지 업로드", description = "POST로 파일 등록")
-//    public ResponseEntity<List<UploadFileResponse>> upload(
-//            @RequestParam Long postId,
-//            @Parameter(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))))
-//            @RequestPart("files") MultipartFile[] files) {
-//
-//        if (files != null) {
-//
-//            final List<UploadFileResponse> responses = new ArrayList<>();
-//
-//            for (MultipartFile multipartFile : files) {
-//
-//                String uuid = UUID.randomUUID().toString();
-//                String originalName = multipartFile.getOriginalFilename();
-//
-//                // 이미지를 데이터베이스에 저장
-//                postImageService.saveImage(postId, originalName, uuid);
-//
-//                // 이미지를 아마존 s3에 저장
-//                fileUploadService.save(multipartFile);
-//
-//                responses.add(UploadFileResponse.builder()
-//                        .uuid(uuid)
-//                        .fileName(originalName)
-//                        .img(true)
-//                        .build());
-//            }
-//
-//            return ResponseEntity.ok(responses);
-//        }
-//        return ResponseEntity.badRequest().build();
-//    }
-
     // 첨부파일 조회
     // postId에 해당하는 모든 이미지의 URL을 조회하여 반환
 //    @GetMapping("/post/{postId}")
@@ -165,67 +131,4 @@ public class PostUpDownController {
         }
     }
 
-//    @DeleteMapping(value = "/images/{postId}")
-//    @Operation(summary = "이미지 파일 삭제", description = "DELETE 방식으로 파일 조회")
-//    public Map<String, Boolean> removeFile(@PathVariable Long postId) {
-//        Map<String, Boolean> response = new HashMap<>();
-//        boolean isRemovedFromS3 = false;
-//        boolean isRemoveddFromDatabase = false;
-//
-//        try {
-//            // postId에 해당하는 DB에 저장된 S3 이미지 key 값 가져옴.
-//            String key = postImageService.getKeyByPostId(postId);
-//
-//            // S3의 이미지 삭제
-//            isRemovedFromS3 = fileUploadService.deleteFile(key);
-//
-//            // DB의 이미지 삭제
-//            isRemoveddFromDatabase = postImageService.deleteImage(postId).get("result");
-//
-//            // 삭제 결과 응답 설정
-//            response.put("isRemovedFromS3", isRemovedFromS3);
-//            response.put("isRemoedFromDatabase", isRemoveddFromDatabase);
-//
-//        } catch (Exception e) {
-//            log.error("post 파일 삭제 실패 : " + e.getMessage());
-//        }
-//
-//        return response;
-//    }
-
-//    @DeleteMapping(value = "/images/{uuid}")
-//    @Operation(summary = "이미지 파일 삭제", description = "DELETE 방식으로 파일 조회")
-//    public Map<String, Boolean> removeFile(@PathVariable String uuid, Long postImageId) {
-//
-//        Map<String, Boolean> response = new HashMap<>();
-//        boolean isRemovedFromDatabase = false;
-//        boolean isRemovedFromS3 = false;
-//
-//        try {
-//            // 데이터베이스에서 파일 삭제 시도
-//            Map<String, Boolean> databaseResponse = postImageService.deleteImage(postImageId);
-//            isRemovedFromDatabase = databaseResponse.get("result");
-//
-//            // S3에서 파일 삭제 시도
-//            isRemovedFromS3 = fileUploadService.deleteFile(uuid);
-//
-//            // 디버그 로그 추가
-//            log.info("Database removal status: " + isRemovedFromDatabase);
-//            log.info("S3 removal status: " + isRemovedFromS3);
-//
-//        } catch (Exception e) {
-//            // 삭제 실패 시 에러 로그 출력
-//            log.error("Error occurred during file removal: " + e.getMessage());
-//        }
-//
-//        // 두 작업 모두 성공했을 때만 결과를 true로 설정
-//        if (isRemovedFromDatabase && isRemovedFromS3) {
-//            response.put("result", true);
-//        } else {
-//            response.put("result", false);
-//        }
-//
-//        log.info(response);
-//        return response;
-//    }
 }

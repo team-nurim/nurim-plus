@@ -43,25 +43,6 @@ public class Post {
     @JoinColumn(name = "memberId")
     private Member member;
 
-    // 여러 개의 이미지를 한 번에 추가할 수 있도록 변경
-    public void addPostImages(List<PostImage> postImages) {
-        this.imageSet.addAll(postImages);
-        for (PostImage postImage : postImages) {
-            postImage.setPost(this);
-        }
-    }
-//    public void addPostImage(String uuid, String fileName) {
-//
-//        PostImage postImage = PostImage.builder()
-//                .image_detail(uuid)  // 파일 uuid 저장
-//                .image_thumb(fileName)   // 파일 이름 저장
-//                .build();
-//
-//        this.imageSet.add(postImage);
-//        postImage.changePost(this);
-//
-//    }
-
     public void update(String postTitle, String postContent, String postWriter, String postCategory, LocalDate postRegisterDate) {
         this.postTitle = postTitle;
         this.postContent = postContent;
