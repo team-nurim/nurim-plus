@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.nurim.nurim.config.auth.*;
 import org.nurim.nurim.service.PrincipalDetailsService;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -18,6 +19,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -34,6 +36,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 import javax.sql.DataSource;
 import java.util.Collections;
+
+import static org.springframework.security.core.context.SecurityContextHolder.MODE_INHERITABLETHREADLOCAL;
 
 
 @Configuration
@@ -137,6 +141,8 @@ public class SecurityConfig {
                         new HttpSessionSecurityContextRepository()
                 )));
 
+        SecurityContextHolder.setStrategyName(MODE_INHERITABLETHREADLOCAL);
+
         return http.build();
     }
 
@@ -187,5 +193,7 @@ public class SecurityConfig {
         return (web) -> web.ignoring()
                 .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
     }
+
+
 
 }
