@@ -19,7 +19,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "members", description = "회원 정보 API")
+@Tag(name = "Members", description = "회원 정보 API")
 @RestController
 @RequiredArgsConstructor
 @CrossOrigin(origins="*")

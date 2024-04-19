@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.AmazonS3.FileUploadService;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.HashMap;
 import java.util.Map;
 
+@Tag(name = "ProfileImage", description = "프로필 이미지 API")
 @RestController
 @Log4j2
 @RequiredArgsConstructor
@@ -49,10 +51,10 @@ public class MemberImageController {
             // DB에 이미지 url 저장
             memberImageService.saveImage(memberId, url, key);
 
-            // 응답 생성
+            // 응답 생성 // 변경
             UploadFileResponse response = UploadFileResponse.builder()
-                    .uuid(url)
-                    .fileName(key)
+                    .uuid(key)
+                    .fileName(files.getOriginalFilename())
                     .img(true) // 이미지인 경우 true로 설정
                     .build();
 

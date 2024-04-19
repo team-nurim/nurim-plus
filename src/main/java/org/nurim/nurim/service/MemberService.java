@@ -167,18 +167,6 @@ public class MemberService {
                 .memberRole(getMember().getMemberRole())
                 .build();
 
-//        Member savedMember = memberRepository.save(member);
-//
-//        // 기본 이미지 경로 MemberImage에 설정하여 저장
-//        MemberImage memberImage = new MemberImage();
-//        memberImage.setMember(savedMember);
-//        memberImage.setMemberProfileImage(DEFAULT_PROFILE_IMAGE_URL); // 정적 경로 참조
-//        memberImageRepository.save(memberImage);
-//
-//        // 회원 정보에 이미지 정보 연결
-//        savedMember.setMemberImage(memberImage);
-//        memberRepository.save(savedMember);
-
         return new CreateMemberResponse(member.getMemberId(),
                 member.getMemberEmail(),
                 member.getMemberPw(),
@@ -193,7 +181,6 @@ public class MemberService {
                 member.getMemberProfileImage());
 
     }
-
 
     // 특정 회원 조회
     public ReadMemberResponse readMemberById(Long memberId) {

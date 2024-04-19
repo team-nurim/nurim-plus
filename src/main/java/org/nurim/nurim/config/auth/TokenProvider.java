@@ -63,10 +63,10 @@ public class TokenProvider {
 
         String jwtStr = Jwts.builder()
                 .setHeader(headers)
-                .setClaims(payloads)
-                .setIssuedAt(Date.from(ZonedDateTime.now().toInstant()))
-                .setExpiration(Date.from(ZonedDateTime.now().plusMinutes(time).toInstant()))
-                .signWith(SignatureAlgorithm.HS256, jwtSecret.getBytes())
+                .setClaims(payloads) // 발행 유저 정보 저장
+                .setIssuedAt(Date.from(ZonedDateTime.now().toInstant())) // 발행 시간 저장
+                .setExpiration(Date.from(ZonedDateTime.now().plusMinutes(time).toInstant())) // 토큰 유효 시간
+                .signWith(SignatureAlgorithm.HS256, jwtSecret.getBytes()) // 해싱 알고리즘 및 키 설정
                 .compact();
 
         log.info("🎯jwtStr: " + jwtStr);
