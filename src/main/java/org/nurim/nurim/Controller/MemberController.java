@@ -116,15 +116,7 @@ public class MemberController {
     @PutMapping("/{memberId}")
     public ResponseEntity<UpdateMemberResponse> memberUpdate(@RequestBody UpdateMemberRequest request, HttpServletRequest httpRequest) {
 
-        String accessToken = tokenProvider.getAccessToken(httpRequest);
-        log.info("🍎accessToken: " + accessToken);
-        Authentication authentication = tokenProvider.getAuthenticationFromToken(accessToken);
-        log.info("🍎authentication: " + authentication);
-
-        String username = tokenProvider.getUsernameFromToken(accessToken);
-        log.info("🍎username: " + username);
-
-        Member accessMember = memberService.readMemberByMemberEmail(username);
+        Member accessMember = memberService.getMember(httpRequest);
         UpdateMemberResponse response = memberService.updateMember(accessMember.getMemberId(), request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
