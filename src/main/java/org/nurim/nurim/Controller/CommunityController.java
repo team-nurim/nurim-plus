@@ -9,6 +9,7 @@ import org.apache.tomcat.util.http.parser.Authorization;
 import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.community.*;
 import org.nurim.nurim.service.CommunityService;
+import org.nurim.nurim.service.MemberService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +30,7 @@ import java.util.List;
 public class CommunityController {
 
     private final CommunityService communityService;
+    private final MemberService memberService;
 
     private final TokenProvider tokenProvider;
 

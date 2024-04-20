@@ -1,19 +1,16 @@
 package org.nurim.nurim.Controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.nurim.nurim.config.auth.LoginSuccessHandler;
-import org.nurim.nurim.config.auth.PrincipalDetails;
-import org.nurim.nurim.domain.dto.LoginResponse;
-import org.nurim.nurim.domain.dto.ReadMemberResponse;
 import org.nurim.nurim.service.AuthService;
+import org.nurim.nurim.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Arrays;
 import java.util.List;
@@ -27,6 +24,7 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+    private final MemberService memberService;
 
 
     @GetMapping("/sample")
