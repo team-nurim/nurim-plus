@@ -27,7 +27,9 @@ public class TokenValidateFilter extends OncePerRequestFilter {
     List<String> list = Arrays.asList(
             "/api/v1/auth/login",
             "/api/v1/members/user",
-            "/api/v1/members/admin"
+            "/api/v1/members/admin",
+            "/api/v1/posts/post/list",
+            "/api/v1/communityList"
     );
 
     @Override
