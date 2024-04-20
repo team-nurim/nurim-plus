@@ -8,12 +8,9 @@ import org.nurim.nurim.domain.entity.Expert;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.repository.ExpertRepository;
 import org.nurim.nurim.repository.MemberRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 
 @Service

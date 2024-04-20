@@ -37,8 +37,6 @@ public class MemberImageController {
      @RequestPart("files") MultipartFile files,
      @RequestParam Long memberId) {
 
-//        Member member = memberService.getMember();
-        // memberId 인증 객체 여부 판단 로직 추가...
         if (files != null) {
 
             // S3에서의 이미지 저장 및 url, key값 반환
