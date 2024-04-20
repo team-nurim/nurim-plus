@@ -17,7 +17,7 @@ public class ReadReplyResponse {
 
     private String replyText;
 
-    private String replyer;
+    private String memberNickname;
 
     private LocalDateTime replyRegisterDate;
 

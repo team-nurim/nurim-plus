@@ -17,7 +17,7 @@ public class CreateReplyResponse {
 
     private Long communityId;
 
-    private String replyer;
+    private String memberNickname;
 
     private String replyText;
 

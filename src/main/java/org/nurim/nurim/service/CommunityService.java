@@ -88,12 +88,14 @@ public class CommunityService {
      */
     @Transactional
     public DeleteCommunityResponse communityDelete(Long communityId, String memberEmail) throws AccessDeniedException {
+        String accessToken = tokenProvider.getUsernameFromToken(memberEmail);
         Community findCommunity = communityRepository.findById(communityId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 communityId로 조회된 게시글이 없습니다."));
 
-        String memberEmailCommunityId = findCommunity.getMember().getMemberEmail();
+        Member member = memberRepository.findMemberByMemberEmail(accessToken)
+                .orElseThrow(() -> new EntityNotFoundException("작성자 id가 확인이 안됩니다 ㅜㅜ"));
 
-        if (Objects.equals(memberEmailCommunityId, memberEmail)) {
+        if (Objects.equals(findCommunity.getMember().getMemberEmail(), member.getMemberEmail())) {
             communityRepository.delete(findCommunity);
             return new DeleteCommunityResponse(findCommunity.getCommunityId());
         } else {
@@ -105,42 +107,42 @@ public class CommunityService {
      * 게시글 수정 글쓴이 본인만!
      */
 
-    @Transactional
-    public UpdateCommunityResponse communityUpdate(Long communityId,String memberEmail, UpdateCommunityRequest request) throws AccessDeniedException {
-
-        Community findCommunity = communityRepository.findById(communityId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 아이디로 조회안됨"));
-
-        String memberEmailInCommunityId = findCommunity.getMember().getMemberEmail();
-
-        if(Objects.equals(memberEmailInCommunityId,memberEmail )) {
-
-            findCommunity.update(request.getTitle(), request.getContent(), request.getCategory());
-
-            return new UpdateCommunityResponse(
-                    findCommunity.getTitle(),
-                    findCommunity.getContent(),
-                    findCommunity.getModifyDate());
-        }else {
-            throw new AccessDeniedException("커뮤니티를 수정할 권한이 없습니다.");
-        }
-    }
-    public Page<ReadAllCommunityResponse> getCommunityList(Pageable pageable){
-        Page<Community> communities = communityRepository.findAll(pageable);
-        return communities.map(community -> {
-            Long memberId = community.getMember().getMemberId();
-            return new ReadAllCommunityResponse(
-                    community.getCommunityId(),
-                    community.getCommunityImage(),
-                    community.getTitle(),
-                    community.getContent(),
-                    community.getCommunityCategory(),
-                    community.getRegisterDate(),
-                    community.getViewCounts(),
-                    community.getRecommend(),
-                    community.getMember().getMemberNickname());
-        });
-    }
+//    @Transactional
+//    public UpdateCommunityResponse communityUpdate(Long communityId,String memberEmail, UpdateCommunityRequest request) throws AccessDeniedException {
+//
+//        Community findCommunity = communityRepository.findById(communityId)
+//                .orElseThrow(() -> new EntityNotFoundException("해당 아이디로 조회안됨"));
+//
+//        String memberEmailInCommunityId = findCommunity.getMember().getMemberEmail();
+//
+//        if(Objects.equals(memberEmailInCommunityId,memberEmail )) {
+//
+//            findCommunity.update(request.getTitle(), request.getContent(), request.getCategory());
+//
+//            return new UpdateCommunityResponse(
+//                    findCommunity.getTitle(),
+//                    findCommunity.getContent(),
+//                    findCommunity.getModifyDate());
+//        }else {
+//            throw new AccessDeniedException("커뮤니티를 수정할 권한이 없습니다.");
+//        }
+//    }
+//    public Page<ReadAllCommunityResponse> getCommunityList(Pageable pageable){
+//        Page<Community> communities = communityRepository.findAll(pageable);
+//        return communities.map(community -> {
+//            Long memberId = community.getMember().getMemberId();
+//            return new ReadAllCommunityResponse(
+//                    community.getCommunityId(),
+//                    community.getCommunityImage(),
+//                    community.getTitle(),
+//                    community.getContent(),
+//                    community.getCommunityCategory(),
+//                    community.getRegisterDate(),
+//                    community.getViewCounts(),
+//                    community.getRecommend(),
+//                    community.getMember().getMemberNickname());
+//        });
+//    }
 
     public Page<ReadSearchResponse> getCommunityListByCategory(String category, Pageable pageable) {
         Page<Community> communityPage = communityRepository.findByCommunityCategory(category, pageable);
@@ -172,6 +174,7 @@ public class CommunityService {
             Long memberId = community.getMember().getMemberId();
 
             return new ReadCountsCommunitiesResponse(
+                    community.getCommunityId(),
                     community.getTitle(),
                     community.getContent(),
                     community.getViewCounts(),
@@ -268,6 +271,7 @@ public class CommunityService {
             Long memberId = community.getMember().getMemberId();
 
             return new ReadInquireResponse(
+                    community.getCommunityId(),
                     community.getTitle(),
                     community.getCommunityCategory(),
                     community.getContent(),

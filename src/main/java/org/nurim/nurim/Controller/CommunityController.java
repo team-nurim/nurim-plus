@@ -42,11 +42,12 @@ public class CommunityController {
         ReadCommunityResponse response = communityService.communityRead(communityId);
         return ResponseEntity.ok().body(response);
     }
-    @DeleteMapping("/communityDelete/{communityId}")
+    @CrossOrigin(origins = "http://localhost:8081")
+    @DeleteMapping("/communityDelete/{communityId}/{accessToken}")
     @Operation(summary = "게시물 삭제", description = "게시물 memberId에 속한 유저만 삭제가 가능합니다.")
-    public ResponseEntity<DeleteCommunityResponse> deleteCommunity(@PathVariable Long communityId, String memberEmail) {
+    public ResponseEntity<DeleteCommunityResponse> deleteCommunity(@PathVariable Long communityId,@PathVariable String accessToken) {
         try {
-            DeleteCommunityResponse response = communityService.communityDelete(communityId, memberEmail);
+            DeleteCommunityResponse response = communityService.communityDelete(communityId, accessToken);
             return ResponseEntity.ok().body(response);
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
