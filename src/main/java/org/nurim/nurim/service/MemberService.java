@@ -33,9 +33,6 @@ public class MemberService {
     @Transactional
     public CreateMemberResponse createMember(CreateMemberRequest request) {
 
-        // 회원 정보 유효성 검증 (클래스 별도 생성 예정)
-        // validateMemberRequest(request);
-
         if (memberRepository.findMemberByMemberEmail(request.getMemberEmail()).isPresent()) {
             throw new DataIntegrityViolationException("이미 존재하는 회원입니다.");   // 전역예외처리 필요
         }
@@ -65,7 +62,7 @@ public class MemberService {
         // 기본 이미지 경로 MemberImage에 설정하여 저장
         MemberImage memberImage = new MemberImage();
         memberImage.setMember(savedMember);
-        memberImage.setMemberProfileImage(defaultProfileImageUrl); // 정적 경로 참조
+        memberImage.setMemberProfileImage(defaultProfileImageUrl);
         memberImage.setProfileName(defaultKey);
         memberImageRepository.save(memberImage);
 
@@ -100,9 +97,6 @@ public class MemberService {
     @Transactional
     public CreateMemberResponse createAdmin(CreateMemberRequest request) {
 
-        // 회원 정보 유효성 검증 (클래스 별도 생성 예정)
-        // validateMemberRequest(request);
-
         if (memberRepository.findMemberByMemberEmail(request.getMemberEmail()).isPresent()) {
             throw new DataIntegrityViolationException("이미 존재하는 회원입니다.");   // 전역예외처리 필요
         }
@@ -132,7 +126,7 @@ public class MemberService {
         // 기본 이미지 경로 MemberImage에 설정하여 저장
         MemberImage memberImage = new MemberImage();
         memberImage.setMember(savedMember);
-        memberImage.setMemberProfileImage(defaultProfileImageUrl); // 정적 경로 참조
+        memberImage.setMemberProfileImage(defaultProfileImageUrl);
         memberImage.setProfileName(defaultKey);
         memberImageRepository.save(memberImage);
 
@@ -211,11 +205,6 @@ public class MemberService {
         Member foundMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
 
-//        // 현재 로그인한 사용자만 수정 가능
-//        if(!foundMember.getMemberEmail().equals(getMember().getMemberEmail())) {
-//            throw new AccessDeniedException("수정 권한이 없습니다.");
-//        }
-
         // Member 정보 업데이트
         foundMember.update(
                 passwordEncoder.encode(request.getMemberPw()),
@@ -242,31 +231,26 @@ public class MemberService {
 
     }
 
-//    // 회원 탈퇴
-//    @Transactional
-//    public DeleteMemberResponse deleteMember(Long memberId) {
-//
-//        Member foundMember = memberRepository.findById(memberId)
-//                .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
-//
-////        // 현재 로그인한 사용자만 탈퇴 가능
-////        if(!foundMember.getMemberEmail().equals(getMember().getMemberEmail())) {
-////            throw new AccessDeniedException("이 계정 탈퇴에 대한 권한이 없습니다.");
-////        }
-//
-//        memberRepository.delete(foundMember);
-//
-//        return new DeleteMemberResponse(foundMember.getMemberId());
-//
-//    }
+    // 회원 탈퇴
+    @Transactional
+    public DeleteMemberResponse deleteMember(Long memberId) {
+
+        Member foundMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
+
+        memberRepository.delete(foundMember);
+
+        return new DeleteMemberResponse(foundMember.getMemberId());
+
+    }
 
 
     // context에서 회원정보 가져오기
-
     public Member getMember(HttpServletRequest request) {
 
         String accessToken = tokenProvider.getAccessToken(request);
         log.info("🍎accessToken: " + accessToken);
+
         Authentication authentication = tokenProvider.getAuthenticationFromToken(accessToken);
         log.info("🍎authentication: " + authentication);
 
@@ -280,16 +264,6 @@ public class MemberService {
     public Member readMemberByMemberEmail(String username) {
         Member foundMember = memberRepository.findMemberByMemberEmail(username)
                 .orElseThrow(() -> new EntityNotFoundException("😥해당 이메일로 회원을 찾을 수 없습니다."));
-
-        return foundMember;
-    }
-
-    public Member getMemberById(Long memberId) {
-
-        Member foundMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new EntityNotFoundException("해당 memberId로 회원을 찾을 수 없습니다."));
-
-        log.info("😀"+foundMember);
 
         return foundMember;
     }
