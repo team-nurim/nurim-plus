@@ -127,22 +127,22 @@ public class CommunityService {
 //            throw new AccessDeniedException("커뮤니티를 수정할 권한이 없습니다.");
 //        }
 //    }
-//    public Page<ReadAllCommunityResponse> getCommunityList(Pageable pageable){
-//        Page<Community> communities = communityRepository.findAll(pageable);
-//        return communities.map(community -> {
-//            Long memberId = community.getMember().getMemberId();
-//            return new ReadAllCommunityResponse(
-//                    community.getCommunityId(),
-//                    community.getCommunityImage(),
-//                    community.getTitle(),
-//                    community.getContent(),
-//                    community.getCommunityCategory(),
-//                    community.getRegisterDate(),
-//                    community.getViewCounts(),
-//                    community.getRecommend(),
-//                    community.getMember().getMemberNickname());
-//        });
-//    }
+    public Page<ReadAllCommunityResponse> getCommunityList(Pageable pageable){
+        Page<Community> communities = communityRepository.findAll(pageable);
+        return communities.map(community -> {
+            Long memberId = community.getMember().getMemberId();
+            return new ReadAllCommunityResponse(
+                    community.getCommunityId(),
+                    community.getCommunityImage(),
+                    community.getTitle(),
+                    community.getContent(),
+                    community.getCommunityCategory(),
+                    community.getRegisterDate(),
+                    community.getViewCounts(),
+                    community.getRecommend(),
+                    community.getMember().getMemberNickname());
+        });
+    }
 
     public Page<ReadSearchResponse> getCommunityListByCategory(String category, Pageable pageable) {
         Page<Community> communityPage = communityRepository.findByCommunityCategory(category, pageable);

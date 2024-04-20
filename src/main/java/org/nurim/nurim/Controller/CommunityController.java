@@ -54,12 +54,12 @@ public class CommunityController {
         }
     }
 
-    @PutMapping("/communityUpdate/{communityId}")
-    @Operation(summary = "게시물 수정")
-    public ResponseEntity<UpdateCommunityResponse> updateCommunity(@PathVariable Long communityId, String memberEmail, @RequestBody UpdateCommunityRequest request) throws AccessDeniedException {
-        UpdateCommunityResponse response = communityService.communityUpdate(communityId, memberEmail, request);
-        return ResponseEntity.ok().body(response);
-    }
+//    @PutMapping("/communityUpdate/{communityId}")
+//    @Operation(summary = "게시물 수정")
+//    public ResponseEntity<UpdateCommunityResponse> updateCommunity(@PathVariable Long communityId, String memberEmail, @RequestBody UpdateCommunityRequest request) throws AccessDeniedException {
+//        UpdateCommunityResponse response = communityService.communityUpdate(communityId, memberEmail, request);
+//        return ResponseEntity.ok().body(response);
+//    }
 
     @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/communityList")
