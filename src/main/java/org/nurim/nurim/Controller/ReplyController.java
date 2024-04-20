@@ -3,10 +3,8 @@ package org.nurim.nurim.Controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.nurim.nurim.domain.dto.community.CreateCommunityResponse;
 import org.nurim.nurim.domain.dto.reply.*;
-import org.nurim.nurim.domain.entity.Community;
-import org.nurim.nurim.repository.ReplyRepository;
+import org.nurim.nurim.service.MemberService;
 import org.nurim.nurim.service.ReplyService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +18,8 @@ import java.util.List;
 public class ReplyController {
 
     private final ReplyService replyService;
+    private final MemberService memberService;
+
     @PostMapping("/community/{communityId}/replyCreate")
     @Operation(summary = "댓글 작성")
     public ResponseEntity<CreateReplyResponse> createReply(@PathVariable Long communityId,Long memberId, @RequestBody CreateReplyRequest request) {

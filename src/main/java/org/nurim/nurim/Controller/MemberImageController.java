@@ -11,6 +11,7 @@ import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.service.MemberImageService;
+import org.nurim.nurim.service.MemberService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,7 @@ public class MemberImageController {
 
     private final MemberImageService memberImageService;
     private final FileUploadService fileUploadService;
+    private final MemberService memberService;
 
     // 프로필 이미지 등록
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -37,8 +39,6 @@ public class MemberImageController {
      @RequestPart("files") MultipartFile files,
      @RequestParam Long memberId) {
 
-//        Member member = memberService.getMember();
-        // memberId 인증 객체 여부 판단 로직 추가...
         if (files != null) {
 
             // S3에서의 이미지 저장 및 url, key값 반환
@@ -51,7 +51,7 @@ public class MemberImageController {
             // DB에 이미지 url 저장
             memberImageService.saveImage(memberId, url, key);
 
-            // 응답 생성 // 변경
+            // 응답 생성
             UploadFileResponse response = UploadFileResponse.builder()
                     .uuid(key)
                     .fileName(files.getOriginalFilename())
@@ -63,45 +63,6 @@ public class MemberImageController {
         return ResponseEntity.badRequest().build();
 
     }
-
-//    // 프로필 이미지 조회
-//    @GetMapping(value = "/view/{uuid}")
-//    @Operation(summary = "프로필 이미지 파일 조회")
-//    public ResponseEntity<Resource> getProfile(@PathVariable String uuid) {
-//        try {
-//
-//            // S3 클라이언트를 사용하여 해당 파일명으로 이미지 파일을 가져옵니다.
-//            S3Object object = amazonS3Client.getObject(bucket, "images/" + uuid);
-//
-//            // S3에 올라간 파일이 null이면 해당 회원의 프로필 이미지가 없는 것이므로 404를 반환합니다.
-//            if (object == null) {
-//                return ResponseEntity.notFound().build();
-//            }
-//
-//            // 가져온 객체의 입력 스트림을 InputStreamResource로 변환합니다.
-//            InputStream inputStream = object.getObjectContent();
-//            InputStreamResource resource = new InputStreamResource(inputStream);
-//
-//            // MIME 타입을 확인하여 HTTP 헤더에 추가합니다.
-//            String contentType = object.getObjectMetadata().getContentType();
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.add(HttpHeaders.CONTENT_TYPE, contentType);
-//
-//            return ResponseEntity.ok().headers(headers).body(resource);
-//        } catch (AmazonS3Exception e) {
-//            // Amazon S3에서 파일을 찾을 수 없는 경우 404를 반환합니다.
-//            if (e.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
-//                return ResponseEntity.notFound().build();
-//            }
-//            // 다른 Amazon S3 예외 발생 시 500을 반환합니다.
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        } catch (Exception e) {
-//            // 그 외의 예외가 발생한 경우 500을 반환합니다.
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
-
-
 
     // 프로필 이미지 삭제
     @PutMapping(value = "/remove/{memberId}")
