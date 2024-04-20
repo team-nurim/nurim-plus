@@ -1,8 +1,10 @@
 package org.nurim.nurim.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Expert;
 import org.nurim.nurim.domain.entity.Member;
@@ -12,6 +14,7 @@ import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,8 +32,7 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final MemberImageRepository memberImageRepository;
-
-    @Autowired
+    private final TokenProvider tokenProvider;
     private final PasswordEncoder passwordEncoder;
 
     // 일반 회원 가입
@@ -167,38 +169,6 @@ public class MemberService {
 
     }
 
-//    // 회원 정보 입력
-//    @Transactional
-//    public CreateMemberResponse createMemberInfo(CreateMemberInfoRequest request) {
-//
-//        Member member = Member.builder()
-//                .memberEmail(getMember().getMemberEmail())
-//                .memberPw(getMember().getMemberPw())
-//                .memberNickname(getMember().getMemberNickname())
-//                .memberAge(request.getMemberAge())
-//                .gender(request.isGender())
-//                .memberResidence(request.getMemberResidence())
-//                .memberMarriage(request.isMemberMarriage())
-//                .memberIncome(request.getMemberIncome())
-//                .type(request.isType())
-//                .memberRole(getMember().getMemberRole())
-//                .build();
-//
-//        return new CreateMemberResponse(member.getMemberId(),
-//                member.getMemberEmail(),
-//                member.getMemberPw(),
-//                member.getMemberNickname(),
-//                member.getMemberAge(),
-//                member.isGender(),
-//                member.getMemberResidence(),
-//                member.isMemberMarriage(),
-//                member.getMemberIncome(),
-//                member.isType(),
-//                member.getMemberRole(),
-//                member.getMemberProfileImage());
-//
-//    }
-
     // 특정 회원 조회
     public ReadMemberResponse readMemberById(Long memberId) {
 
@@ -299,6 +269,20 @@ public class MemberService {
 
     // context에서 회원정보 가져오기
 
+    public Member getMember(HttpServletRequest request) {
+
+        String accessToken = tokenProvider.getAccessToken(request);
+        log.info("🍎accessToken: " + accessToken);
+        Authentication authentication = tokenProvider.getAuthenticationFromToken(accessToken);
+        log.info("🍎authentication: " + authentication);
+
+        String username = tokenProvider.getUsernameFromToken(accessToken);
+        log.info("🍎username: " + username);
+
+        return readMemberByMemberEmail(username);
+
+    }
+
     public Member readMemberByMemberEmail(String username) {
         Member foundMember = memberRepository.findMemberByMemberEmail(username)
                 .orElseThrow(() -> new EntityNotFoundException("😥해당 이메일로 회원을 찾을 수 없습니다."));
@@ -314,20 +298,6 @@ public class MemberService {
         log.info("😀"+foundMember);
 
         return foundMember;
-    }
-
-    public boolean isCurrentUser(Long memberId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return false; // 로그인한 사용자가 없는 경우
-        }
-
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String currentUsername = userDetails.getUsername();
-
-        // 현재 로그인한 사용자의 username과 memberId에 해당하는 회원의 username이 일치하는지 확인
-        Optional<Member> memberOptional = memberRepository.findById(memberId);
-        return memberOptional.isPresent() && memberOptional.get().getMemberEmail().equals(currentUsername);
     }
 
 }

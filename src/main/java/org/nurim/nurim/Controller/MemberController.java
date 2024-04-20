@@ -46,16 +46,6 @@ public class MemberController {
 
     }
 
-//    @Operation(summary = "회원 정보 입력")
-//    @PostMapping("/memberInfo")
-//    public ResponseEntity<CreateMemberResponse> memberInfoCreate(@RequestBody @Valid CreateMemberInfoRequest request) {
-//
-//        CreateMemberResponse response = memberService.createMemberInfo(request);
-//
-//        return new ResponseEntity<>(response, HttpStatus.OK);
-//    }
-
-
     @Operation(summary = "회원 정보 단건 조회")
     @GetMapping("/{memberId}")
     public ResponseEntity<ReadMemberResponse> memberReadById(@PathVariable Long memberId) {
