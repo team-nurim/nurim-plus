@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.member.*;
@@ -23,6 +24,7 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @Operation(summary = "일반 회원 등록")
     @PostMapping("/user")
     public ResponseEntity<CreateMemberResponse> memberCreate(@RequestBody @Valid CreateMemberRequest request){
