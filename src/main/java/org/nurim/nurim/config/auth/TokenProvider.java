@@ -76,7 +76,7 @@ public class TokenProvider {
 
     // 토큰 검증
     public Map<String, Object> validateToken(String token) throws JwtException {
-
+        log.info("validateToken token : {}", token);
         Map<String, Object> claim = null;
 
         claim = Jwts.parser()

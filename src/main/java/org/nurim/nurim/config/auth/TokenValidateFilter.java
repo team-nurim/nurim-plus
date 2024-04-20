@@ -45,6 +45,7 @@ public class TokenValidateFilter extends OncePerRequestFilter {
 
         try {
             validateAccessToken(request);
+            log.info("❤ 검증완료 ");
             filterChain.doFilter(request, response);
 
         } catch (AccessTokenException accessTokenException) {
@@ -56,6 +57,7 @@ public class TokenValidateFilter extends OncePerRequestFilter {
     private Map<String, Object> validateAccessToken(HttpServletRequest request) throws AccessTokenException {
 
         String headerStr = request.getHeader("Authorization");
+        log.info("Authorization : {}", headerStr);
 
         if(headerStr == null || headerStr.length() < 8) {
             throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.UNACCEPT);

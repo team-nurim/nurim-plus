@@ -24,8 +24,8 @@ public class ReplyController {
     @CrossOrigin(origins = "http://localhost:8081")
     @PostMapping("/community/{communityId}/replyCreate")
     @Operation(summary = "댓글 작성")
-    public ResponseEntity<CreateReplyResponse> createReply(@PathVariable Long communityId,Long memberId, @RequestBody CreateReplyRequest request) {
-        CreateReplyResponse response = replyService.replyCreate(communityId,memberId, request);
+    public ResponseEntity<CreateReplyResponse> createReply(@PathVariable Long communityId, @RequestHeader("Authorization") String token, @RequestBody CreateReplyRequest request) {
+        CreateReplyResponse response = replyService.replyCreate(token, communityId, request);
         return ResponseEntity.ok().body(response);
     }
 

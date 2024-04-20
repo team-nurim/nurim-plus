@@ -3,6 +3,7 @@ package org.nurim.nurim.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.community.*;
 import org.nurim.nurim.domain.dto.reply.ReadReplyResponse;
 import org.nurim.nurim.domain.entity.Community;
@@ -30,13 +31,16 @@ public class CommunityService {
 
     private final ReplyService replyService;
 
+    private final TokenProvider tokenProvider;
+
     /**
      * 게시물 생성 서비스
      */
     @Transactional
-    public CreateCommunityResponse communityCreate(Long memberId, CreateCommunityRequest request) {
+    public CreateCommunityResponse communityCreate(String token, CreateCommunityRequest request) {
+        String memberEmail = tokenProvider.getUsernameFromToken(token);
 
-        Member member = memberRepository.findByMemberId(memberId).orElseThrow(() -> new EntityNotFoundException("작성자 id가 확인이 안됩니다 ㅜㅜ"));
+        Member member = memberRepository.findMemberByMemberEmail(memberEmail).orElseThrow(() -> new EntityNotFoundException("작성자 id가 확인이 안됩니다 ㅜㅜ"));
         Community community = Community.builder()
                 .member(member)
                 .title(request.getTitle())

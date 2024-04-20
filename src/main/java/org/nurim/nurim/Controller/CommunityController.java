@@ -1,8 +1,12 @@
 package org.nurim.nurim.Controller;
 
+import io.jsonwebtoken.JwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.parser.Authorization;
+import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.community.*;
 import org.nurim.nurim.service.CommunityService;
 import org.springframework.data.domain.Page;
@@ -21,15 +25,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
+@Slf4j
 public class CommunityController {
 
     private final CommunityService communityService;
 
+    private final TokenProvider tokenProvider;
+
     @CrossOrigin(origins = "http://localhost:8081")
-    @PostMapping("/communityCreate/{memberId}")
+    @PostMapping("/communityCreate")
     @Operation(summary = "게시물 작성")
-    public ResponseEntity<CreateCommunityResponse> createCommunity(@PathVariable Long memberId, @RequestBody CreateCommunityRequest request){
-        CreateCommunityResponse response = communityService.communityCreate(memberId, request);
+    public ResponseEntity<CreateCommunityResponse> createCommunity(@RequestHeader("Authorization") String token, @RequestBody CreateCommunityRequest request){
+        CreateCommunityResponse response = communityService.communityCreate(token, request);
+        log.info("response : {}", response.getContent());
         return ResponseEntity.ok().body(response);
     }
 
@@ -42,9 +50,13 @@ public class CommunityController {
     }
     @CrossOrigin(origins = "http://localhost:8081")
     @DeleteMapping("/communityDelete/{communityId}")
-    @Operation(summary = "게시물 삭제", description = "게시물 memberId에 속한 유저만 삭제가 가능합니다.")
-    public ResponseEntity<DeleteCommunityResponse> deleteCommunity(@PathVariable Long communityId, String memberEmail) {
+    @Operation(summary = "게시물 삭제", description = "게시물에 대한 권한을 확인한 후 삭제합니다.")
+    public ResponseEntity<DeleteCommunityResponse> deleteCommunity(@PathVariable Long communityId, @RequestHeader("Authorization") String token) {
         try {
+            // 토큰에서 회원 이메일 추출
+            String memberEmail = tokenProvider.getUsernameFromToken(token);
+
+            // 토큰을 사용하여 회원 인증 및 게시물 삭제
             DeleteCommunityResponse response = communityService.communityDelete(communityId, memberEmail);
             return ResponseEntity.ok().body(response);
         } catch (AccessDeniedException e) {

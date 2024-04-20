@@ -2,6 +2,7 @@ package org.nurim.nurim.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.reply.*;
 import org.nurim.nurim.domain.entity.Community;
 import org.nurim.nurim.domain.entity.Member;
@@ -26,18 +27,25 @@ public class ReplyService {
 
     private final MemberRepository memberRepository;
 
+    private final TokenProvider tokenProvider;
+
     @Transactional
-    public CreateReplyResponse replyCreate(Long communityId,Long memberId, CreateReplyRequest request){
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(()-> new EntityNotFoundException("memberId 가 없어요"));
+    public CreateReplyResponse replyCreate(String token, Long communityId, CreateReplyRequest request) {
+        String memberEmail = tokenProvider.getUsernameFromToken(token);
+
+        Member member = memberRepository.findByMemberEmail(memberEmail)
+                .orElseThrow(() -> new EntityNotFoundException("사용자가 존재하지 않습니다."));
+
         Community community = communityRepository.findById(communityId)
-                .orElseThrow(() -> new EntityNotFoundException("Id 없어요"));
+                .orElseThrow(() -> new EntityNotFoundException("게시물이 존재하지 않습니다."));
+
         Reply reply = Reply.builder()
                 .member(member)
                 .community(community)
                 .replyText(request.getReplyText())
-                .replyer(request.getReplyer())
+                .replyer(member.getMemberNickname()) // 댓글 작성자는 회원 이름을 사용하도록 가정
                 .build();
+
         Reply saveReply = replyRepository.save(reply);
 
         return new CreateReplyResponse(
@@ -47,6 +55,7 @@ public class ReplyService {
                 saveReply.getReplyText(),
                 saveReply.getReplyRegisterDate());
     }
+
     public List<ReadReplyResponse> getRepliesByCommunityId(Long communityId){
         List<Reply> replyList = replyRepository.findByCommunityCommunityId(communityId);
         return replyList.stream()

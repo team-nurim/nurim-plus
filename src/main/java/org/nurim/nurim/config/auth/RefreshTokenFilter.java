@@ -133,7 +133,7 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
     private Map<String, Object> checkRefreshToken(String refreshToken) throws RefreshTokenException {
 
         try {
-            Map<String, Object> values = tokenProvider.validateToken(refreshToken);
+            Map<String, Object> values = tokenProvider. validateToken(refreshToken);
             return values;
         } catch (ExpiredJwtException expiredJwtException) {
             throw new RefreshTokenException(RefreshTokenException.ErrorCase.OLD_REFRESH);
