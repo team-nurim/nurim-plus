@@ -1,6 +1,7 @@
 package org.nurim.nurim.Controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.nurim.nurim.service.MemberService;
 import org.nurim.nurim.service.PublicDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

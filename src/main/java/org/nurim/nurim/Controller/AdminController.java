@@ -7,6 +7,7 @@ import org.nurim.nurim.domain.dto.member.UpdateMemberRequest;
 import org.nurim.nurim.domain.dto.member.UpdateMemberResponse;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.service.AdminService;
+import org.nurim.nurim.service.MemberService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
+    private final MemberService memberService;
 
     @GetMapping("/")
     public List<Member> getAllMembers() {

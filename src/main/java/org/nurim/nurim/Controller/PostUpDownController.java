@@ -12,6 +12,7 @@ import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
 import org.nurim.nurim.domain.entity.PostImage;
+import org.nurim.nurim.service.MemberService;
 import org.nurim.nurim.service.PostImageService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -32,10 +33,7 @@ public class PostUpDownController {
 
     private final PostImageService postImageService;
     private final FileUploadService fileUploadService; // AWS S3 서비스 추가
-    private final AmazonS3Client amazonS3Client;
-
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucket;
+    private final MemberService memberService;
 
     @PostMapping(value = "/api/v1/posts/post/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "이미지 업로드", description = "POST로 파일 등록")

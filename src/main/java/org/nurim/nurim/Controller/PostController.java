@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.post.*;
+import org.nurim.nurim.service.MemberService;
 import org.nurim.nurim.service.PostService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+    private final MemberService memberService;
 
     @CrossOrigin(origins = "http://localhost:8081")
     @PostMapping("/post/register/{memberId}")

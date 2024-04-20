@@ -9,6 +9,7 @@ import org.nurim.nurim.config.auth.PrincipalDetails;
 import org.nurim.nurim.domain.dto.LoginResponse;
 import org.nurim.nurim.domain.dto.ReadMemberResponse;
 import org.nurim.nurim.service.AuthService;
+import org.nurim.nurim.service.MemberService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+    private final MemberService memberService;
 
 
     @GetMapping("/sample")
