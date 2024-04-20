@@ -1,5 +1,6 @@
 package org.nurim.nurim.Controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.notice.*;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
+@Tag(name = "Notice", description = "공지사항 API")
 @RestController
 @RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor

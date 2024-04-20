@@ -5,143 +5,122 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.AmazonS3.FileUploadService;
 import org.nurim.nurim.domain.dto.post.upload.UploadFileResponse;
-import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.service.MemberImageService;
-import org.nurim.nurim.service.MemberService;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
+@Tag(name = "ProfileImage", description = "프로필 이미지 API")
 @RestController
 @Log4j2
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/images")
 public class MemberImageController {
 
-    private final MemberService memberService;
     private final MemberImageService memberImageService;
-
-    @Value("${org.yeolmae.upload.path}")
-    private String uploadPath;
+    private final FileUploadService fileUploadService;
 
     // 프로필 이미지 등록
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "프로필 이미지 업로드", description = "POST로 파일 등록")
-    public ResponseEntity<List<UploadFileResponse>> uploadProfile
+    public ResponseEntity<UploadFileResponse> uploadProfile
     (@Parameter(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))))
-     @RequestPart("files") MultipartFile[] files,
-     @RequestParam("memberId") Long memberId) {
+     @RequestPart("files") MultipartFile files,
+     @RequestParam Long memberId) {
 
+//        Member member = memberService.getMember();
+        // memberId 인증 객체 여부 판단 로직 추가...
         if (files != null) {
 
-            final List<UploadFileResponse> responses = new ArrayList<>();
+            // S3에서의 이미지 저장 및 url, key값 반환
+            Map<String, String> s3Result = fileUploadService.saveUrlAndKey(files);
+            String url = s3Result.get("url");
+            log.info(url);
+            String key = s3Result.get("key");
+            log.info(key);
 
-            for (MultipartFile multipartFile : files) {
-                String uuid = UUID.randomUUID().toString();
-                String originalName = multipartFile.getOriginalFilename();
+            // DB에 이미지 url 저장
+            memberImageService.saveImage(memberId, url, key);
 
-                Path savedPath = Paths.get(uploadPath, uuid + "_" + originalName);
+            // 응답 생성 // 변경
+            UploadFileResponse response = UploadFileResponse.builder()
+                    .uuid(key)
+                    .fileName(files.getOriginalFilename())
+                    .img(true) // 이미지인 경우 true로 설정
+                    .build();
 
-                // 이미지 여부 초기화(default = false)
-                boolean isImage = false;
-
-                try {
-                    // 실제 파일 저장
-                    multipartFile.transferTo(savedPath);
-
-                    // 저장된 파일이 MIME 유형인지 확인
-                    if (Files.probeContentType(savedPath).startsWith("image")) {
-                        isImage = true;
-
-                        // memberId로 회원 정보 가져오기
-                        Member member = memberService.getMemberById(memberId);
-
-                        // 이미지를 데이터베이스에 저장
-                        memberImageService.saveImage(savedPath.getFileName().toString(), member);
-                    }
-
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                }
-
-                responses.add(UploadFileResponse.builder()
-                        .uuid(uuid)
-                        .fileName(originalName)
-                        .img(isImage)
-                        .build());
-
-            }
-
-            return ResponseEntity.ok(responses);
+            return ResponseEntity.ok(response);
         }
         return ResponseEntity.badRequest().build();
+
     }
 
+//    // 프로필 이미지 조회
+//    @GetMapping(value = "/view/{uuid}")
+//    @Operation(summary = "프로필 이미지 파일 조회")
+//    public ResponseEntity<Resource> getProfile(@PathVariable String uuid) {
+//        try {
+//
+//            // S3 클라이언트를 사용하여 해당 파일명으로 이미지 파일을 가져옵니다.
+//            S3Object object = amazonS3Client.getObject(bucket, "images/" + uuid);
+//
+//            // S3에 올라간 파일이 null이면 해당 회원의 프로필 이미지가 없는 것이므로 404를 반환합니다.
+//            if (object == null) {
+//                return ResponseEntity.notFound().build();
+//            }
+//
+//            // 가져온 객체의 입력 스트림을 InputStreamResource로 변환합니다.
+//            InputStream inputStream = object.getObjectContent();
+//            InputStreamResource resource = new InputStreamResource(inputStream);
+//
+//            // MIME 타입을 확인하여 HTTP 헤더에 추가합니다.
+//            String contentType = object.getObjectMetadata().getContentType();
+//            HttpHeaders headers = new HttpHeaders();
+//            headers.add(HttpHeaders.CONTENT_TYPE, contentType);
+//
+//            return ResponseEntity.ok().headers(headers).body(resource);
+//        } catch (AmazonS3Exception e) {
+//            // Amazon S3에서 파일을 찾을 수 없는 경우 404를 반환합니다.
+//            if (e.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
+//                return ResponseEntity.notFound().build();
+//            }
+//            // 다른 Amazon S3 예외 발생 시 500을 반환합니다.
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        } catch (Exception e) {
+//            // 그 외의 예외가 발생한 경우 500을 반환합니다.
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
 
-    // 프로필 이미지 조회
-    @GetMapping(value = "/view/{memberId}")
-    @Operation(summary = "프로필 이미지 파일 조회")
-    public ResponseEntity<Resource> getProfileByMemberId(@PathVariable @RequestParam("memberId") Long memberId) {
 
-        String fileName = memberImageService.getProfileImageFileName(memberId);
-        Path imagePath = Paths.get(uploadPath + File.separator + fileName);
-
-        Resource resource = new FileSystemResource(imagePath);
-
-        // 파일 존재 확인 및 기본 이미지 처리
-        if (!resource.exists()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        // http 헤더 설정 : MIME 타입을 확인하고(proveContentType 메소드 사용), 해당 MIME 타입을 http 응답 헤더에 추가
-        HttpHeaders headers = new HttpHeaders();
-
-        try {
-            headers.add("Content-Type", Files.probeContentType(resource.getFile().toPath()));
-
-        } catch (Exception e) {
-            // 파일 타입 확인 실패 시 내부 서버 오류 처리
-            return ResponseEntity.internalServerError().build();
-        }
-        return ResponseEntity.ok().headers(headers).body(resource);
-    }
 
     // 프로필 이미지 삭제
-    @DeleteMapping(value = "/remove/{memberId}")
+    @PutMapping(value = "/remove/{memberId}")
     @Operation(summary = "프로필 이미지 파일 삭제")
     public Map<String, Boolean> deleteProfile(@PathVariable Long memberId) {
-
         Map<String, Boolean> response = new HashMap<>();
-        boolean isRemoved = false;
+        boolean isDeletedAndSetDefault = false;
 
         try {
-            // memberId를 기반으로 프로필 이미지 삭제
-            response = memberImageService.deleteImage(memberId);
-            isRemoved = response.get("result");
+            // 이미지 삭제 및 기본 이미지로 변경
+            isDeletedAndSetDefault = memberImageService.deleteAndSetDefaultImage(memberId);
+            log.info("프로필 이미지 삭제 및 기본 이미지로 변경 상태: " + isDeletedAndSetDefault);
         } catch (Exception e) {
-            log.error(e.getMessage());
+            // 처리 중 에러가 발생한 경우 로그 출력
+            log.error("프로필 이미지 삭제 및 기본 이미지로 변경 중 오류 발생: " + e.getMessage());
         }
 
-        response.put("result", isRemoved);
-        log.info(response);
-
+        response.put("success", isDeletedAndSetDefault);
         return response;
-
     }
 
 }
