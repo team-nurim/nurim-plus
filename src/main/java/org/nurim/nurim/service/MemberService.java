@@ -12,17 +12,11 @@ import org.nurim.nurim.domain.entity.MemberImage;
 import org.nurim.nurim.domain.entity.MemberRole;
 import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.repository.MemberRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
