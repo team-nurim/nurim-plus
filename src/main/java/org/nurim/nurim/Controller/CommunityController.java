@@ -25,10 +25,11 @@ public class CommunityController {
 
     private final CommunityService communityService;
 
-    @PostMapping("/communityCreate/{memberId}")
+    @CrossOrigin(origins = "http://localhost:8081")
+    @PostMapping("/communityCreate/{accessToken}")
     @Operation(summary = "게시물 작성")
-    public ResponseEntity<CreateCommunityResponse> createCommunity(@PathVariable Long memberId, @RequestBody CreateCommunityRequest request){
-        CreateCommunityResponse response = communityService.communityCreate(memberId, request);
+    public ResponseEntity<CreateCommunityResponse> createCommunity(@PathVariable String accessToken, @RequestBody CreateCommunityRequest request){
+        CreateCommunityResponse response = communityService.communityCreate(accessToken, request);
         return ResponseEntity.ok().body(response);
     }
 
