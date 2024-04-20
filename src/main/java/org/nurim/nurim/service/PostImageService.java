@@ -41,24 +41,40 @@ public class PostImageService {
     }
 
     @Transactional
-    public boolean deletePostImages(Long postId) {
+    public boolean deletePostImages(Long postImageId) {
 
-        // 해당 postId로 Post 엔티티 조회
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new EntityNotFoundException("Post not found with id: " + postId));
+        // 해당 postImageId로 PostImage 엔티티 조회
+        PostImage postImage = postImageRepository.findById(postImageId)
+                .orElseThrow(() -> new EntityNotFoundException("Post Image not found with id: " + postImageId));
 
-        // PostImage 엔티티들을 삭제하고 S3에서도 이미지 삭제
-        for (PostImage postImage : post.getImageSet()) {
-            fileUploadService.deleteFile(postImage.getImage_thumb());
-            postImageRepository.deleteById(postImage.getPost().getPostId());
-        }
+        // S3에서 이미지 삭제
+        fileUploadService.deleteFile(postImage.getImage_thumb());
 
-        // Post 엔티티의 이미지 목록 비우기
-        post.getImageSet().clear();
+        // PostImage 엔티티 삭제
+        postImageRepository.deleteById(postImageId);
 
         return true;
-
     }
+
+//    @Transactional
+//    public boolean deletePostImages(Long postImageId) {
+//
+//        // 해당 postId로 Post 엔티티 조회
+//        Post post = postRepository.findById(postImageId)
+//                .orElseThrow(() -> new EntityNotFoundException("Post not found with id: " + postImageId));
+//
+//        // PostImage 엔티티들을 삭제하고 S3에서도 이미지 삭제
+//        for (PostImage postImage : post.getImageSet()) {
+//            fileUploadService.deleteFile(postImage.getImage_thumb());
+//            postImageRepository.deleteById(postImage.getPost().getPostId());
+//        }
+//
+//        // Post 엔티티의 이미지 목록 비우기
+//        post.getImageSet().clear();
+//
+//        return true;
+//
+//    }
 
 }
 
