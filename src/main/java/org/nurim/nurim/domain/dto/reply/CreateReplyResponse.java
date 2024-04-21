@@ -19,6 +19,8 @@ public class CreateReplyResponse {
 
     private String memberNickname;
 
+    private String memberEmail;
+
     private String replyText;
 
     private LocalDateTime replyRegisterDate;

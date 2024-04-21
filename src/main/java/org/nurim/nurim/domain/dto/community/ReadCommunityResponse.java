@@ -35,5 +35,7 @@ public class ReadCommunityResponse {
 
     private String memberNickname;
 
+    private String memberEmail;
+
     List<ReadReplyResponse> replyResponseList;
 }

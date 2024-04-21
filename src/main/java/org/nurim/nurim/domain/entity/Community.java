@@ -56,11 +56,10 @@ public class Community {
     @JoinColumn(name = "memberId")
     private Member member;
 
-    public void update(String title, String content, String communityCategory){
+    public void update(String title, String content){
 
         this.title = title;
         this.content = content;
-        this.communityCategory = communityCategory;
     }
 
     public void increaseRecommend(){

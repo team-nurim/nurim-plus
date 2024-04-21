@@ -49,6 +49,7 @@ public class ReplyService {
                 saveReply.getReplyId(),
                 saveReply.getCommunity().getCommunityId(),
                 saveReply.getMember().getMemberNickname(),
+                saveReply.getMember().getMemberEmail(),
                 saveReply.getReplyText(),
                 saveReply.getReplyRegisterDate());
     }
@@ -60,6 +61,7 @@ public class ReplyService {
                         reply.getCommunity().getCommunityId(),
                         reply.getReplyText(),
                         reply.getMember().getMemberNickname(),
+                        reply.getMember().getMemberEmail(),
                         reply.getReplyRegisterDate(),
                         reply.getReplyModifyDate()))
                 .collect(Collectors.toList());
@@ -115,6 +117,7 @@ public class ReplyService {
                 .map(reply -> new ReadReplyResponse(
                         reply.getReplyId(),
                         reply.getMember().getMemberId(),
+                        reply.getMember().getMemberEmail(),
                         reply.getReplyText(),
                         reply.getReplyer(),
                         reply.getReplyRegisterDate(),
