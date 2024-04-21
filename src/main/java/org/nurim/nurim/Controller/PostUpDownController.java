@@ -72,51 +72,6 @@ public class PostUpDownController {
         return ResponseEntity.badRequest().build();
     }
 
-    // 첨부파일 조회
-    // postId에 해당하는 모든 이미지의 URL을 조회하여 반환
-//    @GetMapping("/post/{postId}")
-//    @Operation(summary = "이미지 파일 조회", description = "GET 방식으로 파일 조회")
-//    public ResponseEntity<List<String>> getImageUrlsByPostId(@PathVariable Long postId) {
-//        List<String> imageUrls = postImageService.getImageUrlsByPostId(postId);
-//        return ResponseEntity.ok(imageUrls);
-//    }
-//
-//    @GetMapping(value = "/images/{uuid}")
-//    @Operation(summary = "이미지 파일 조회", description = "GET 방식으로 파일 조회")
-//    public ResponseEntity<Resource> getViewFile(@PathVariable String uuid) {
-//        try {
-//            // S3 클라이언트를 사용하여 해당 UUID로 이미지 파일을 가져옵니다.
-//            S3Object object = amazonS3Client.getObject(bucket, "images/" + uuid);
-//
-//            // 가져온 객체가 null이면 해당 키에 해당하는 파일이 없는 것이므로 404를 반환합니다.
-//            if (object == null) {
-//                return ResponseEntity.notFound().build();
-//            }
-//
-//            // 가져온 객체의 입력 스트림을 InputStreamResource로 변환합니다.
-//            InputStream inputStream = object.getObjectContent();
-//            InputStreamResource resource = new InputStreamResource(inputStream);
-//
-//            // MIME 타입을 확인하여 HTTP 헤더에 추가합니다.
-//            String contentType = object.getObjectMetadata().getContentType();
-//            HttpHeaders headers = new HttpHeaders();
-//            headers.add(HttpHeaders.CONTENT_TYPE, contentType);
-//
-//            return ResponseEntity.ok().headers(headers).body(resource);
-//        } catch (AmazonS3Exception e) {
-//            // Amazon S3에서 파일을 찾을 수 없는 경우 404를 반환합니다.
-//            if (e.getStatusCode() == HttpStatus.NOT_FOUND.value()) {
-//                return ResponseEntity.notFound().build();
-//            }
-//            // 다른 Amazon S3 예외 발생 시 500을 반환합니다.
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        } catch (Exception e) {
-//            // 그 외의 예외가 발생한 경우 500을 반환합니다.
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
-
-
     // 첨부파일 삭제
     @DeleteMapping(value = "/api/v1/posts/post/delete/images/{postImageId}")
     @Operation(summary = "이미지 파일 삭제", description = "DELETE 방식으로 파일 조회")
