@@ -7,9 +7,9 @@ import org.nurim.nurim.domain.dto.member.UpdateMemberRequest;
 import org.nurim.nurim.domain.dto.member.UpdateMemberResponse;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.repository.MemberRepository;
-import org.nurim.nurim.repository.PostRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminService {
     private final MemberRepository memberRepository;
+    private final PasswordEncoder passwordEncoder;
 
 
     // 페이징 처리
@@ -49,7 +50,7 @@ public class AdminService {
                     member.isMemberMarriage(),
                     member.getMemberIncome(),
                     member.isType(),
-                    member.getMemberProfileImage(),
+                    member.getMemberImage().getMemberProfileImage(),
                     member.getExpert().getExpertFile()
             );
         }
@@ -62,7 +63,7 @@ public class AdminService {
         Member member = memberRepository.findById(memberId).orElse(null);
         if (member != null) {
             // 업데이트 요청 받은 정보로 회원 엔티티 업데이트
-            member.setMemberPw(request.getMemberPw());
+            member.setMemberPw(passwordEncoder.encode(request.getMemberPw()));
             member.setMemberNickname(request.getMemberNickname());
             member.setMemberAge(request.getMemberAge());
             member.setGender(request.isGender());
@@ -70,8 +71,8 @@ public class AdminService {
             member.setMemberMarriage(request.isMemberMarriage());
             member.setMemberIncome(request.getMemberIncome());
             member.setType(request.isType());
-            member.setMemberProfileImage(request.getMemberProfileImage());
-            member.setExpertFile(request.getExpertFile());
+//            member.setMemberImage();
+//            member.setExpertFile(request.getExpertFile());
 
             memberRepository.save(member);
 
@@ -87,7 +88,7 @@ public class AdminService {
                     member.isMemberMarriage(),
                     member.getMemberIncome(),
                     member.isType(),
-                    member.getMemberProfileImage(),
+                    member.getMemberImage().getMemberProfileImage(),
                     member.getExpert().getExpertFile()
             );
         }
