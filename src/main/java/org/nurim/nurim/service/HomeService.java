@@ -33,7 +33,7 @@ public class HomeService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 postId로 조회된 게시글이 없습니다."));
 
         String firstImage = null;
-        Set<PostImage> imageSet = foundPost.getImageSet();
+        List<PostImage> imageSet = foundPost.getImageSet();
         if (imageSet != null && !imageSet.isEmpty()) {
             // Set에서 첫 번째 이미지를 가져옴
             for (PostImage image : imageSet) {
@@ -60,7 +60,7 @@ public class HomeService {
         return postsPage.map(post -> {
 
             String firstImage = null;
-            Set<PostImage> imageSet = post.getImageSet();
+            List<PostImage> imageSet = post.getImageSet();
 
             if (imageSet != null && !imageSet.isEmpty()) {
                 for (PostImage image : imageSet) {
