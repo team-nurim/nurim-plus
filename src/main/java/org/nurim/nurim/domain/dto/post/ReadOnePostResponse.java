@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
-public class ReadPostResponse {
+public class ReadOnePostResponse {
 
     private Long postId;
     @NotEmpty
@@ -27,4 +27,9 @@ public class ReadPostResponse {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate postRegisterDate;
+
+    private List<String> postImages;
+
+    private List<Long> postImageIds; // postImageId 리스트 추가
+
 }
