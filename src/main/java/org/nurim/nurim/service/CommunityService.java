@@ -8,6 +8,7 @@ import org.nurim.nurim.domain.dto.community.*;
 import org.nurim.nurim.domain.dto.home.ReadHomeCommunityResponse;
 import org.nurim.nurim.domain.dto.reply.ReadReplyResponse;
 import org.nurim.nurim.domain.entity.Community;
+import org.nurim.nurim.domain.entity.CommunityImage;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.repository.*;
 //import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -69,10 +71,15 @@ public class CommunityService {
                 .orElseThrow(() -> new EntityNotFoundException("해당 communityId로 조회된 게시글이 없습니다."));
         log.info("커뮤니티 조회 성공");
         List<ReadReplyResponse> listReply = replyService.getRepliesByCommunityId(communityId);//댓글 서비스를 가져와 커뮤니티 아이디당 찾는 댓글 리스트를 게시글과 같이 조회한다.
+
+        List<String> imageUrls = findCommunity.getCommunityImage().stream()
+                        .map(CommunityImage::getFilePath)
+                        .collect(Collectors.toList());
+
         communityRepository.updateCount(communityId);
         return new ReadCommunityResponse(
                 findCommunity.getCommunityId(),
-                findCommunity.getCommunityImage(),
+                imageUrls,
                 findCommunity.getTitle(),
                 findCommunity.getContent(),
                 findCommunity.getCommunityCategory(),
@@ -130,12 +137,16 @@ public class CommunityService {
         }
     }
     public Page<ReadAllCommunityResponse> getCommunityList(Pageable pageable){
+
         Page<Community> communities = communityRepository.findAll(pageable);
         return communities.map(community -> {
-            Long memberId = community.getMember().getMemberId();
+            List<String> imageUrls = community.getCommunityImage().stream()
+                    .map(CommunityImage::getFilePath)
+                    .collect(Collectors.toList());
+
             return new ReadAllCommunityResponse(
                     community.getCommunityId(),
-                    community.getCommunityImage(),
+                    imageUrls,
                     community.getTitle(),
                     community.getContent(),
                     community.getCommunityCategory(),
@@ -145,6 +156,7 @@ public class CommunityService {
                     community.getMember().getMemberNickname());
         });
     }
+
 
     public Page<ReadSearchResponse> getCommunityListByCategory(String category, Pageable pageable) {
         Page<Community> communityPage = communityRepository.findByCommunityCategory(category, pageable);
