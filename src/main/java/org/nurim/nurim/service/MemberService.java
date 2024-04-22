@@ -54,8 +54,8 @@ public class MemberService {
         Member savedMember = memberRepository.save(member);
 
         // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
-        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
-        String defaultKey = "images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
+        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/b706c0f7-625a-485f-9d6e-2358822208bb.jpeg";
+        String defaultKey = "images/b706c0f7-625a-485f-9d6e-2358822208bb.jpeg";
 
         String defaultExpert = "증빙서류가 등록되지 않았습니다.";
 
@@ -118,8 +118,8 @@ public class MemberService {
         Member savedMember = memberRepository.save(member);
 
         // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
-        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
-        String defaultKey = "images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
+        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/b706c0f7-625a-485f-9d6e-2358822208bb.jpeg";
+        String defaultKey = "images/b706c0f7-625a-485f-9d6e-2358822208bb.jpeg";
 
         String defaultExpert = "증빙서류가 등록되지 않았습니다.";
 
@@ -169,7 +169,7 @@ public class MemberService {
             profileimageUrl = foundMember.getMemberImage().getMemberProfileImage();
         } else {
             // 프로필 이미지가 등록되지 않은 경우
-            profileimageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
+            profileimageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/b706c0f7-625a-485f-9d6e-2358822208bb.jpeg";
         }
 
         String expertFileUrl;
