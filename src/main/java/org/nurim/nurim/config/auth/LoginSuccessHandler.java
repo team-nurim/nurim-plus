@@ -9,6 +9,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 import java.awt.*;
@@ -33,7 +35,16 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
 
         log.info(authentication);
         log.info(authentication.getName());   // username 추출
+        log.info("🎯LoginSuccessHandler 내에 있는 authentication: {}", authentication);
         log.info("🎯LoginSuccessHandler 내에 있는 authentication.getName() : {}", authentication.getName());
+
+        // 인증 성공 시 인증 객체 context에 저장
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        securityContext.setAuthentication(authentication);
+        log.info("🎯securityContext: {}", securityContext);
+
+        // LoginSuccessHandler 내에서 HttpServletRequest에 인증 객체를 저장
+        request.setAttribute("authentication", authentication);
 
         Map<String, Object> claim = Map.of("memberEmail", authentication.getName());
         // access token 유효기간 1일

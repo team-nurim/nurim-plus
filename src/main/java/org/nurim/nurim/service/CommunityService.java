@@ -294,26 +294,6 @@ public class CommunityService {
         });
     }
     
-    // 채연 추가
-    public Page<ReadHomeCommunityResponse> getHomeCommunityList(Pageable pageable){
 
-        Page<Community> communities = communityRepository.findAll(pageable);
-
-        return communities.map(community -> {
-            Long memberId = community.getMember().getMemberId();
-
-            return new ReadHomeCommunityResponse(
-                    community.getCommunityId(),
-                    community.getTitle(),
-                    community.getContent(),
-                    community.getCommunityCategory(),
-                    community.getRegisterDate(),
-                    community.getModifyDate(),
-                    community.getViewCounts(),
-                    community.getRecommend(),
-                    community.getMember().getMemberNickname(),
-                    community.getMember().getMemberImage().getMemberProfileImage());
-        });
-    }
 
 }

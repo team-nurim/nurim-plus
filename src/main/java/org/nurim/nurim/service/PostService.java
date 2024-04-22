@@ -3,6 +3,7 @@ package org.nurim.nurim.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.post.*;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.domain.entity.Notice;
@@ -28,12 +29,13 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final TokenProvider tokenProvider;
 
     @Transactional
-    public CreatePostResponse createPost(Long memberId, CreatePostRequest request) {
-
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Admin with ID " + memberId + " not found"));
+    public CreatePostResponse createPost(String memberEmail, CreatePostRequest request) {
+        String token = tokenProvider.getUsernameFromToken(memberEmail);
+        Member member = memberRepository.findMemberByMemberEmail(token)
+                .orElseThrow(() -> new IllegalArgumentException("Admin with ID " + token + " not found"));
 
         Post post = Post.builder()
                 .postTitle(request.getPostTitle())
