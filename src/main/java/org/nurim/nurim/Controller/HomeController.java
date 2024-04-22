@@ -26,7 +26,6 @@ public class HomeController {
     private final HomeService homeService;
     private final CommunityService communityService;
 
-
     @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/read/{postId}")
     @Operation(summary = "정책 게시물 단건 조회")
