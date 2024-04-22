@@ -81,13 +81,18 @@ public class PostService {
                 .map(PostImage::getImage_detail) // 이미지 URL 가져오기
                 .collect(Collectors.toList());
 
+        List<Long> postImageIds = foundPost.getImageSet().stream()
+                .map(PostImage::getPostImageId) // 이미지의 postImageId 가져오기
+                .collect(Collectors.toList());
+
         return new ReadOnePostResponse(foundPost.getPostId(),
                 foundPost.getPostTitle(),
                 foundPost.getPostContent(),
                 foundPost.getPostWriter(),
                 foundPost.getPostCategory(),
                 foundPost.getPostRegisterDate(),
-                imageUrls); // 이미지 URL 리스트 설정)
+                imageUrls, // 이미지 URL 리스트 설정)
+                postImageIds);
     }
     @Transactional
     public UpdatePostResponse updatePost(Long postId, UpdatePostRequest request) {

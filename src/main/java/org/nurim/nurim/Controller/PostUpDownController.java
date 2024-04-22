@@ -118,10 +118,10 @@ public class PostUpDownController {
 
 
     // 첨부파일 삭제
-    @DeleteMapping(value = "/api/v1/posts/post/delete/images/{postId}")
+    @DeleteMapping(value = "/api/v1/posts/post/delete/images/{postImageId}")
     @Operation(summary = "이미지 파일 삭제", description = "DELETE 방식으로 파일 조회")
-    public ResponseEntity<String> deletePostImages(@PathVariable Long postId) {
-        boolean success = postImageService.deletePostImages(postId);
+    public ResponseEntity<String> deletePostImages(@PathVariable Long postImageId) {
+        boolean success = postImageService.deletePostImages(postImageId);
         if (success) {
             return ResponseEntity.ok("Post images deleted successfully.");
         } else {

@@ -61,7 +61,7 @@ public class SecurityConfig {
 
         // 권한에 따른 허용하는 url
         http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-//                .requestMatchers("/admin/**").hasRole("ADMIN")   //권한 있어야 함
+                .requestMatchers("/admin/**").hasRole("ADMIN")   //권한 있어야 함
                 .requestMatchers("/", "/login", "/join").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/error").permitAll()
@@ -108,7 +108,7 @@ public class SecurityConfig {
         // logout 설정
         http.logout((logout) -> logout
                 .deleteCookies("JSESSIONID", "remember-me")
-                .logoutSuccessUrl("/loginForm"));
+                .logoutSuccessUrl("/"));
 
         // csrf 비활성화
         http.csrf(AbstractHttpConfigurer::disable);

@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.community.*;
+import org.nurim.nurim.domain.dto.home.ReadHomeCommunityResponse;
 import org.nurim.nurim.domain.dto.reply.ReadReplyResponse;
 import org.nurim.nurim.domain.entity.Community;
 import org.nurim.nurim.domain.entity.Member;
@@ -280,4 +281,27 @@ public class CommunityService {
                     community.getRegisterDate());
         });
     }
+    
+    // 채연 추가
+    public Page<ReadHomeCommunityResponse> getHomeCommunityList(Pageable pageable){
+
+        Page<Community> communities = communityRepository.findAll(pageable);
+
+        return communities.map(community -> {
+            Long memberId = community.getMember().getMemberId();
+
+            return new ReadHomeCommunityResponse(
+                    community.getCommunityId(),
+                    community.getTitle(),
+                    community.getContent(),
+                    community.getCommunityCategory(),
+                    community.getRegisterDate(),
+                    community.getModifyDate(),
+                    community.getViewCounts(),
+                    community.getRecommend(),
+                    community.getMember().getMemberNickname(),
+                    community.getMember().getMemberImage().getMemberProfileImage());
+        });
+    }
+
 }
