@@ -72,17 +72,27 @@ public class PostService {
     }
 
 
-    public ReadPostResponse readPostById(Long postId) {
+    public ReadOnePostResponse readPostById(Long postId) {
 
-        Post foundPost = postRepository.findById(postId)
+        Post foundPost = postRepository.findByIdWithImages(postId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 postId로 조회된 게시글이 없습니다."));
 
-        return new ReadPostResponse(foundPost.getPostId(),
+        List<String> imageUrls = foundPost.getImageSet().stream()
+                .map(PostImage::getImage_detail) // 이미지 URL 가져오기
+                .collect(Collectors.toList());
+
+        List<Long> postImageIds = foundPost.getImageSet().stream()
+                .map(PostImage::getPostImageId) // 이미지의 postImageId 가져오기
+                .collect(Collectors.toList());
+
+        return new ReadOnePostResponse(foundPost.getPostId(),
                 foundPost.getPostTitle(),
                 foundPost.getPostContent(),
                 foundPost.getPostWriter(),
                 foundPost.getPostCategory(),
-                foundPost.getPostRegisterDate());
+                foundPost.getPostRegisterDate(),
+                imageUrls, // 이미지 URL 리스트 설정)
+                postImageIds);
     }
     @Transactional
     public UpdatePostResponse updatePost(Long postId, UpdatePostRequest request) {

@@ -1,17 +1,22 @@
 package org.nurim.nurim.Controller;
 
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.nurim.nurim.domain.dto.policy.ResponseVo;
 import org.nurim.nurim.service.CallApiService;
+import org.nurim.nurim.service.MemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Policy", description = "정책 지원금 API")
 @RestController
 @RequiredArgsConstructor
 public class PolicyController {
+
     private final CallApiService callApiService;
+    private final MemberService memberService;
 
     @GetMapping("saveData")
     public ResponseEntity<ResponseVo> testOpenAPI() {

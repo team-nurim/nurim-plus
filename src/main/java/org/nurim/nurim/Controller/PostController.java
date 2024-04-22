@@ -1,8 +1,10 @@
 package org.nurim.nurim.Controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.post.*;
+import org.nurim.nurim.service.MemberService;
 import org.nurim.nurim.service.PostService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "Post", description = "정책 추천 API")
 @RestController
 @RequestMapping("/api/v1/posts")
 @RequiredArgsConstructor
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class PostController {
 
     private final PostService postService;
+    private final MemberService memberService;
 
     @CrossOrigin(origins = "http://localhost:8081")
     @PostMapping("/post/register/{memberId}")
@@ -34,9 +38,9 @@ public class PostController {
 
     @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/post/read/{postId}")
-    public ResponseEntity<ReadPostResponse> postRead(@PathVariable Long postId) {
+    public ResponseEntity<ReadOnePostResponse> postRead(@PathVariable Long postId) {
 
-        ReadPostResponse response = postService.readPostById(postId);
+        ReadOnePostResponse response = postService.readPostById(postId);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

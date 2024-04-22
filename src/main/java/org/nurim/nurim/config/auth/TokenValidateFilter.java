@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.exception.AccessTokenException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -27,7 +29,10 @@ public class TokenValidateFilter extends OncePerRequestFilter {
     List<String> list = Arrays.asList(
             "/api/v1/auth/login",
             "/api/v1/members/user",
-            "/api/v1/members/admin"
+            "/api/v1/members/admin",
+            "/api/v1/home/postList",
+            "/api/v1/home/communityList",
+            "/api/v1/popular"
     );
 
     @Override
@@ -44,7 +49,12 @@ public class TokenValidateFilter extends OncePerRequestFilter {
         log.info("TokenProvider: " + tokenProvider);
 
         try {
+            log.info("🤖 validateAccessToken 메소드 호출 전 ");
             validateAccessToken(request);
+
+            Authentication authentication = tokenProvider.getAuthenticationFromToken(request.getHeader("Authorization"));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
             filterChain.doFilter(request, response);
 
         } catch (AccessTokenException accessTokenException) {
@@ -54,6 +64,8 @@ public class TokenValidateFilter extends OncePerRequestFilter {
 
 
     private Map<String, Object> validateAccessToken(HttpServletRequest request) throws AccessTokenException {
+
+        log.info("🤖 validateAccessToken 메소드 작동 시작 ");
 
         String headerStr = request.getHeader("Authorization");
 
@@ -70,8 +82,8 @@ public class TokenValidateFilter extends OncePerRequestFilter {
         }
 
         try {
-            Map<String, Object> values = tokenProvider.validateToken(tokenStr);
-            return values;
+            log.info("🤖 TokenProvider의 validateToken 메소드 호출 전 ");
+            return tokenProvider.validateToken(tokenStr);
 
         } catch (MalformedJwtException e) {
             log.error("MalformedJwtException--------------------------------------");
