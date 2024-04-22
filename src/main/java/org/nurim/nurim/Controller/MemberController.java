@@ -75,6 +75,16 @@ public class MemberController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Operation(summary = "회원 정보 수정")
+    @PutMapping("/memberInfo/{memberId}")
+    public ResponseEntity<UpdateMemberResponse> memberInfoUpdate(@RequestBody UpdateMemberInfoRequest request, HttpServletRequest httpRequest) {
+
+        Member accessMember = memberService.getMember(httpRequest);
+        UpdateMemberResponse response = memberService.updateMemberInfo(accessMember.getMemberId(), request);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 
     @Operation(summary = "회원 정보 삭제") // 회원가입이 이뤄지면 email에 대한 정보로 탈퇴 처리해야 할 듯
     @DeleteMapping("/{memberId}")
