@@ -4,6 +4,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.domain.dto.community.*;
+import org.nurim.nurim.domain.dto.home.ReadHomeCommunityResponse;
 import org.nurim.nurim.domain.dto.reply.ReadReplyResponse;
 import org.nurim.nurim.domain.entity.Community;
 import org.nurim.nurim.domain.entity.Member;
@@ -272,4 +273,7 @@ public class CommunityService {
                     community.getRegisterDate());
         });
     }
+    
+
+
 }

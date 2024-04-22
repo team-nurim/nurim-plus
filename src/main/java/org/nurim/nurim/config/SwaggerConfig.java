@@ -21,9 +21,9 @@ public class SwaggerConfig {
             "/api/v1/auth/login",
             "/api/v1/members/user",
             "/api/v1/members/admin",
-            "/api/v1/posts/post/list",
-            "/api/v1/communityList",
-            "/api/v1/popular"
+            "/api/v1/home/postList",
+            "/api/v1/home/communityList",
+            "/api/v1/home/popularCommunityList"
     );
 
     @Bean
