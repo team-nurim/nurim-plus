@@ -2,8 +2,8 @@ package org.nurim.nurim.domain.dto.post;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
+import org.nurim.nurim.domain.entity.PostImage;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Setter
-public class CreatePostResponse {
+public class ReadOnePostResponse {
 
     private Long postId;
     @NotEmpty
@@ -28,6 +28,8 @@ public class CreatePostResponse {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate postRegisterDate;
 
-//    private List<String> fileNames;
+    private List<String> postImages;
+
+    private List<Long> postImageIds; // postImageId 리스트 추가
 
 }

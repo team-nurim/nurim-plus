@@ -1,9 +1,11 @@
 package org.nurim.nurim.Controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.nurim.nurim.domain.dto.community.*;
 import org.nurim.nurim.service.CommunityService;
+import org.nurim.nurim.service.MemberService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,12 +18,14 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 
+@Tag(name = "Community", description = "커뮤니티 API")
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class CommunityController {
 
     private final CommunityService communityService;
+    private final MemberService memberService;
 
     @PostMapping("/communityCreate/{memberId}")
     @Operation(summary = "게시물 작성")

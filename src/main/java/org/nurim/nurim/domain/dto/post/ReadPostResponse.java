@@ -2,9 +2,12 @@ package org.nurim.nurim.domain.dto.post;
 
 import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
+import org.nurim.nurim.domain.entity.PostImage;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.util.List;
+
 @Data
 @Getter
 @AllArgsConstructor

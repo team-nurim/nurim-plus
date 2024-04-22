@@ -26,18 +26,10 @@ public class FileUploadService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-
-    public FileDetail save(MultipartFile multipartFile) {
-        FileDetail fileDetail = FileDetail.multipartOf(multipartFile);
-        amazonS3ResourceStorage.store(fileDetail.getPath(), multipartFile);
-
-        return fileDetail;
-    }
-
+    // 이미지 삭제
     public boolean deleteFile(String uuid) {
         try {
             // S3에서 파일 삭제
-//            amazonS3.deleteObject(bucket, uuid);
             amazonS3Client.deleteObject(bucket, uuid); // key 값으로 삭제해야 하므로 S3client로 변경
             return true;
         } catch (AmazonServiceException e) {
