@@ -198,7 +198,7 @@ public class MemberService {
 
     }
 
-    // 특정 회원 정보 수정
+    // 특정 회원 개인 정보 수정
     @Transactional
     public UpdateMemberResponse updateMember(Long memberId, UpdateMemberRequest request) {
 
@@ -210,6 +210,39 @@ public class MemberService {
         foundMember.update(
                 passwordEncoder.encode(request.getMemberPw()),
                 request.getMemberNickname(),
+                request.getMemberAge(),
+                request.isGender(),
+                request.getMemberResidence(),
+                request.isMemberMarriage(),
+                request.getMemberIncome(),
+                request.isType());
+
+        return new UpdateMemberResponse(foundMember.getMemberId(),
+                foundMember.getMemberEmail(),
+                foundMember.getMemberPw(),
+                foundMember.getMemberNickname(),
+                foundMember.getMemberAge(),
+                foundMember.isGender(),
+                foundMember.getMemberResidence(),
+                foundMember.isMemberMarriage(),
+                foundMember.getMemberIncome(),
+                foundMember.isType(),
+                foundMember.getMemberImage().getMemberProfileImage(),
+                foundMember.getExpert().getExpertFile());
+
+    }
+    // 특정 회원 내 맞춤 정보 수정
+    @Transactional
+    public UpdateMemberResponse updateMemberInfo(Long memberId, UpdateMemberInfoRequest request) {
+
+        // id 확인
+        Member foundMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
+
+        // Member 정보 업데이트
+        foundMember.update(
+                foundMember.getMemberPw(),
+                foundMember.getMemberNickname(),
                 request.getMemberAge(),
                 request.isGender(),
                 request.getMemberResidence(),
