@@ -27,10 +27,11 @@ public class CommunityController {
     private final CommunityService communityService;
     private final MemberService memberService;
 
-    @PostMapping("/communityCreate/{memberId}")
+    @CrossOrigin(origins = "http://localhost:8081")
+    @PostMapping("/communityCreate/{accessToken}")
     @Operation(summary = "게시물 작성")
-    public ResponseEntity<CreateCommunityResponse> createCommunity(@PathVariable Long memberId, @RequestBody CreateCommunityRequest request){
-        CreateCommunityResponse response = communityService.communityCreate(memberId, request);
+    public ResponseEntity<CreateCommunityResponse> createCommunity(@PathVariable String accessToken, @RequestBody CreateCommunityRequest request){
+        CreateCommunityResponse response = communityService.communityCreate(accessToken, request);
         return ResponseEntity.ok().body(response);
     }
 
@@ -41,21 +42,23 @@ public class CommunityController {
         ReadCommunityResponse response = communityService.communityRead(communityId);
         return ResponseEntity.ok().body(response);
     }
-    @DeleteMapping("/communityDelete/{communityId}")
+    @CrossOrigin(origins = "http://localhost:8081")
+    @DeleteMapping("/communityDelete/{communityId}/{accessToken}")
     @Operation(summary = "게시물 삭제", description = "게시물 memberId에 속한 유저만 삭제가 가능합니다.")
-    public ResponseEntity<DeleteCommunityResponse> deleteCommunity(@PathVariable Long communityId, String memberEmail) {
+    public ResponseEntity<DeleteCommunityResponse> deleteCommunity(@PathVariable Long communityId,@PathVariable String accessToken) {
         try {
-            DeleteCommunityResponse response = communityService.communityDelete(communityId, memberEmail);
+            DeleteCommunityResponse response = communityService.communityDelete(communityId, accessToken);
             return ResponseEntity.ok().body(response);
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
 
-    @PutMapping("/communityUpdate/{communityId}")
+    @CrossOrigin(origins = "http://localhost:8081")
+    @PutMapping("/communityUpdate/{communityId}/{accessToken}")
     @Operation(summary = "게시물 수정")
-    public ResponseEntity<UpdateCommunityResponse> updateCommunity(@PathVariable Long communityId, String memberEmail, @RequestBody UpdateCommunityRequest request) throws AccessDeniedException {
-        UpdateCommunityResponse response = communityService.communityUpdate(communityId, memberEmail, request);
+    public ResponseEntity<UpdateCommunityResponse> updateCommunity(@PathVariable Long communityId, @PathVariable String accessToken, @RequestBody UpdateCommunityRequest request) throws AccessDeniedException {
+        UpdateCommunityResponse response = communityService.communityUpdate(communityId, accessToken, request);
         return ResponseEntity.ok().body(response);
     }
 

@@ -13,6 +13,6 @@ public class UpdateReplyRequest {
 
     private Long replyId;
 
-    private String replrText;
+    private String replyText;
 
 }
