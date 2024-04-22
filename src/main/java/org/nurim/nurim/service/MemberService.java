@@ -14,6 +14,7 @@ import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.repository.MemberRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -281,16 +282,20 @@ public class MemberService {
     // context에서 회원정보 가져오기
     public Member getMember(HttpServletRequest request) {
 
-        String accessToken = tokenProvider.getAccessToken(request);
-        log.info("🍎accessToken: " + accessToken);
+        // SecurityContext에서 인증 정보 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("🍎 authentication name : " + authentication.getName());
 
-        Authentication authentication = tokenProvider.getAuthenticationFromToken(accessToken);
-        log.info("🍎authentication: " + authentication);
+        if(authentication == null || !authentication.isAuthenticated()) {
+            log.info("인증 객체를 찾을 수 없습니다.");
+        }
 
-        String username = tokenProvider.getUsernameFromToken(accessToken);
-        log.info("🍎username: " + username);
+        String username = authentication.getName();
 
-        return readMemberByMemberEmail(username);
+        Member accessMember = memberRepository.findMemberByMemberEmail(username)
+                .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
+
+        return accessMember;
 
     }
 
