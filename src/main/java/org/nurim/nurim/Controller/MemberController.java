@@ -115,7 +115,17 @@ public class MemberController {
     @PutMapping("/memberInfo/{memberId}")
     public ResponseEntity<UpdateMemberResponse> memberInfoUpdate(@RequestBody UpdateMemberInfoRequest request, HttpServletRequest httpRequest) {
 
-        Member accessMember = memberService.getMember(httpRequest);
+        // SecurityContext에서 인증 정보 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("🍎 authentication name : " + authentication.getName());
+
+        if(authentication == null || !authentication.isAuthenticated()) {
+            log.info("인증 객체를 찾을 수 없습니다.");
+        }
+
+        String username = authentication.getName();
+
+        Member accessMember = memberService.readMemberByMemberEmail(username);
         UpdateMemberResponse response = memberService.updateMemberInfo(accessMember.getMemberId(), request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
