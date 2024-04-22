@@ -19,6 +19,8 @@ public class ReadCommunityResponse {
 
     private List<String> communityImages;
 
+    private List<Long> communityImageId;
+
     private String title;   //게시글 제목
 
     private String content; //게시글 내용
