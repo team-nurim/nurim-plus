@@ -5,8 +5,8 @@ import lombok.*;
 
 import jakarta.persistence.*;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Setter
@@ -38,23 +38,11 @@ public class Post {
 
     @OneToMany(mappedBy = "post", cascade = {CascadeType.ALL}, fetch = FetchType.LAZY, orphanRemoval = true) // 어떤 Entity의 속성으로 매핑하는지 // CurationImage의 curation// 변수
     @Builder.Default
-    private Set<PostImage> imageSet = new HashSet<>();
+    private List<PostImage> imageSet = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "adminId")
-    private Admin admin;
-
-    public void addPostImage(String uuid, String fileName) {
-
-        PostImage postImage = PostImage.builder()
-                .image_detail(uuid)  // 파일 uuid 저장
-                .image_thumb(fileName)   // 파일 이름 저장
-                .build();
-
-        this.imageSet.add(postImage);
-        postImage.changePost(this);
-
-    }
+    @JoinColumn(name = "memberId")
+    private Member member;
 
     public void update(String postTitle, String postContent, String postWriter, String postCategory, LocalDate postRegisterDate) {
         this.postTitle = postTitle;

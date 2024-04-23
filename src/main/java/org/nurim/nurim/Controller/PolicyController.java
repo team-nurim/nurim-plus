@@ -1,5 +1,18 @@
 package org.nurim.nurim.Controller;
 
+
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.nurim.nurim.domain.dto.policy.ResponseVo;
+import org.nurim.nurim.service.CallApiService;
+import org.nurim.nurim.service.MemberService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@Tag(name = "Policy", description = "정책 지원금 API")
+@RestController
+@RequiredArgsConstructor
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.nurim.nurim.domain.entity.PolicyData;
 import org.springframework.http.MediaType;
@@ -66,7 +79,3 @@ public class PolicyController {
                 urlConnection.disconnect(); // 사용이 끝난 Connection을 닫아줍니다.
             }
         }
-
-        return policyData;
-    }
-}

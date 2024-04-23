@@ -32,4 +32,5 @@ public class FileDetail {
                 .bytes(multipartFile.getSize())
                 .build();
     }
+
 }

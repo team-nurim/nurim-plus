@@ -2,6 +2,7 @@ package org.nurim.nurim.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.reply.*;
 import org.nurim.nurim.domain.entity.Community;
 import org.nurim.nurim.domain.entity.Member;
@@ -12,7 +13,9 @@ import org.nurim.nurim.repository.ReplyRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.AccessDeniedException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,10 +29,12 @@ public class ReplyService {
 
     private final MemberRepository memberRepository;
 
+    private final TokenProvider tokenProvider;
+
     @Transactional
-    public CreateReplyResponse replyCreate(Long communityId,Long memberId, CreateReplyRequest request){
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(()-> new EntityNotFoundException("memberId 가 없어요"));
+    public CreateReplyResponse replyCreate(Long communityId,String memberEmail, CreateReplyRequest request){
+        String token =  tokenProvider.getUsernameFromToken(memberEmail);
+        Member member = memberRepository.findMemberByMemberEmail(token).orElseThrow(() -> new EntityNotFoundException("이메일이 없습니다."));
         Community community = communityRepository.findById(communityId)
                 .orElseThrow(() -> new EntityNotFoundException("Id 없어요"));
         Reply reply = Reply.builder()
@@ -43,7 +48,8 @@ public class ReplyService {
         return new CreateReplyResponse(
                 saveReply.getReplyId(),
                 saveReply.getCommunity().getCommunityId(),
-                saveReply.getReplyer(),
+                saveReply.getMember().getMemberNickname(),
+                saveReply.getMember().getMemberEmail(),
                 saveReply.getReplyText(),
                 saveReply.getReplyRegisterDate());
     }
@@ -54,33 +60,52 @@ public class ReplyService {
                         reply.getReplyId(),
                         reply.getCommunity().getCommunityId(),
                         reply.getReplyText(),
-                        reply.getReplyer(),
+                        reply.getMember().getMemberNickname(),
+                        reply.getMember().getMemberEmail(),
                         reply.getReplyRegisterDate(),
                         reply.getReplyModifyDate()))
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public DeleteReplyResponse replyDelete(Long replyId){
+    public DeleteReplyResponse replyDelete(Long communityId, Long replyId, String memberEmail) throws AccessDeniedException{
+        String accessToken = tokenProvider.getUsernameFromToken(memberEmail);
+
+        Community community = communityRepository.findById(communityId)
+                .orElseThrow(()-> new EntityNotFoundException("해당 커뮤니티 아이드를 찾을 수 없습니다."));
+
         Reply findreply = replyRepository.findById(replyId)
-                .orElseThrow(() -> new EntityNotFoundException("Id 없어요"));
+                .orElseThrow(() -> new EntityNotFoundException("해당 댓글 아이디를 찾을 수 없습니다."));
 
-        replyRepository.delete(findreply);
+        Member member = memberRepository.findMemberByMemberEmail(accessToken)
+                        .orElseThrow(()->new EntityNotFoundException("멤버 이메일이 없습니다."));
 
-        return new DeleteReplyResponse(findreply.getReplyId());
+        if(Objects.equals(findreply.getMember().getMemberEmail(),member.getMemberEmail())){
+            replyRepository.delete(findreply);
+            return new DeleteReplyResponse(findreply.getReplyId());
+        }else{
+            throw new AccessDeniedException("댓글을 삭제할 권한이 없습니다.");
+        }
     }
     @Transactional
-    public UpdateReplyResponse replyUpdate(Long replyId, UpdateReplyRequest request){
+    public UpdateReplyResponse replyUpdate(Long replyId,String memberEmail, UpdateReplyRequest request) throws AccessDeniedException{
+        String accessToken = tokenProvider.getUsernameFromToken(memberEmail);
+
+        Member member = memberRepository.findMemberByMemberEmail(accessToken)
+                .orElseThrow(()->new EntityNotFoundException("회원 이메일이 없습니다."));
+
         Reply findReply = replyRepository.findById(replyId)
                 .orElseThrow(()-> new EntityNotFoundException("Id 없어요"));
-
-        findReply.update(request.getReplrText());
-
+    if (Objects.equals(findReply.getMember().getMemberEmail(),member.getMemberEmail())){
+        findReply.update(request.getReplyText());
         return new UpdateReplyResponse(
                 findReply.getReplyId(),
                 findReply.getReplyer(),
                 findReply.getReplyText(),
                 findReply.getReplyModifyDate());
+    }else{
+        throw new AccessDeniedException("댓글을 수정 할 권한이 없습니다.");
+    }
     }
 
     /**
@@ -92,6 +117,7 @@ public class ReplyService {
                 .map(reply -> new ReadReplyResponse(
                         reply.getReplyId(),
                         reply.getMember().getMemberId(),
+                        reply.getMember().getMemberEmail(),
                         reply.getReplyText(),
                         reply.getReplyer(),
                         reply.getReplyRegisterDate(),

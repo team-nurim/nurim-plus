@@ -1,13 +1,16 @@
 package org.nurim.nurim.Controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.nurim.nurim.domain.dto.community.*;
 import org.nurim.nurim.service.CommunityService;
+import org.nurim.nurim.service.MemberService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,50 +18,56 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 
+@Tag(name = "Community", description = "커뮤니티 API")
 @RestController
 @RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class CommunityController {
 
     private final CommunityService communityService;
+    private final MemberService memberService;
 
-    @PostMapping("/communityCreate/{memberId}")
+    @CrossOrigin(origins = "http://localhost:8081")
+    @PostMapping("/communityCreate/{accessToken}")
     @Operation(summary = "게시물 작성")
-    public ResponseEntity<CreateCommunityResponse> createCommunity(@PathVariable Long memberId, @RequestBody CreateCommunityRequest request){
-        CreateCommunityResponse response = communityService.communityCreate(memberId, request);
+    public ResponseEntity<CreateCommunityResponse> createCommunity(@PathVariable String accessToken, @RequestBody CreateCommunityRequest request){
+        CreateCommunityResponse response = communityService.communityCreate(accessToken, request);
         return ResponseEntity.ok().body(response);
     }
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/communityRead/{communityId}")
     @Operation(summary = "게시물 단위조회 및 조회수", description = "게시물을 조회하고 조회한만큼 조회수가 오릅니다.")
     public ResponseEntity<ReadCommunityResponse> readCommunity(@PathVariable Long communityId){
         ReadCommunityResponse response = communityService.communityRead(communityId);
         return ResponseEntity.ok().body(response);
     }
-    @DeleteMapping("/communityDelete/{communityId}")
+    @CrossOrigin(origins = "http://localhost:8081")
+    @DeleteMapping("/communityDelete/{communityId}/{accessToken}")
     @Operation(summary = "게시물 삭제", description = "게시물 memberId에 속한 유저만 삭제가 가능합니다.")
-    public ResponseEntity<DeleteCommunityResponse> deleteCommunity(@PathVariable Long communityId, String memberEmail) {
+    public ResponseEntity<DeleteCommunityResponse> deleteCommunity(@PathVariable Long communityId,@PathVariable String accessToken) {
         try {
-            DeleteCommunityResponse response = communityService.communityDelete(communityId, memberEmail);
+            DeleteCommunityResponse response = communityService.communityDelete(communityId, accessToken);
             return ResponseEntity.ok().body(response);
         } catch (AccessDeniedException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
 
-    @PutMapping("/communityUpdate/{communityId}")
+    @CrossOrigin(origins = "http://localhost:8081")
+    @PutMapping("/communityUpdate/{communityId}/{accessToken}")
     @Operation(summary = "게시물 수정")
-    public ResponseEntity<UpdateCommunityResponse> updateCommunity(@PathVariable Long communityId, String memberEmail, @RequestBody UpdateCommunityRequest request) throws AccessDeniedException {
-        UpdateCommunityResponse response = communityService.communityUpdate(communityId, memberEmail, request);
+    public ResponseEntity<UpdateCommunityResponse> updateCommunity(@PathVariable Long communityId, @PathVariable String accessToken, @RequestBody UpdateCommunityRequest request) throws AccessDeniedException {
+        UpdateCommunityResponse response = communityService.communityUpdate(communityId, accessToken, request);
         return ResponseEntity.ok().body(response);
     }
 
     @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/communityList")
     @Operation(summary = "게시물 전체 조회")
-    public ResponseEntity<Page<ReadAllCommunityResponse>> readAllCommunity(){
-        PageRequest pageRequest = PageRequest.of(0,20,Sort.by("communityId").descending());
-        Page<ReadAllCommunityResponse> communityResponses = communityService.getCommunityList(pageRequest);
+    public ResponseEntity<Page<ReadAllCommunityResponse>> readAllCommunity(@PageableDefault(
+            size = 20, sort = "communityId", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<ReadAllCommunityResponse> communityResponses = communityService.getCommunityList(pageable);
         return ResponseEntity.ok().body(communityResponses);
     }
 
@@ -66,8 +75,9 @@ public class CommunityController {
     @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/categoryPage/{category}")
     @Operation(summary = "게시물 카테고리 별 게시물조회 페이징")
-    public ResponseEntity<Page<ReadSearchResponse>> readCommunityList(@PathVariable String category, @RequestParam(defaultValue = "0")int page){
-        Pageable pageable = PageRequest.of(0, 20, Sort.by("communityId").descending());
+    public ResponseEntity<Page<ReadSearchResponse>> readCommunityList(
+            @PathVariable String category,
+            @PageableDefault( size = 20, sort = "communityId",direction = Sort.Direction.DESC) Pageable pageable){
         Page<ReadSearchResponse> communityResponsePage = communityService.getCommunityListByCategory(category, pageable);
         return ResponseEntity.ok().body(communityResponsePage);
     }
@@ -93,17 +103,18 @@ public class CommunityController {
     @Operation(summary = "검색기능" , description = "제목,카테고리,작성자 기준으로 각 게시물을 검색을 할수있습니다.")
     public ResponseEntity<Page<ReadSearchResponse>> searchCommunity(@RequestParam (required = false)String title ,
                                                                    @RequestParam (required = false) String communityCategory,
-                                                                   @RequestParam (required = false) String memberNickname){
-        PageRequest pageRequest = PageRequest.of(0,20,Sort.by("title").descending());
+                                                                   @RequestParam (required = false) String memberNickname,
+            @PageableDefault(size = 20, sort = "communityId", direction = Sort.Direction.DESC) Pageable pageable){
+
         Page<ReadSearchResponse> searchResultPage;
         if(title != null && communityCategory !=null && memberNickname !=null){
-            searchResultPage = communityService.SearchTitleAndCategoryAndMemberNickName(title,communityCategory,memberNickname,pageRequest);
+            searchResultPage = communityService.SearchTitleAndCategoryAndMemberNickName(title,communityCategory,memberNickname,pageable);
         } else if (title !=null) {
-            searchResultPage = communityService.SearchTitle(title, pageRequest);
+            searchResultPage = communityService.SearchTitle(title, pageable);
         } else if (communityCategory != null){
-            searchResultPage = communityService.SearchCategory(communityCategory, pageRequest);
+            searchResultPage = communityService.SearchCategory(communityCategory, pageable);
         } else if ( memberNickname!= null){
-        searchResultPage = communityService.SearchMemberNickName(memberNickname, pageRequest);
+        searchResultPage = communityService.SearchMemberNickName(memberNickname, pageable);
         } else{
             return ResponseEntity.badRequest().build();
         }
