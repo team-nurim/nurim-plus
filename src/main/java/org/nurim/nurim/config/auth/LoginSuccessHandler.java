@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 
 import java.awt.*;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
@@ -33,6 +34,8 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         // HTTP 응답 콘텐츠 타입을 JSON으로 설정
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
+        String memberEmail = authentication.getName();
+
         log.info(authentication);
         log.info(authentication.getName());   // username 추출
         log.info("🎯LoginSuccessHandler 내에 있는 authentication: {}", authentication);
@@ -46,7 +49,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         // LoginSuccessHandler 내에서 HttpServletRequest에 인증 객체를 저장
         request.setAttribute("authentication", authentication);
 
-        Map<String, Object> claim = Map.of("memberEmail", authentication.getName());
+        Map<String, Object> claim = new HashMap<>();
         // access token 유효기간 1일
         String accessToken = tokenProvider.generateToken(claim, 1);
 //        // refresh token 유효기간 30일
@@ -55,7 +58,7 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
         Gson gson = new Gson();
 
         // access, refresh token 포함하는 map 생성
-        Map<String, String> keyMap = Map.of("accessToken", accessToken);
+        Map<String, String> keyMap = Map.of("accessToken", accessToken, "memberEmail", memberEmail);
         String jsonStr = gson.toJson(keyMap);   // map 객체를 JSON 문자열로 변환
 
         response.getWriter().println(jsonStr);   // JSON 문자열을 HTTP 응답에 기록하여 클라이언트에 반환
