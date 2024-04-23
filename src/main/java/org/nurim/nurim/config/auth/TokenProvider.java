@@ -49,7 +49,7 @@ public class TokenProvider {
     private String jwtSecret;
 
     // Member 정보를 가지고 토큰 생성
-    public String generateToken(Map<String, Object> valueMap, int days) {
+    public String generateToken(Map<String, Object> valueMap, int days, String memberEmail) {
 
         log.info("=============== TokenProvider : generateToken() 작동 ===============");
         // header
@@ -63,6 +63,7 @@ public class TokenProvider {
         // payload
         Map<String, Object> payloads = new HashMap<>();
         payloads.putAll(valueMap);
+        payloads.put("memberEmail", memberEmail);
 
         // 유효기간
         int time = (60 * 24) * days;   // 분단위
