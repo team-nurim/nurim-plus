@@ -67,19 +67,27 @@ public class CommunityService {
 
     @Transactional
     public ReadCommunityResponse communityRead(Long communityId) {
+
         Community findCommunity = communityRepository.findById(communityId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 communityId로 조회된 게시글이 없습니다."));
         log.info("커뮤니티 조회 성공");
+
         List<ReadReplyResponse> listReply = replyService.getRepliesByCommunityId(communityId);//댓글 서비스를 가져와 커뮤니티 아이디당 찾는 댓글 리스트를 게시글과 같이 조회한다.
 
         List<String> imageUrls = findCommunity.getCommunityImage().stream()
                         .map(CommunityImage::getFilePath)
                         .collect(Collectors.toList());
 
+        List<Long> communityImageId = findCommunity.getCommunityImage().stream()
+                .map(CommunityImage::getCommunityImageId)
+                .collect(Collectors.toList());
+
+
         communityRepository.updateCount(communityId);
         return new ReadCommunityResponse(
                 findCommunity.getCommunityId(),
                 imageUrls,
+                communityImageId,
                 findCommunity.getTitle(),
                 findCommunity.getContent(),
                 findCommunity.getCommunityCategory(),
