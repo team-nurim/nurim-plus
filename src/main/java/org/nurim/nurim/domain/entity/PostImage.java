@@ -1,7 +1,9 @@
 package org.nurim.nurim.domain.entity;
 
-import jakarta.persistence.*;
+
 import lombok.*;
+
+import jakarta.persistence.*;
 
 @Entity
 @Getter
