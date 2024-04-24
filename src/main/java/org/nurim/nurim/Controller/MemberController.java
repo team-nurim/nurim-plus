@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.config.auth.TokenProvider;
@@ -136,7 +135,7 @@ public class MemberController {
 
     @Operation(summary = "회원 정보 삭제") // 회원가입이 이뤄지면 email에 대한 정보로 탈퇴 처리해야 할 듯
     @DeleteMapping("/{memberId}")
-    public ResponseEntity<DeleteMemberResponse> memberDelete(@RequestBody HttpServletRequest httpRequest){
+    public ResponseEntity<DeleteMemberResponse> memberDelete(@PathVariable Long memberId){
 
         // SecurityContext에서 인증 정보 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
