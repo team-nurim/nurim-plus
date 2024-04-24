@@ -19,8 +19,6 @@ public class FileUploadService {
 
     private final AmazonS3ResourceStorage amazonS3ResourceStorage;
 
-    private final AmazonS3 amazonS3; // Amazon S3 클라이언트
-
     private final AmazonS3Client amazonS3Client;
 
     @Value("${cloud.aws.s3.bucket}")
