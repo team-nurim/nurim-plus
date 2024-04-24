@@ -10,6 +10,10 @@ import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.service.MemberService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -151,5 +155,16 @@ public class MemberController {
         DeleteMemberResponse response = memberService.deleteMember(accessMember.getMemberId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "http://localhost:8081")
+    @Operation(summary = "회원 전체 조회")
+    @GetMapping("/admin/members")
+    public ResponseEntity<Page<ReadMemberResponse>> readAllMembers(@PageableDefault(
+            size = 15, sort = "memberId", direction = Sort.Direction.DESC) Pageable pageable){
+        String role = SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString();
+        log.info("🎈 role : {} ", role);
+        Page<ReadMemberResponse> memberResponses = memberService.getMemberList(pageable);
+        return ResponseEntity.ok().body(memberResponses);
     }
 }
