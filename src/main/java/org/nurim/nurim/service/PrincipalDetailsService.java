@@ -34,12 +34,13 @@ public class PrincipalDetailsService implements UserDetailsService {
         Member memberEntity = memberRepository.findMemberByMemberEmail(memberEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("로그인 정보를 확인하세요."));
 
-        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_"+memberEntity.getMemberRole().toString()));
+        // 사용자의 권한 정보를 가져옴
+        List<GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority("ROLE_"+ memberEntity.getMemberRole().toString()));
 
         UserDetails userDetails = User.builder()
                 .username(memberEntity.getMemberEmail())
                 .password(memberEntity.getMemberPw())
-                .authorities(authorities)
+                .authorities(authorities)  // 사용자의 권한 정보를 설정
                 .build();
 
         log.info("💎userDetails : " + userDetails);

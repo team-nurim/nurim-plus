@@ -94,6 +94,7 @@ public class SecurityConfig {
 //        // 권한에 따른 허용하는 url
         http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
                 .requestMatchers("/admin/**", "/admin").hasAuthority("ADMIN")  //권한 있어야 함
+                .requestMatchers("/admin/**","/api/v1/posts/post/**").hasRole("ADMIN")   //권한 있어야 함
                 .requestMatchers("/", "/login", "/join").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/error").permitAll()
