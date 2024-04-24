@@ -13,6 +13,8 @@ import org.nurim.nurim.domain.entity.MemberRole;
 import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.repository.MemberRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -276,6 +278,25 @@ public class MemberService {
 
         return new DeleteMemberResponse(foundMember.getMemberId());
 
+    }
+
+    public Page<ReadMemberResponse> getMemberList(Pageable pageable){
+        Page<Member> members = memberRepository.findAll(pageable);
+
+        return members.map(member -> new ReadMemberResponse(
+                member.getMemberId(),
+                member.getMemberEmail(),
+                member.getMemberPw(),
+                member.getMemberNickname(),
+                member.getMemberAge(),
+                member.isGender(),
+                member.getMemberResidence(),
+                member.isMemberMarriage(),
+                member.getMemberIncome(),
+                member.isType(),
+                member.getMemberImage().getMemberProfileImage(),
+                member.getExpert().getExpertFile()
+        ));
     }
 
 
