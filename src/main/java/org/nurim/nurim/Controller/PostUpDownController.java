@@ -33,10 +33,10 @@ public class PostUpDownController {
     private final FileUploadService fileUploadService; // AWS S3 서비스 추가
     private final MemberService memberService;
 
-    @PostMapping(value = "/api/v1/posts/post/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/api/v1/posts/post/upload/{postId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "이미지 업로드", description = "POST로 파일 등록")
     public ResponseEntity<List<UploadFileResponse>> upload(
-            @RequestParam Long postId,
+            @PathVariable Long postId,
             @Parameter(content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE, array = @ArraySchema(schema = @Schema(type = "string", format = "binary"))))
             @RequestPart("files") MultipartFile[] files) {
 

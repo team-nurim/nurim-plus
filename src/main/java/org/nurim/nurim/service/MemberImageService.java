@@ -59,8 +59,8 @@ public class MemberImageService {
             String imageKey = memberImage.getProfileName();
 
             // 기본 이미지로 변경할 이미지 경로
-            String defaultImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/b706c0f7-625a-485f-9d6e-2358822208bb.jpeg";
-            String defaultKey = "images/b706c0f7-625a-485f-9d6e-2358822208bb.jpeg";
+            String defaultImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/8383f351-73fc-47c5-bf2f-b6ebc105326a.jpeg";
+            String defaultKey = "images/8383f351-73fc-47c5-bf2f-b6ebc105326a.jpeg";
 
             if (imageUrl.equals(defaultImageUrl) && imageKey.equals(defaultKey)) {
                 // 이미지의 url과 key가 default와 일치하면 삭제 로직을 적용하지 않음
@@ -72,7 +72,6 @@ public class MemberImageService {
 
             // S3에서 이미지 삭제에 성공하면 DB에서 기본 이미지로 변경
             if (isRemovedFromS3) {
-
                 // DB에서 해당 회원의 이미지를 기본 이미지로 변경
                 memberImage.setMemberProfileImage(defaultImageUrl);
                 memberImage.setProfileName(defaultKey);

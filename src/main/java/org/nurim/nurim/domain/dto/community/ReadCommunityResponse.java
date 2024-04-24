@@ -17,7 +17,9 @@ public class ReadCommunityResponse {
 
     private Long communityId;
 
-    private List<CommunityImage> link;
+    private List<String> communityImages;
+
+    private List<Long> communityImageId;
 
     private String title;   //게시글 제목
 
@@ -35,5 +37,8 @@ public class ReadCommunityResponse {
 
     private String memberNickname;
 
+    private String memberEmail;
+
     List<ReadReplyResponse> replyResponseList;
+
 }

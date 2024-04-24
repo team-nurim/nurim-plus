@@ -23,7 +23,7 @@ public class SwaggerConfig {
             "/api/v1/members/admin",
             "/api/v1/home/postList",
             "/api/v1/home/communityList",
-            "/api/v1/popular"
+            "/api/v1/home/popularCommunityList"
     );
 
     @Bean
