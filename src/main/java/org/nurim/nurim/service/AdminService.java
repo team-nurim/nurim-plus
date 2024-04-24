@@ -1,10 +1,7 @@
 package org.nurim.nurim.service;
 
 import lombok.RequiredArgsConstructor;
-import org.nurim.nurim.domain.dto.member.DeleteMemberResponse;
-import org.nurim.nurim.domain.dto.member.ReadMemberResponse;
-import org.nurim.nurim.domain.dto.member.UpdateMemberRequest;
-import org.nurim.nurim.domain.dto.member.UpdateMemberResponse;
+import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.repository.MemberRepository;
 import org.springframework.data.domain.Page;
@@ -59,20 +56,30 @@ public class AdminService {
 
     // 회원 정보 수정
     @Transactional
-    public UpdateMemberResponse updateMemberInfo(Long memberId, UpdateMemberRequest request) {
+    public UpdateMemberResponse updateMemberInfo(Long memberId, UpdateMemberInfoRequest request) {
         Member member = memberRepository.findById(memberId).orElse(null);
         if (member != null) {
             // 업데이트 요청 받은 정보로 회원 엔티티 업데이트
-            member.setMemberPw(passwordEncoder.encode(request.getMemberPw()));
-            member.setMemberNickname(request.getMemberNickname());
-            member.setMemberAge(request.getMemberAge());
-            member.setGender(request.isGender());
-            member.setMemberResidence(request.getMemberResidence());
-            member.setMemberMarriage(request.isMemberMarriage());
-            member.setMemberIncome(request.getMemberIncome());
-            member.setType(request.isType());
+//            member.setMemberPw(member.getMemberPw());
+//            member.setMemberNickname(member.getMemberNickname());
+//            member.setMemberAge(request.getMemberAge());
+//            member.setGender(request.isGender());
+//            member.setMemberResidence(request.getMemberResidence());
+//            member.setMemberMarriage(request.isMemberMarriage());
+//            member.setMemberIncome(request.getMemberIncome());
+//            member.setType(request.isType());
 //            member.setMemberImage();
 //            member.setExpertFile(request.getExpertFile());
+
+            member.update(
+                    member.getMemberPw(),
+                    member.getMemberNickname(),
+                    request.getMemberAge(),
+                    request.isGender(),
+                    request.getMemberResidence(),
+                    request.isMemberMarriage(),
+                    request.getMemberIncome(),
+                    request.isType());
 
             memberRepository.save(member);
 
@@ -105,5 +112,7 @@ public class AdminService {
         }
         return null;
     }
+
+
 
 }
