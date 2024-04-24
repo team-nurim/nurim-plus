@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Policy Data</title>
+</head>
+<body>
+<div id="policyData"></div>
+
+<script>
+    // API 요청을 보내고 데이터를 받아오는 함수
+    async function fetchData() {
+        const response = await fetch('http://localhost:8080/api');
+        const data = await response.json();
+        return data;
+    }
+
+    // 받아온 데이터를 HTML 요소에 표시하는 함수
+    async function displayData() {
+        const policyData = await fetchData();
+        const policyDataDiv = document.getElementById('policyData');
+
+        // 받아온 데이터를 JSON 문자열로 변환하여 HTML 요소에 넣기
+        policyDataDiv.textContent = JSON.stringify(policyData, null, 2);
+    }
+
+    // 페이지가 로드될 때 데이터를 표시하도록 호출
+    window.onload = displayData;
+</script>
+</body>
+</html>

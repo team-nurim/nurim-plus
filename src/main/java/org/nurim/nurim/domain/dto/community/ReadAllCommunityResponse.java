@@ -15,7 +15,7 @@ public class ReadAllCommunityResponse {
 
     private Long communityId;
 
-    private List<CommunityImage> link;
+    private List<String> communityImages;
 
     private String title;
 

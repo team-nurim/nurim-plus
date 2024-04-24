@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 @Log4j2
 public class MemberService {
@@ -55,8 +55,8 @@ public class MemberService {
         Member savedMember = memberRepository.save(member);
 
         // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
-        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/b706c0f7-625a-485f-9d6e-2358822208bb.jpeg";
-        String defaultKey = "images/b706c0f7-625a-485f-9d6e-2358822208bb.jpeg";
+        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/8383f351-73fc-47c5-bf2f-b6ebc105326a.jpeg";
+        String defaultKey = "images/8383f351-73fc-47c5-bf2f-b6ebc105326a.jpeg";
 
         String defaultExpert = "증빙서류가 등록되지 않았습니다.";
 
@@ -119,8 +119,8 @@ public class MemberService {
         Member savedMember = memberRepository.save(member);
 
         // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
-        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/b706c0f7-625a-485f-9d6e-2358822208bb.jpeg";
-        String defaultKey = "images/b706c0f7-625a-485f-9d6e-2358822208bb.jpeg";
+        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/8383f351-73fc-47c5-bf2f-b6ebc105326a.jpeg";
+        String defaultKey = "images/8383f351-73fc-47c5-bf2f-b6ebc105326a.jpeg";
 
         String defaultExpert = "증빙서류가 등록되지 않았습니다.";
 
@@ -170,7 +170,7 @@ public class MemberService {
             profileimageUrl = foundMember.getMemberImage().getMemberProfileImage();
         } else {
             // 프로필 이미지가 등록되지 않은 경우
-            profileimageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/b706c0f7-625a-485f-9d6e-2358822208bb.jpeg";
+            profileimageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/8383f351-73fc-47c5-bf2f-b6ebc105326a.jpeg";
         }
 
         String expertFileUrl;
