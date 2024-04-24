@@ -1,7 +1,6 @@
 package org.nurim.nurim.AmazonS3;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
