@@ -32,7 +32,8 @@ public class TokenValidateFilter extends OncePerRequestFilter {
             "/api/v1/members/admin",
             "/api/v1/home/postList",
             "/api/v1/home/communityList",
-            "/api/v1/home/popularCommunityList"
+            "/api/v1/home/popularCommunityList",
+            "/api/v1/saveData"   // childcare 테이블 업데이트 엔드포인트
     );
 
     @Override
