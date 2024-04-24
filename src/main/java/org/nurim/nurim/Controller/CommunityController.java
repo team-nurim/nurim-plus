@@ -101,16 +101,16 @@ public class CommunityController {
     @CrossOrigin(origins = "http://localhost:8081")
     @GetMapping("/community/Search")
     @Operation(summary = "검색기능" , description = "제목,카테고리,작성자 기준으로 각 게시물을 검색을 할수있습니다.")
-    public ResponseEntity<Page<ReadSearchResponse>> searchCommunity(@RequestParam (required = false)String title ,
+    public ResponseEntity<Page<ReadSearchResponse>> searchCommunity(@RequestParam (required = false)String keyword ,
                                                                    @RequestParam (required = false) String communityCategory,
                                                                    @RequestParam (required = false) String memberNickname,
             @PageableDefault(size = 20, sort = "communityId", direction = Sort.Direction.DESC) Pageable pageable){
 
         Page<ReadSearchResponse> searchResultPage;
-        if(title != null && communityCategory !=null && memberNickname !=null){
-            searchResultPage = communityService.SearchTitleAndCategoryAndMemberNickName(title,communityCategory,memberNickname,pageable);
-        } else if (title !=null) {
-            searchResultPage = communityService.SearchTitle(title, pageable);
+        if(keyword != null && communityCategory !=null && memberNickname !=null){
+            searchResultPage = communityService.SearchTitleAndCategoryAndMemberNickName(keyword,communityCategory,memberNickname,pageable);
+        } else if (keyword !=null) {
+            searchResultPage = communityService.SearchTitle(keyword, pageable);
         } else if (communityCategory != null){
             searchResultPage = communityService.SearchCategory(communityCategory, pageable);
         } else if ( memberNickname!= null){

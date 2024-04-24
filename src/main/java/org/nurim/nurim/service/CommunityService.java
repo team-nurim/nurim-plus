@@ -172,9 +172,13 @@ public class CommunityService {
         return communityPage.map(community -> {
             Long memberId = community.getMember().getMemberId();
 
+            List<String> imageUrls = community.getCommunityImage().stream()
+                    .map(CommunityImage::getFilePath)
+                    .collect(Collectors.toList());
+
             return new ReadSearchResponse(
                     community.getCommunityId(),
-                    community.getCommunityImage(),
+                    imageUrls,
                     community.getTitle(),
                     community.getContent(),
                     community.getCommunityCategory(),
@@ -212,9 +216,13 @@ public class CommunityService {
         return searchPage.map(community -> {
             Long memberId = community.getMember().getMemberId();
 
+            List<String> imageUrls = community.getCommunityImage().stream()
+                    .map(CommunityImage::getFilePath)
+                    .collect(Collectors.toList());
+
             return new ReadSearchResponse(
                     community.getCommunityId(),
-                    community.getCommunityImage(),
+                    imageUrls,
                     community.getTitle(),
                     community.getContent(),
                     community.getCommunityCategory(),
@@ -226,15 +234,19 @@ public class CommunityService {
         });
 
     }
-    public Page<ReadSearchResponse> SearchTitle(String communityTitle,Pageable pageable) {
-        Page<Community> searchPage = communityRepository.findByTitle(communityTitle,pageable);
+    public Page<ReadSearchResponse> SearchTitle(String keyword,Pageable pageable) {
+        Page<Community> searchPage = communityRepository.findByTitleContaining(keyword,pageable);
 
         return searchPage.map(community -> {
             Long memberId = community.getMember().getMemberId();
 
+            List<String> imageUrls = community.getCommunityImage().stream()
+                    .map(CommunityImage::getFilePath)
+                    .collect(Collectors.toList());
+
             return new ReadSearchResponse(
                     community.getCommunityId(),
-                    community.getCommunityImage(),
+                    imageUrls,
                     community.getTitle(),
                     community.getContent(),
                     community.getCommunityCategory(),
@@ -252,9 +264,13 @@ public class CommunityService {
         return searchPage.map(community -> {
             Long memberId = community.getMember().getMemberId();
 
+            List<String> imageUrls = community.getCommunityImage().stream()
+                    .map(CommunityImage::getFilePath)
+                    .collect(Collectors.toList());
+
             return new ReadSearchResponse(
                     community.getCommunityId(),
-                    community.getCommunityImage(),
+                    imageUrls,
                     community.getTitle(),
                     community.getContent(),
                     community.getCommunityCategory(),
@@ -273,9 +289,13 @@ public class CommunityService {
         return searchPage.map(community -> {
             Long memberId = community.getMember().getMemberId();
 
+            List<String> imageUrls = community.getCommunityImage().stream()
+                    .map(CommunityImage::getFilePath)
+                    .collect(Collectors.toList());
+
             return new ReadSearchResponse(
                     community.getCommunityId(),
-                    community.getCommunityImage(),
+                    imageUrls,
                     community.getTitle(),
                     community.getContent(),
                     community.getCommunityCategory(),
