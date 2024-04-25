@@ -1,10 +1,7 @@
 package org.nurim.nurim.domain.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -14,6 +11,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -48,15 +46,18 @@ public class Community {
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommunityImage> communityImage = new ArrayList<>();
 
+
+    @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reply> replies = new ArrayList<>();
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "memberId")
     private Member member;
 
-    public void update(String title, String content, String communityCategory){
+    public void update(String title, String content){
 
         this.title = title;
         this.content = content;
-        this.communityCategory = communityCategory;
     }
 
     public void increaseRecommend(){

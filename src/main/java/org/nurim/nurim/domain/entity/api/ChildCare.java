@@ -8,10 +8,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ChildCare {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,7 +1,6 @@
 package org.nurim.nurim.AmazonS3;
 
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -18,8 +17,6 @@ import java.util.Map;
 public class FileUploadService {
 
     private final AmazonS3ResourceStorage amazonS3ResourceStorage;
-
-    private final AmazonS3 amazonS3; // Amazon S3 클라이언트
 
     private final AmazonS3Client amazonS3Client;
 

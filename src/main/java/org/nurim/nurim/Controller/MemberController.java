@@ -10,6 +10,10 @@ import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.service.MemberService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -28,6 +32,7 @@ public class MemberController {
     private final MemberService memberService;
     private final TokenProvider tokenProvider;
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @Operation(summary = "일반 회원 등록")
     @PostMapping("/user")
     public ResponseEntity<CreateMemberResponse> memberCreate(@RequestBody @Valid CreateMemberRequest request){
@@ -134,7 +139,7 @@ public class MemberController {
 
     @Operation(summary = "회원 정보 삭제") // 회원가입이 이뤄지면 email에 대한 정보로 탈퇴 처리해야 할 듯
     @DeleteMapping("/{memberId}")
-    public ResponseEntity<DeleteMemberResponse> memberDelete(@RequestBody HttpServletRequest httpRequest){
+    public ResponseEntity<DeleteMemberResponse> memberDelete(@PathVariable Long memberId){
 
         // SecurityContext에서 인증 정보 추출
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -150,5 +155,16 @@ public class MemberController {
         DeleteMemberResponse response = memberService.deleteMember(accessMember.getMemberId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "http://localhost:8081")
+    @Operation(summary = "회원 전체 조회")
+    @GetMapping("/admin/members")
+    public ResponseEntity<Page<ReadMemberResponse>> readAllMembers(@PageableDefault(
+            size = 15, sort = "memberId", direction = Sort.Direction.DESC) Pageable pageable){
+        String role = SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString();
+        log.info("🎈 role : {} ", role);
+        Page<ReadMemberResponse> memberResponses = memberService.getMemberList(pageable);
+        return ResponseEntity.ok().body(memberResponses);
     }
 }

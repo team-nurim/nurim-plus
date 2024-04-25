@@ -4,14 +4,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.nurim.nurim.config.auth.*;
 import org.nurim.nurim.service.PrincipalDetailsService;
-import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,7 +30,6 @@ import org.springframework.security.web.context.HttpSessionSecurityContextReposi
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
-
 
 import javax.sql.DataSource;
 import java.util.Collections;
@@ -93,7 +90,8 @@ public class SecurityConfig {
 
 //        // 권한에 따른 허용하는 url
         http.authorizeHttpRequests(authorizeHttpRequests -> authorizeHttpRequests
-                .requestMatchers("/admin/**").hasRole("ADMIN")   //권한 있어야 함
+                .requestMatchers("/admin/**", "/admin").hasRole("ADMIN")  //권한 있어야 함
+                .requestMatchers("/admin/**","/api/v1/posts/admin/post/**").hasRole("ADMIN")   //권한 있어야 함
                 .requestMatchers("/", "/login", "/join").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
                 .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/error").permitAll()

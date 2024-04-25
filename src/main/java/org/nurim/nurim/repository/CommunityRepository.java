@@ -13,6 +13,7 @@ import java.util.Optional;
 
 public interface CommunityRepository extends JpaRepository<Community, Long> {
 
+
     Page<Community> findByCommunityCategory(String communityCategory, Pageable pageable); //카테고리별 페이징 처리(검색)
 
     @Modifying
@@ -22,7 +23,7 @@ public interface CommunityRepository extends JpaRepository<Community, Long> {
     Page<Community> findByTitleAndCommunityCategoryAndMember_MemberNickname(String communityTitle,String communityCategory,String memberNickname ,Pageable pageable);
     //전체 키워드 찾기
 
-    Page<Community> findByTitle(String communityTitle,Pageable pageable);
+    Page<Community> findByTitleContaining(String keyword,Pageable pageable);
     //제목에 따른 검색
 
     Page<Community> findByMemberMemberNickname(String memberNickname, Pageable pageable);
@@ -30,5 +31,8 @@ public interface CommunityRepository extends JpaRepository<Community, Long> {
 
     @Query("SELECT c FROM Community c WHERE c.communityId NOT IN (SELECT r.community.communityId FROM Reply r) ORDER BY c.viewCounts DESC")
     Page<Community> findCommunitiesWithNoRepliesOrderByViewCountsDesc(Pageable pageable);//댓글이 없는 게시물 조회 쿼리
+
+    @Query("SELECT m.memberEmail FROM Community c JOIN c.member m WHERE c.communityId = :communityId")
+    Optional<String> findMemberEmailByCommunityId(@Param("communityId") Long communityId);
 
 }

@@ -47,14 +47,6 @@ public class ExpertService {
 
     }
 
-//    // 자격증 이미지 조회
-//    public String getExpertImageFileName(Long memberId) {
-//
-//        Optional<Expert> expertOptional = expertRepository.findByMember_MemberId(memberId);
-//
-//        return expertOptional.map(Expert::getExpertFile).orElse("자격증 이미지가 존재하지 않습니다.");
-//    }
-
     // 자격증 이미지 삭제
     @Transactional
     public boolean deleteAndSetDefault(Long memberId) {
