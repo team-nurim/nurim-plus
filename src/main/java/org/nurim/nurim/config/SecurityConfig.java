@@ -121,7 +121,7 @@ public class SecurityConfig {
         // cors
         http.cors(corsCustomizer -> corsCustomizer.configurationSource(new CorsConfigurationSource() {
                     @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                    public CorsConfiguration getCorsConfiguration(HttpServletRequest  equest) {
                         CorsConfiguration config = new CorsConfiguration();
                         config.setAllowedOrigins(Collections.singletonList("http://localhost:8081"));
                         config.setAllowedMethods(Collections.singletonList("*"));
