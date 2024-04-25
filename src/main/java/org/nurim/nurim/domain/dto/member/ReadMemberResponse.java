@@ -3,6 +3,7 @@ package org.nurim.nurim.domain.dto.member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.nurim.nurim.domain.entity.MemberRole;
 
 @Getter
 @AllArgsConstructor
@@ -21,5 +22,6 @@ public class ReadMemberResponse {
     private boolean type;
     private String memberProfileImage;
     private String expertFile;
+    private MemberRole memberRole;
 
 }

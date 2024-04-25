@@ -196,7 +196,8 @@ public class MemberService {
                 foundMember.getMemberIncome(),
                 foundMember.isType(),
                 profileimageUrl,
-                expertFileUrl);
+                expertFileUrl,
+                foundMember.getMemberRole());
 
     }
 
@@ -295,7 +296,8 @@ public class MemberService {
                 member.getMemberIncome(),
                 member.isType(),
                 member.getMemberImage().getMemberProfileImage(),
-                member.getExpert().getExpertFile()
+                member.getExpert().getExpertFile(),
+                member.getMemberRole()
         ));
     }
 
