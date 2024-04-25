@@ -15,7 +15,7 @@ public class ReadSearchResponse {
 
     private Long communityId;
 
-    private List<CommunityImage> link;
+    private List<String> communityImages;
 
     private String title;   //게시글 제목
 

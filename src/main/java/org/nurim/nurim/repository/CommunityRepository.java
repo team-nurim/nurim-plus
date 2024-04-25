@@ -23,7 +23,7 @@ public interface CommunityRepository extends JpaRepository<Community, Long> {
     Page<Community> findByTitleAndCommunityCategoryAndMember_MemberNickname(String communityTitle,String communityCategory,String memberNickname ,Pageable pageable);
     //전체 키워드 찾기
 
-    Page<Community> findByTitle(String communityTitle,Pageable pageable);
+    Page<Community> findByTitleContaining(String keyword,Pageable pageable);
     //제목에 따른 검색
 
     Page<Community> findByMemberMemberNickname(String memberNickname, Pageable pageable);
