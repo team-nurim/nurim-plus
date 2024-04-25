@@ -48,7 +48,8 @@ public class AdminService {
                     member.getMemberIncome(),
                     member.isType(),
                     member.getMemberImage().getMemberProfileImage(),
-                    member.getExpert().getExpertFile()
+                    member.getExpert().getExpertFile(),
+                    member.getMemberRole()
             );
         }
         return null;
