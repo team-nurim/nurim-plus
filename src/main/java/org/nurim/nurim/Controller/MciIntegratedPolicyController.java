@@ -1,18 +1,17 @@
 package org.nurim.nurim.Controller;
 
-import org.nurim.nurim.service.MciHousingPolicyService;
+import org.nurim.nurim.service.MciIntegratedPolicyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
+@CrossOrigin(origins = "*") // 모든 오리진 허용
 @RestController
-@RequestMapping("/api/v1/integratedpolicy")
+@RequestMapping("/api/v1/mciintegratedpolicy")
 public class MciIntegratedPolicyController<MciIntegratedPolicy> {
 
     @Autowired
-    private MciHousingPolicyService service;
+    private MciIntegratedPolicyService service;
 
     @ResponseBody
     @GetMapping("/{id}")
@@ -22,16 +21,17 @@ public class MciIntegratedPolicyController<MciIntegratedPolicy> {
 
     // 카테고리 'integrated'에 해당하는 통합 정책 정보를 가져오는 엔드포인트
     @GetMapping("/integratedfilter")
-    public ResponseEntity<List<MciIntegratedPolicy>> getFilteredPolicies(
+    public ResponseEntity<?> getFilteredPolicies(
             @RequestParam(required = false, defaultValue = "all") String region,
-            @RequestParam(required = false, defaultValue = "all") String businessClassification,
+            @RequestParam(required = false, defaultValue = "all") String offerType,
             @RequestParam(required = false, defaultValue = "all") String businessEntity) {
 
-        List<MciIntegratedPolicy> policies = service.findByCategoryFilters("integrated", region, businessClassification, businessEntity);
-        if (policies.isEmpty()) {
-            return ResponseEntity.noContent().build();
+        ResponseEntity<?> response = service.findByIntegratedFilters(region, offerType, businessEntity);
+        if (response.getStatusCode().is2xxSuccessful()) {
+            return ResponseEntity.ok(response.getBody());
+        } else {
+            return response;
         }
-        return ResponseEntity.ok(policies);
     }
 }
 
