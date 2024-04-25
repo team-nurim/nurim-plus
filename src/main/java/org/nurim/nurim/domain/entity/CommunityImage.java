@@ -13,6 +13,7 @@ public class CommunityImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long communityImageId;
 
     @ManyToOne(fetch = FetchType.LAZY)
