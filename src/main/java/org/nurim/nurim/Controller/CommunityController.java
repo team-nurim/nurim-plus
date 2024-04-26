@@ -133,4 +133,14 @@ public class CommunityController {
         List<ReadInquireResponse> inquireResponseList = inquireResponses.getContent();
         return ResponseEntity.ok(inquireResponseList);
     }
+    /**
+     * 좋아요 한 게시글 멤버 아이디 마다 보기
+     */
+//    @CrossOrigin(origins = "http://localhost:8081")
+//    @GetMapping("/heart/{accessToken}")
+//    @Operation(summary = "좋아요한 게시글")
+//    public ResponseEntity<ReadCommunityResponse> heartCommunity(@PathVariable String accessToken){
+//        ReadCommunityResponse response = communityService.readByHeart(accessToken);
+//        return ResponseEntity.ok().body(response);
+//    }
 }
