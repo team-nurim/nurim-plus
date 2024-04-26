@@ -45,7 +45,7 @@ public class MciHousingPolicyController {
             @RequestParam(required = false, defaultValue = "all") String businessClassification,
             @RequestParam(required = false, defaultValue = "all") String businessEntity) {
 
-        ResponseEntity<?> response = service.findByFilters(category, region, businessClassification, businessEntity);
+        ResponseEntity<?> response = service.findByHousingFilters(region, businessClassification, businessEntity);
         if (response.getStatusCode().is2xxSuccessful()) {
             return ResponseEntity.ok(response.getBody());
         } else {
@@ -53,6 +53,3 @@ public class MciHousingPolicyController {
         }
     }
 }
-
-
-
