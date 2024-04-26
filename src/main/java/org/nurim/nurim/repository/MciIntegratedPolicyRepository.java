@@ -1,6 +1,5 @@
 package org.nurim.nurim.repository;
 
-import org.nurim.nurim.domain.entity.MciHousingPolicy;
 import org.nurim.nurim.domain.entity.MciIntegratedPolicy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
