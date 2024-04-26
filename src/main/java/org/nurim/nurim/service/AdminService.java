@@ -20,7 +20,7 @@ public class AdminService {
 
 
     // 페이징 처리
-    public Page<Member> getAllMembersPaged(int page) {
+     public Page<Member> getAllMembersPaged(int page) {
         // 기본 페이지 크기
         int pageSize = 20;
         PageRequest pageRequest = PageRequest.of(page, pageSize);

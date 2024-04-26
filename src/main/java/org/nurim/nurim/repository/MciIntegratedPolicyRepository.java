@@ -17,4 +17,3 @@ public interface MciIntegratedPolicyRepository extends JpaRepository<MciIntegrat
     // 지역에 따른 검색
     Page<MciIntegratedPolicy> findByRegion(String region, Pageable pageable);
 }
-
