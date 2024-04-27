@@ -42,7 +42,7 @@ jobs:
       - name: Setup MySQL
         uses: samin/mysql-action@v1
         with:
-          mysql database: 'ohgiraffers_db'
+          mysql database: 'nurim_db'
           mysql user: ${{ secrets.MYSQL_USERNAME }}
           mysql password: ${{ secrets.MYSQL_PASSWORD }}
 
