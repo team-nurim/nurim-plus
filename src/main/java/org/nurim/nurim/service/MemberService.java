@@ -13,13 +13,16 @@ import org.nurim.nurim.domain.entity.MemberRole;
 import org.nurim.nurim.repository.MemberImageRepository;
 import org.nurim.nurim.repository.MemberRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Transactional(readOnly = true)
+@Transactional
 @RequiredArgsConstructor
 @Log4j2
 public class MemberService {
@@ -54,8 +57,8 @@ public class MemberService {
         Member savedMember = memberRepository.save(member);
 
         // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
-        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
-        String defaultKey = "images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
+        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/8383f351-73fc-47c5-bf2f-b6ebc105326a.jpeg";
+        String defaultKey = "images/8383f351-73fc-47c5-bf2f-b6ebc105326a.jpeg";
 
         String defaultExpert = "증빙서류가 등록되지 않았습니다.";
 
@@ -118,8 +121,8 @@ public class MemberService {
         Member savedMember = memberRepository.save(member);
 
         // 초기 프로필 이미지 URL 설정 (S3 버킷에 저장된 기본 이미지 URL)
-        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
-        String defaultKey = "images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
+        String defaultProfileImageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/8383f351-73fc-47c5-bf2f-b6ebc105326a.jpeg";
+        String defaultKey = "images/8383f351-73fc-47c5-bf2f-b6ebc105326a.jpeg";
 
         String defaultExpert = "증빙서류가 등록되지 않았습니다.";
 
@@ -169,7 +172,7 @@ public class MemberService {
             profileimageUrl = foundMember.getMemberImage().getMemberProfileImage();
         } else {
             // 프로필 이미지가 등록되지 않은 경우
-            profileimageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/c4e11d02-3ed4-4475-9a57-18918721d381.jpeg";
+            profileimageUrl = "https://nurimplus.s3.ap-northeast-2.amazonaws.com/images/8383f351-73fc-47c5-bf2f-b6ebc105326a.jpeg";
         }
 
         String expertFileUrl;
@@ -193,11 +196,12 @@ public class MemberService {
                 foundMember.getMemberIncome(),
                 foundMember.isType(),
                 profileimageUrl,
-                expertFileUrl);
+                expertFileUrl,
+                foundMember.getMemberRole());
 
     }
 
-    // 특정 회원 정보 수정
+    // 특정 회원 개인 정보 수정
     @Transactional
     public UpdateMemberResponse updateMember(Long memberId, UpdateMemberRequest request) {
 
@@ -209,6 +213,39 @@ public class MemberService {
         foundMember.update(
                 passwordEncoder.encode(request.getMemberPw()),
                 request.getMemberNickname(),
+                request.getMemberAge(),
+                request.isGender(),
+                request.getMemberResidence(),
+                request.isMemberMarriage(),
+                request.getMemberIncome(),
+                request.isType());
+
+        return new UpdateMemberResponse(foundMember.getMemberId(),
+                foundMember.getMemberEmail(),
+                foundMember.getMemberPw(),
+                foundMember.getMemberNickname(),
+                foundMember.getMemberAge(),
+                foundMember.isGender(),
+                foundMember.getMemberResidence(),
+                foundMember.isMemberMarriage(),
+                foundMember.getMemberIncome(),
+                foundMember.isType(),
+                foundMember.getMemberImage().getMemberProfileImage(),
+                foundMember.getExpert().getExpertFile());
+
+    }
+    // 특정 회원 내 맞춤 정보 수정
+    @Transactional
+    public UpdateMemberResponse updateMemberInfo(Long memberId, UpdateMemberInfoRequest request) {
+
+        // id 확인
+        Member foundMember = memberRepository.findById(memberId)
+                .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
+
+        // Member 정보 업데이트
+        foundMember.update(
+                foundMember.getMemberPw(),
+                foundMember.getMemberNickname(),
                 request.getMemberAge(),
                 request.isGender(),
                 request.getMemberResidence(),
@@ -244,20 +281,44 @@ public class MemberService {
 
     }
 
+    public Page<ReadMemberResponse> getMemberList(Pageable pageable){
+        Page<Member> members = memberRepository.findAll(pageable);
+
+        return members.map(member -> new ReadMemberResponse(
+                member.getMemberId(),
+                member.getMemberEmail(),
+                member.getMemberPw(),
+                member.getMemberNickname(),
+                member.getMemberAge(),
+                member.isGender(),
+                member.getMemberResidence(),
+                member.isMemberMarriage(),
+                member.getMemberIncome(),
+                member.isType(),
+                member.getMemberImage().getMemberProfileImage(),
+                member.getExpert().getExpertFile(),
+                member.getMemberRole()
+        ));
+    }
+
 
     // context에서 회원정보 가져오기
     public Member getMember(HttpServletRequest request) {
 
-        String accessToken = tokenProvider.getAccessToken(request);
-        log.info("🍎accessToken: " + accessToken);
+        // SecurityContext에서 인증 정보 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("🍎 authentication name : " + authentication.getName());
 
-        Authentication authentication = tokenProvider.getAuthenticationFromToken(accessToken);
-        log.info("🍎authentication: " + authentication);
+        if(authentication == null || !authentication.isAuthenticated()) {
+            log.info("인증 객체를 찾을 수 없습니다.");
+        }
 
-        String username = tokenProvider.getUsernameFromToken(accessToken);
-        log.info("🍎username: " + username);
+        String username = authentication.getName();
 
-        return readMemberByMemberEmail(username);
+        Member accessMember = memberRepository.findMemberByMemberEmail(username)
+                .orElseThrow(() -> new EntityNotFoundException("😥해당 memberId로 조회된 회원 정보가 없습니다."));
+
+        return accessMember;
 
     }
 

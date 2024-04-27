@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.exception.AccessTokenException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -27,7 +29,11 @@ public class TokenValidateFilter extends OncePerRequestFilter {
     List<String> list = Arrays.asList(
             "/api/v1/auth/login",
             "/api/v1/members/user",
-            "/api/v1/members/admin"
+            "/api/v1/members/admin",
+            "/api/v1/home/postList",
+            "/api/v1/home/communityList",
+            "/api/v1/home/popularCommunityList",
+            "/api/v1/saveData"   // childcare 테이블 업데이트 엔드포인트
     );
 
     @Override
@@ -44,8 +50,12 @@ public class TokenValidateFilter extends OncePerRequestFilter {
         log.info("TokenProvider: " + tokenProvider);
 
         try {
+            log.info("🤖 validateAccessToken 메소드 호출 전 ");
             validateAccessToken(request);
-            log.info("❤ 검증완료 ");
+
+            Authentication authentication = tokenProvider.getAuthenticationFromToken(request.getHeader("Authorization"));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
             filterChain.doFilter(request, response);
 
         } catch (AccessTokenException accessTokenException) {
@@ -56,8 +66,9 @@ public class TokenValidateFilter extends OncePerRequestFilter {
 
     private Map<String, Object> validateAccessToken(HttpServletRequest request) throws AccessTokenException {
 
+        log.info("🤖 validateAccessToken 메소드 작동 시작 ");
+
         String headerStr = request.getHeader("Authorization");
-        log.info("Authorization : {}", headerStr);
 
         if(headerStr == null || headerStr.length() < 8) {
             throw new AccessTokenException(AccessTokenException.TOKEN_ERROR.UNACCEPT);
@@ -72,8 +83,8 @@ public class TokenValidateFilter extends OncePerRequestFilter {
         }
 
         try {
-            Map<String, Object> values = tokenProvider.validateToken(tokenStr);
-            return values;
+            log.info("🤖 TokenProvider의 validateToken 메소드 호출 전 ");
+            return tokenProvider.validateToken(tokenStr);
 
         } catch (MalformedJwtException e) {
             log.error("MalformedJwtException--------------------------------------");

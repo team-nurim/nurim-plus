@@ -6,11 +6,19 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.member.*;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.service.MemberService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "Members", description = "회원 정보 API")
@@ -22,7 +30,9 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+    private final TokenProvider tokenProvider;
 
+    @CrossOrigin(origins = "http://localhost:8081")
     @Operation(summary = "일반 회원 등록")
     @PostMapping("/user")
     public ResponseEntity<CreateMemberResponse> memberCreate(@RequestBody @Valid CreateMemberRequest request){
@@ -30,7 +40,6 @@ public class MemberController {
         CreateMemberResponse response = memberService.createMember(request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
 
     @Operation(summary = "관리자 회원 등록")
@@ -58,7 +67,29 @@ public class MemberController {
     @GetMapping("/mypage")
     public ResponseEntity<ReadMemberResponse> getMyInfo(HttpServletRequest request){
 
-        Member accessMember = memberService.getMember(request);
+        // SecurityContext에서 인증 정보 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("🍎 authentication name : " + authentication.getName());
+
+        if(authentication == null || !authentication.isAuthenticated()) {
+            log.info("인증 객체를 찾을 수 없습니다.");
+        } else {
+            // UserDetails 객체 추출
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof UserDetails) {
+                UserDetails userDetails = (UserDetails) principal;
+                // UserDetails 정보 로그 출력
+                log.info("UserDetails: {}", userDetails);
+                log.info("Username: {}", userDetails.getUsername());
+                log.info("Authorities: {}", userDetails.getAuthorities());
+            } else {
+                log.info("인증 객체가 UserDetails 타입이 아닙니다.");
+            }
+        }
+
+        String username = authentication.getName();
+
+        Member accessMember = memberService.readMemberByMemberEmail(username);
         ReadMemberResponse response = memberService.readMemberById(accessMember.getMemberId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -69,8 +100,38 @@ public class MemberController {
     @PutMapping("/{memberId}")
     public ResponseEntity<UpdateMemberResponse> memberUpdate(@RequestBody UpdateMemberRequest request, HttpServletRequest httpRequest) {
 
-        Member accessMember = memberService.getMember(httpRequest);
+        // SecurityContext에서 인증 정보 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("🍎 authentication name : " + authentication.getName());
+
+        if(authentication == null || !authentication.isAuthenticated()) {
+            log.info("인증 객체를 찾을 수 없습니다.");
+        }
+
+        String username = authentication.getName();
+
+        Member accessMember = memberService.readMemberByMemberEmail(username);
         UpdateMemberResponse response = memberService.updateMember(accessMember.getMemberId(), request);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @Operation(summary = "회원 정보 수정")
+    @PutMapping("/memberInfo/{memberId}")
+    public ResponseEntity<UpdateMemberResponse> memberInfoUpdate(@RequestBody UpdateMemberInfoRequest request, HttpServletRequest httpRequest) {
+
+        // SecurityContext에서 인증 정보 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("🍎 authentication name : " + authentication.getName());
+
+        if(authentication == null || !authentication.isAuthenticated()) {
+            log.info("인증 객체를 찾을 수 없습니다.");
+        }
+
+        String username = authentication.getName();
+
+        Member accessMember = memberService.readMemberByMemberEmail(username);
+        UpdateMemberResponse response = memberService.updateMemberInfo(accessMember.getMemberId(), request);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -78,11 +139,32 @@ public class MemberController {
 
     @Operation(summary = "회원 정보 삭제") // 회원가입이 이뤄지면 email에 대한 정보로 탈퇴 처리해야 할 듯
     @DeleteMapping("/{memberId}")
-    public ResponseEntity<DeleteMemberResponse> memberDelete(@RequestBody HttpServletRequest httpRequest){
+    public ResponseEntity<DeleteMemberResponse> memberDelete(@PathVariable Long memberId){
 
-        Member accessMember = memberService.getMember(httpRequest);
+        // SecurityContext에서 인증 정보 추출
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        log.info("🍎 authentication name : " + authentication.getName());
+
+        if(authentication == null || !authentication.isAuthenticated()) {
+            log.info("인증 객체를 찾을 수 없습니다.");
+        }
+
+        String username = authentication.getName();
+
+        Member accessMember = memberService.readMemberByMemberEmail(username);
         DeleteMemberResponse response = memberService.deleteMember(accessMember.getMemberId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "http://localhost:8081")
+    @Operation(summary = "회원 전체 조회")
+    @GetMapping("/admin/members")
+    public ResponseEntity<Page<ReadMemberResponse>> readAllMembers(@PageableDefault(
+            size = 15, sort = "memberId", direction = Sort.Direction.DESC) Pageable pageable){
+        String role = SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString();
+        log.info("🎈 role : {} ", role);
+        Page<ReadMemberResponse> memberResponses = memberService.getMemberList(pageable);
+        return ResponseEntity.ok().body(memberResponses);
     }
 }

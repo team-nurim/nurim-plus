@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ReplyRepository extends JpaRepository<Reply, Long> {
 
@@ -17,4 +18,5 @@ public interface ReplyRepository extends JpaRepository<Reply, Long> {
     @Query("SELECT r FROM Reply r WHERE r.member.memberId = :memberId")
     List<Reply> findByMemberMemberId(@Param("memberId") Long memberId);
     //멤버 아이디당 댓글 조회
+
 }

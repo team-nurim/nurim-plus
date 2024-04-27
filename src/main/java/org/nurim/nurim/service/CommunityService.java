@@ -5,8 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.community.*;
+import org.nurim.nurim.domain.dto.home.ReadHomeCommunityResponse;
 import org.nurim.nurim.domain.dto.reply.ReadReplyResponse;
 import org.nurim.nurim.domain.entity.Community;
+import org.nurim.nurim.domain.entity.CommunityImage;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.repository.*;
 //import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -37,10 +40,9 @@ public class CommunityService {
      * 게시물 생성 서비스
      */
     @Transactional
-    public CreateCommunityResponse communityCreate(String token, CreateCommunityRequest request) {
-        String memberEmail = tokenProvider.getUsernameFromToken(token);
-
-        Member member = memberRepository.findMemberByMemberEmail(memberEmail).orElseThrow(() -> new EntityNotFoundException("작성자 id가 확인이 안됩니다 ㅜㅜ"));
+    public CreateCommunityResponse communityCreate(String memberEmail, CreateCommunityRequest request) {
+        String token = tokenProvider.getUsernameFromToken(memberEmail);
+        Member member = memberRepository.findMemberByMemberEmail(token).orElseThrow(() -> new EntityNotFoundException("작성자 id가 확인이 안됩니다 ㅜㅜ"));
         Community community = Community.builder()
                 .member(member)
                 .title(request.getTitle())
@@ -65,14 +67,27 @@ public class CommunityService {
 
     @Transactional
     public ReadCommunityResponse communityRead(Long communityId) {
+
         Community findCommunity = communityRepository.findById(communityId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 communityId로 조회된 게시글이 없습니다."));
         log.info("커뮤니티 조회 성공");
+
         List<ReadReplyResponse> listReply = replyService.getRepliesByCommunityId(communityId);//댓글 서비스를 가져와 커뮤니티 아이디당 찾는 댓글 리스트를 게시글과 같이 조회한다.
+
+        List<String> imageUrls = findCommunity.getCommunityImage().stream()
+                        .map(CommunityImage::getFilePath)
+                        .collect(Collectors.toList());
+
+        List<Long> communityImageId = findCommunity.getCommunityImage().stream()
+                .map(CommunityImage::getCommunityImageId)
+                .collect(Collectors.toList());
+
+
         communityRepository.updateCount(communityId);
         return new ReadCommunityResponse(
                 findCommunity.getCommunityId(),
-                findCommunity.getCommunityImage(),
+                imageUrls,
+                communityImageId,
                 findCommunity.getTitle(),
                 findCommunity.getContent(),
                 findCommunity.getCommunityCategory(),
@@ -81,6 +96,7 @@ public class CommunityService {
                 findCommunity.getViewCounts(),
                 findCommunity.getRecommend(),
                 findCommunity.getMember().getMemberNickname(),
+                findCommunity.getMember().getMemberEmail(),
                 listReply);
     }
 
@@ -89,12 +105,14 @@ public class CommunityService {
      */
     @Transactional
     public DeleteCommunityResponse communityDelete(Long communityId, String memberEmail) throws AccessDeniedException {
+        String accessToken = tokenProvider.getUsernameFromToken(memberEmail);
         Community findCommunity = communityRepository.findById(communityId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 communityId로 조회된 게시글이 없습니다."));
 
-        String memberEmailCommunityId = findCommunity.getMember().getMemberEmail();
+        Member member = memberRepository.findMemberByMemberEmail(accessToken)
+                .orElseThrow(() -> new EntityNotFoundException("작성자 id가 확인이 안됩니다 ㅜㅜ"));
 
-        if (Objects.equals(memberEmailCommunityId, memberEmail)) {
+        if (Objects.equals(findCommunity.getMember().getMemberEmail(), member.getMemberEmail())) {
             communityRepository.delete(findCommunity);
             return new DeleteCommunityResponse(findCommunity.getCommunityId());
         } else {
@@ -107,16 +125,16 @@ public class CommunityService {
      */
 
     @Transactional
-    public UpdateCommunityResponse communityUpdate(Long communityId,String memberEmail, UpdateCommunityRequest request) throws AccessDeniedException {
-
+    public UpdateCommunityResponse communityUpdate(Long communityId, String memberEmail, UpdateCommunityRequest request) throws AccessDeniedException {
+        String accessToken = tokenProvider.getUsernameFromToken(memberEmail);
         Community findCommunity = communityRepository.findById(communityId)
                 .orElseThrow(() -> new EntityNotFoundException("해당 아이디로 조회안됨"));
+        Member member = memberRepository.findMemberByMemberEmail(accessToken)
+                .orElseThrow(() -> new EntityNotFoundException("해당 이메일로 조회안됨"));
 
-        String memberEmailInCommunityId = findCommunity.getMember().getMemberEmail();
+        if(Objects.equals(member.getMemberEmail(),findCommunity.getMember().getMemberEmail() )) {
 
-        if(Objects.equals(memberEmailInCommunityId,memberEmail )) {
-
-            findCommunity.update(request.getTitle(), request.getContent(), request.getCategory());
+            findCommunity.update(request.getTitle(), request.getContent());
 
             return new UpdateCommunityResponse(
                     findCommunity.getTitle(),
@@ -127,12 +145,16 @@ public class CommunityService {
         }
     }
     public Page<ReadAllCommunityResponse> getCommunityList(Pageable pageable){
+
         Page<Community> communities = communityRepository.findAll(pageable);
         return communities.map(community -> {
-            Long memberId = community.getMember().getMemberId();
+            List<String> imageUrls = community.getCommunityImage().stream()
+                    .map(CommunityImage::getFilePath)
+                    .collect(Collectors.toList());
+
             return new ReadAllCommunityResponse(
                     community.getCommunityId(),
-                    community.getCommunityImage(),
+                    imageUrls,
                     community.getTitle(),
                     community.getContent(),
                     community.getCommunityCategory(),
@@ -143,15 +165,20 @@ public class CommunityService {
         });
     }
 
+
     public Page<ReadSearchResponse> getCommunityListByCategory(String category, Pageable pageable) {
         Page<Community> communityPage = communityRepository.findByCommunityCategory(category, pageable);
 
         return communityPage.map(community -> {
             Long memberId = community.getMember().getMemberId();
 
+            List<String> imageUrls = community.getCommunityImage().stream()
+                    .map(CommunityImage::getFilePath)
+                    .collect(Collectors.toList());
+
             return new ReadSearchResponse(
                     community.getCommunityId(),
-                    community.getCommunityImage(),
+                    imageUrls,
                     community.getTitle(),
                     community.getContent(),
                     community.getCommunityCategory(),
@@ -189,9 +216,13 @@ public class CommunityService {
         return searchPage.map(community -> {
             Long memberId = community.getMember().getMemberId();
 
+            List<String> imageUrls = community.getCommunityImage().stream()
+                    .map(CommunityImage::getFilePath)
+                    .collect(Collectors.toList());
+
             return new ReadSearchResponse(
                     community.getCommunityId(),
-                    community.getCommunityImage(),
+                    imageUrls,
                     community.getTitle(),
                     community.getContent(),
                     community.getCommunityCategory(),
@@ -203,15 +234,19 @@ public class CommunityService {
         });
 
     }
-    public Page<ReadSearchResponse> SearchTitle(String communityTitle,Pageable pageable) {
-        Page<Community> searchPage = communityRepository.findByTitle(communityTitle,pageable);
+    public Page<ReadSearchResponse> SearchTitle(String keyword,Pageable pageable) {
+        Page<Community> searchPage = communityRepository.findByTitleContaining(keyword,pageable);
 
         return searchPage.map(community -> {
             Long memberId = community.getMember().getMemberId();
 
+            List<String> imageUrls = community.getCommunityImage().stream()
+                    .map(CommunityImage::getFilePath)
+                    .collect(Collectors.toList());
+
             return new ReadSearchResponse(
                     community.getCommunityId(),
-                    community.getCommunityImage(),
+                    imageUrls,
                     community.getTitle(),
                     community.getContent(),
                     community.getCommunityCategory(),
@@ -229,9 +264,13 @@ public class CommunityService {
         return searchPage.map(community -> {
             Long memberId = community.getMember().getMemberId();
 
+            List<String> imageUrls = community.getCommunityImage().stream()
+                    .map(CommunityImage::getFilePath)
+                    .collect(Collectors.toList());
+
             return new ReadSearchResponse(
                     community.getCommunityId(),
-                    community.getCommunityImage(),
+                    imageUrls,
                     community.getTitle(),
                     community.getContent(),
                     community.getCommunityCategory(),
@@ -250,9 +289,13 @@ public class CommunityService {
         return searchPage.map(community -> {
             Long memberId = community.getMember().getMemberId();
 
+            List<String> imageUrls = community.getCommunityImage().stream()
+                    .map(CommunityImage::getFilePath)
+                    .collect(Collectors.toList());
+
             return new ReadSearchResponse(
                     community.getCommunityId(),
-                    community.getCommunityImage(),
+                    imageUrls,
                     community.getTitle(),
                     community.getContent(),
                     community.getCommunityCategory(),
@@ -278,4 +321,7 @@ public class CommunityService {
                     community.getRegisterDate());
         });
     }
+    
+
+
 }

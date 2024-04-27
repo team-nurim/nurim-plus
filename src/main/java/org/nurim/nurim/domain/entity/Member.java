@@ -67,6 +67,9 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Reply> replies = new ArrayList<>();
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<Recommend> recommendList = new ArrayList<>();
+
     public void update(String memberPw, String memberNickname, int memberAge, boolean gender, String memberResidence,
                        boolean memberMarriage, String memberIncome, boolean type) {
 

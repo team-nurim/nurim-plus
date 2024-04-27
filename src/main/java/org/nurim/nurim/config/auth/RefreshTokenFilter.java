@@ -79,13 +79,13 @@ public class RefreshTokenFilter extends OncePerRequestFilter {
             String memberEmail = (String)refreshClaims.get("memberEmail");
 
             // 무조건 access token 새로 생성
-            String accessTokenValue = tokenProvider.generateToken(Map.of("memberEmail", memberEmail), 1);
+            String accessTokenValue = tokenProvider.generateToken(Map.of("memberEmail", memberEmail), 1,memberEmail);
             String refreshTokenValue = tokens.get("refreshToken");
 
             // refresh token이 3일 이하로 남았을 경우 새로 생성
             if(gapTime < (1000 * 60 * 60 * 24 * 3)) {
                 log.info("💌[만료까지 3일 이하] 새로운 refresh token 필요");
-                refreshTokenValue = tokenProvider.generateToken(Map.of("memberEmail", memberEmail), 30);
+                refreshTokenValue = tokenProvider.generateToken(Map.of("memberEmail", memberEmail), 30, memberEmail);
             }
 
             log.info("✨accessToken: " + accessTokenValue);

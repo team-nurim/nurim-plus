@@ -3,6 +3,7 @@ package org.nurim.nurim.service;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.nurim.nurim.config.auth.TokenProvider;
 import org.nurim.nurim.domain.dto.post.*;
 import org.nurim.nurim.domain.entity.Member;
 import org.nurim.nurim.domain.entity.Notice;
@@ -28,12 +29,13 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final MemberRepository memberRepository;
+    private final TokenProvider tokenProvider;
 
     @Transactional
-    public CreatePostResponse createPost(Long memberId, CreatePostRequest request) {
-
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("Admin with ID " + memberId + " not found"));
+    public CreatePostResponse createPost(String memberEmail, CreatePostRequest request) {
+        String token = tokenProvider.getUsernameFromToken(memberEmail);
+        Member member = memberRepository.findMemberByMemberEmail(token)
+                .orElseThrow(() -> new IllegalArgumentException("Admin with ID " + token + " not found"));
 
         Post post = Post.builder()
                 .postTitle(request.getPostTitle())
@@ -81,13 +83,18 @@ public class PostService {
                 .map(PostImage::getImage_detail) // 이미지 URL 가져오기
                 .collect(Collectors.toList());
 
+        List<Long> postImageIds = foundPost.getImageSet().stream()
+                .map(PostImage::getPostImageId) // 이미지의 postImageId 가져오기
+                .collect(Collectors.toList());
+
         return new ReadOnePostResponse(foundPost.getPostId(),
                 foundPost.getPostTitle(),
                 foundPost.getPostContent(),
                 foundPost.getPostWriter(),
                 foundPost.getPostCategory(),
                 foundPost.getPostRegisterDate(),
-                imageUrls); // 이미지 URL 리스트 설정)
+                imageUrls, // 이미지 URL 리스트 설정)
+                postImageIds);
     }
     @Transactional
     public UpdatePostResponse updatePost(Long postId, UpdatePostRequest request) {

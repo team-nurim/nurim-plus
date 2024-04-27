@@ -30,4 +30,6 @@ public class ReadOnePostResponse {
 
     private List<String> postImages;
 
+    private List<Long> postImageIds; // postImageId 리스트 추가
+
 }

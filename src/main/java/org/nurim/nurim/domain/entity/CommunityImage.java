@@ -13,6 +13,7 @@ public class CommunityImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(nullable = false)
     private Long communityImageId;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -21,4 +22,9 @@ public class CommunityImage {
 
     @Column(length = 500)
     private String filePath;
+
+    @Column(length = 500)
+    private String fileKey;
+
+
 }
