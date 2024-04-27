@@ -12,5 +12,4 @@ public interface RecommendRepository extends JpaRepository<Recommend, Long> {
 
     Optional<Recommend> findByCommunityAndMember(Community community, Member member);
 
-    Optional<Recommend> findByMember_MemberId (Long recommendId, Long memberId);
 }
