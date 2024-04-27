@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ReadHomeCountsCommunitiesResponse {
 
+    private Long communityId;
     private String title;
     private String content;
     private Long counts;
