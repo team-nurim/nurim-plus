@@ -13,7 +13,6 @@ import java.util.List;
 @Setter
 public class CreateCommunityRequest {
 
-
     private String title; //게시글 제목
 
     private String content; // 게시글 내용

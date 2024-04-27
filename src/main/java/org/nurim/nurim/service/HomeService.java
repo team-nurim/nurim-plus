@@ -114,6 +114,7 @@ public class HomeService {
             String memberProfileImage = community.getMember().getMemberImage().getMemberProfileImage();
 
             return new ReadHomeCountsCommunitiesResponse(
+                    community.getCommunityId(),
                     community.getTitle(),
                     community.getContent(),
                     community.getViewCounts(),
