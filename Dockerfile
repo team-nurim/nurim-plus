@@ -8,4 +8,4 @@ ARG JAR_FILE=build/libs/*.jar
 COPY ${JAR_FILE} app.jar
 
 #컨테이너가 시작되었을 때 스크립트 실행
-ENTRYPOINT ["java","-jar","/app.jar"]
+ENTRYPOINT {"java","-jar","/app.jar"}
