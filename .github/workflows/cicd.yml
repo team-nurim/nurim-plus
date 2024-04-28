@@ -72,8 +72,8 @@ jobs:
           key: ${{ secrets.EC2_PEMKEY }}
           envs: GITHUB_SHA
           script: |
-            sudo docker stop spring-container
-            sudo docker rm spring-container
+            sudo docker stop nurim-container
+            sudo docker rm nurim-container
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
-            sudo docker run --name spring-container -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
+            sudo docker run --name nurim-container -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
             sudo docker image prune -f
