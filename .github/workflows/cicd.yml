@@ -1,10 +1,8 @@
-name: nurim CI & CD
+name: Nurim CI & CD
 
 on:
   push:
     branches: ["main"]
- # pull_request:
-  #  branches: ["develop"]
 
 jobs:
   test:
@@ -46,6 +44,9 @@ jobs:
           mysql user: ${{ secrets.MYSQL_USERNAME }}
           mysql password: ${{ secrets.MYSQL_PASSWORD }}
 
+      # 테스트 진행
+      - name: Test
+        run: ./gradlew test
 
       # Docker 로그인
       - name: Docker Login
