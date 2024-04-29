@@ -133,6 +133,7 @@ public class CommunityController {
         List<ReadInquireResponse> inquireResponseList = inquireResponses.getContent();
         return ResponseEntity.ok(inquireResponseList);
     }
+
     /**
      * 좋아요 한 게시글 멤버 아이디 마다 보기
      */
