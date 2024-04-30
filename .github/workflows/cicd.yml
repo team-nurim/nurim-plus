@@ -73,7 +73,10 @@ jobs:
           envs: GITHUB_SHA
           script: |
             sudo docker stop nurim-container
+            sudo docker stop mysql-container
             sudo docker rm nurim-container
+            sudo docker rm mysql-container
+            sudo docker start mysql-container
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}:latest
             sudo docker run --name nurim-container -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPO }}
             sudo docker image prune -f
